@@ -71,6 +71,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <button
               onClick={onClose}
               className="text-white/80 hover:text-white transition-colors"
+              aria-label="Close login modal"
             >
               <X className="h-6 w-6" />
             </button>

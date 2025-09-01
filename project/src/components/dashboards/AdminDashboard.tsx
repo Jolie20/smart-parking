@@ -18,18 +18,21 @@ import {
   mockVehicles,
   mockBookings,
 } from "../../data/mockData";
+import { User, ParkingLot, ParkingSession, Vehicle, Booking } from "../../types";
 
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [errors, setErrors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // System-wide statistics
+  // System-wide statistics with error handling
   const totalUsers = mockUsers.length;
   const totalVehicles = mockVehicles.length;
   const totalParkingLots = mockParkingLots.length;
@@ -48,18 +51,47 @@ const AdminDashboard: React.FC = () => {
     (sum, lot) => sum + lot.availableSpots,
     0
   );
-  const occupancyRate = ((totalSpots - availableSpots) / totalSpots) * 100;
+  const occupancyRate = totalSpots > 0 ? ((totalSpots - availableSpots) / totalSpots) * 100 : 0;
 
-  const formatDuration = (minutes: number) => {
+  const formatDuration = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
 
-  const getSessionDuration = (session: any) => {
-    const checkIn = new Date(session.checkInTime);
-    const diffMs = currentTime.getTime() - checkIn.getTime();
-    return Math.floor(diffMs / (1000 * 60));
+  const getSessionDuration = (session: ParkingSession): number => {
+    try {
+      const checkIn = new Date(session.checkInTime);
+      const diffMs = currentTime.getTime() - checkIn.getTime();
+      return Math.floor(diffMs / (1000 * 60));
+    } catch (error) {
+      console.error('Error calculating session duration:', error);
+      return 0;
+    }
+  };
+
+  const handleAction = async (action: string, data?: any) => {
+    setIsLoading(true);
+    setErrors([]);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log(`Admin action: ${action}`, data);
+      
+      // Add success handling here
+      
+    } catch (error) {
+      console.error(`Error performing ${action}:`, error);
+      setErrors([`Failed to ${action}. Please try again.`]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearErrors = () => {
+    setErrors([]);
   };
 
   const tabs = [
@@ -96,6 +128,7 @@ const AdminDashboard: React.FC = () => {
           <button
             onClick={logout}
             className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Logout"
           >
             Logout
           </button>
@@ -116,6 +149,7 @@ const AdminDashboard: React.FC = () => {
                     ? "border-purple-600 text-purple-600"
                     : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
+                aria-label={`Switch to ${tab.label} tab`}
               >
                 <Icon className="h-5 w-5" />
                 <span className="font-medium">{tab.label}</span>
@@ -240,7 +274,7 @@ const AdminDashboard: React.FC = () => {
                                   ? "bg-yellow-500"
                                   : "bg-green-500"
                               }`}
-                              style={{ width: `${lotOccupancy}%` }}
+                              style={{ width: `${Math.min(lotOccupancy, 100)}%` }}
                             ></div>
                           </div>
                           <span className="text-sm font-medium text-gray-600">
@@ -261,7 +295,7 @@ const AdminDashboard: React.FC = () => {
                 <div className="space-y-4">
                   {["user", "manager", "admin"].map((role) => {
                     const roleUsers = mockUsers.filter((u) => u.role === role);
-                    const percentage = (roleUsers.length / totalUsers) * 100;
+                    const percentage = totalUsers > 0 ? (roleUsers.length / totalUsers) * 100 : 0;
 
                     return (
                       <div
@@ -280,7 +314,7 @@ const AdminDashboard: React.FC = () => {
                           <div className="w-24 bg-gray-200 rounded-full h-2">
                             <div
                               className="h-2 rounded-full bg-purple-500"
-                              style={{ width: `${percentage}%` }}
+                              style={{ width: `${Math.min(percentage, 100)}%` }}
                             ></div>
                           </div>
                           <span className="text-sm font-medium text-gray-600">
@@ -302,8 +336,13 @@ const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 User Management
               </h2>
-              <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                Add New User
+              <button 
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                onClick={() => handleAction('add user')}
+                disabled={isLoading}
+                aria-label="Add new user"
+              >
+                {isLoading ? 'Adding...' : 'Add New User'}
               </button>
             </div>
 
@@ -377,7 +416,11 @@ const AdminDashboard: React.FC = () => {
                             {userSessions.length}
                           </td>
                           <td className="px-6 py-4">
-                            <button className="text-purple-600 hover:text-purple-900 text-sm font-medium">
+                            <button 
+                              className="text-purple-600 hover:text-purple-900 text-sm font-medium"
+                              onClick={() => handleAction('view user details', user.id)}
+                              aria-label={`View details for ${user.name}`}
+                            >
                               View Details
                             </button>
                           </td>
@@ -397,8 +440,13 @@ const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 Parking Lot Management
               </h2>
-              <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                Add New Lot
+              <button 
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                onClick={() => handleAction('add parking lot')}
+                disabled={isLoading}
+                aria-label="Add new parking lot"
+              >
+                {isLoading ? 'Adding...' : 'Add New Lot'}
               </button>
             </div>
 
@@ -427,7 +475,7 @@ const AdminDashboard: React.FC = () => {
                         </h3>
                         <p className="text-gray-500">{lot.address}</p>
                         <p className="text-sm text-gray-400 mt-1">
-                          Manager: {manager?.name}
+                          Manager: {manager?.name || 'Unassigned'}
                         </p>
                       </div>
                       <span
@@ -477,10 +525,18 @@ const AdminDashboard: React.FC = () => {
                     </div>
 
                     <div className="mt-6 flex justify-end space-x-3">
-                      <button className="px-4 py-2 text-purple-600 hover:text-purple-800 transition-colors">
+                      <button 
+                        className="px-4 py-2 text-purple-600 hover:text-purple-800 transition-colors"
+                        onClick={() => handleAction('edit parking lot', lot.id)}
+                        aria-label={`Edit ${lot.name}`}
+                      >
                         Edit
                       </button>
-                      <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                      <button 
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        onClick={() => handleAction('view parking lot details', lot.id)}
+                        aria-label={`View details for ${lot.name}`}
+                      >
                         View Details
                       </button>
                     </div>
@@ -517,7 +573,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="flex items-center space-x-3 mb-3">
                           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                           <h3 className="text-lg font-semibold text-gray-900">
-                            {customer?.name}
+                            {customer?.name || 'Unknown User'}
                           </h3>
                           <span className="text-sm text-gray-500">
                             #{session.id}
@@ -527,12 +583,12 @@ const AdminDashboard: React.FC = () => {
                         <div className="grid md:grid-cols-4 gap-4 text-sm">
                           <div className="flex items-center space-x-2">
                             <MapPin className="h-4 w-4 text-gray-400" />
-                            <span className="text-gray-600">{lot?.name}</span>
+                            <span className="text-gray-600">{lot?.name || 'Unknown Lot'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Car className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-600">
-                              {vehicle?.licensePlate}
+                              {vehicle?.licensePlate || 'Unknown Vehicle'}
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -557,7 +613,11 @@ const AdminDashboard: React.FC = () => {
                           ${estimatedCost.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">Est. Cost</p>
-                        <button className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition-colors">
+                        <button 
+                          className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition-colors"
+                          onClick={() => handleAction('force checkout', session.id)}
+                          aria-label={`Force checkout for session ${session.id}`}
+                        >
                           Force Checkout
                         </button>
                       </div>
@@ -639,8 +699,9 @@ const AdminDashboard: React.FC = () => {
                       const lotSessions = mockParkingSessions.filter(
                         (s) => s.lotId === lot.id
                       );
-                      const percentage =
-                        (lotSessions.length / mockParkingSessions.length) * 100;
+                      const percentage = mockParkingSessions.length > 0
+                        ? (lotSessions.length / mockParkingSessions.length) * 100
+                        : 0;
 
                       return (
                         <div
@@ -654,7 +715,7 @@ const AdminDashboard: React.FC = () => {
                             <div className="w-16 bg-gray-200 rounded-full h-2">
                               <div
                                 className="h-2 rounded-full bg-purple-500"
-                                style={{ width: `${percentage}%` }}
+                                style={{ width: `${Math.min(percentage, 100)}%` }}
                               ></div>
                             </div>
                             <span className="text-sm font-medium text-gray-600 w-12">
@@ -730,8 +791,9 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value="SmartPark Management System"
+                      defaultValue="SmartPark Management System"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      aria-label="System name"
                     />
                   </div>
                   <div>
@@ -740,9 +802,10 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <input
                       type="number"
-                      value="300"
+                      defaultValue="300"
                       step="0.25"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      aria-label="Default parking rate"
                     />
                   </div>
                   <div>
@@ -751,13 +814,18 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <input
                       type="number"
-                      value="15"
+                      defaultValue="15"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      aria-label="Grace period"
                     />
                   </div>
                 </div>
-                <button className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                  Save Changes
+                <button 
+                  className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  onClick={() => handleAction('save general settings')}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
 
@@ -777,10 +845,10 @@ const AdminDashboard: React.FC = () => {
                       </p>
                     </div>
                     <div className="relative">
-                      <input type="checkbox" className="sr-only" />
-                      <div className="w-10 h-6 bg-green-500 rounded-full shadow-inner cursor-pointer">
+                      <input type="checkbox" className="sr-only" id="2fa-toggle" aria-label="Enable two-factor authentication" />
+                      <label htmlFor="2fa-toggle" className="w-10 h-6 bg-green-500 rounded-full shadow-inner cursor-pointer block">
                         <div className="w-4 h-4 bg-white rounded-full shadow transform translate-x-5 transition-transform"></div>
-                      </div>
+                      </label>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -792,7 +860,7 @@ const AdminDashboard: React.FC = () => {
                         Auto logout after inactivity
                       </p>
                     </div>
-                    <select className="px-3 py-1 border border-gray-300 rounded text-sm">
+                    <select className="px-3 py-1 border border-gray-300 rounded text-sm" aria-label="Session timeout">
                       <option>30 minutes</option>
                       <option>1 hour</option>
                       <option>2 hours</option>
@@ -809,13 +877,18 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <input
                       type="number"
-                      value="100"
+                      defaultValue="100"
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                      aria-label="API rate limit"
                     />
                   </div>
                 </div>
-                <button className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                  Update Security
+                <button 
+                  className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  onClick={() => handleAction('update security settings')}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Updating...' : 'Update Security'}
                 </button>
               </div>
             </div>
@@ -826,19 +899,31 @@ const AdminDashboard: React.FC = () => {
                 System Maintenance
               </h3>
               <div className="grid md:grid-cols-3 gap-4">
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors text-center">
+                <button 
+                  className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors text-center"
+                  onClick={() => handleAction('generate report')}
+                  aria-label="Generate system report"
+                >
                   <BarChart3 className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                   <p className="font-medium text-gray-700">Generate Report</p>
                   <p className="text-sm text-gray-500">
                     Export system analytics
                   </p>
                 </button>
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors text-center">
+                <button 
+                  className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors text-center"
+                  onClick={() => handleAction('backup data')}
+                  aria-label="Backup system data"
+                >
                   <Shield className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                   <p className="font-medium text-gray-700">Backup Data</p>
                   <p className="text-sm text-gray-500">Create system backup</p>
                 </button>
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors text-center">
+                <button 
+                  className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors text-center"
+                  onClick={() => handleAction('check system health')}
+                  aria-label="Check system health"
+                >
                   <Settings className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                   <p className="font-medium text-gray-700">System Health</p>
                   <p className="text-sm text-gray-500">Check system status</p>
@@ -848,6 +933,40 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Error Display */}
+      {errors.length > 0 && (
+        <div className="fixed top-4 right-4 z-50 max-w-md">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">System Errors</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {errors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    className="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+                    onClick={clearErrors}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

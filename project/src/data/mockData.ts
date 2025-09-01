@@ -38,7 +38,7 @@ export const mockVehicles: Vehicle[] = [
     rfidCard: 'RFID001'
   },
   {
-    id: '1',
+    id: '2',
     userId: '2',
     licensePlate: 'XYZ789',
     make: 'Honda',

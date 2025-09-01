@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 interface BookingFormProps {
   onClose: () => void;
-  onBook: (booking: Booking) => void;
+  onBook: (booking: BookingFormData) => void;
 }
 
-interface FormData {
+interface BookingFormData {
   vehicleNumber: string;
   vehicleType: string;
   startTime: string;
@@ -13,15 +13,8 @@ interface FormData {
   spotType: string;
 }
 
-interface Booking extends FormData {
-  id: string;
-  status: string;
-  createdAt: string;
-  spotNumber: number;
-}
-
 const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<BookingFormData>({
     vehicleNumber: '',
     vehicleType: 'car',
     startTime: '',
@@ -29,17 +22,45 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
     spotType: 'regular'
   });
 
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const booking: Booking = {
-      id: Date.now().toString(),
-      ...formData,
-      status: 'booked',
-      createdAt: new Date().toISOString(),
-      spotNumber: Math.floor(Math.random() * 100) + 1
-    };
-    onBook(booking);
-    onClose();
+    
+    // Clear previous errors
+    setFormErrors([]);
+    
+    // Validate form data
+    const errors: string[] = [];
+    
+    if (!formData.vehicleNumber.trim()) {
+      errors.push('Vehicle number is required');
+    }
+    
+    if (!formData.startTime) {
+      errors.push('Start time is required');
+    }
+    
+    if (!formData.endTime) {
+      errors.push('End time is required');
+    }
+    
+    if (formData.startTime && formData.endTime) {
+      const startTime = new Date(`2024-01-01T${formData.startTime}:00`);
+      const endTime = new Date(`2024-01-01T${formData.endTime}:00`);
+      
+      if (endTime <= startTime) {
+        errors.push('End time must be after start time');
+      }
+    }
+    
+    if (errors.length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    // Submit the booking
+    onBook(formData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -47,6 +68,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Clear errors when user starts typing
+    if (formErrors.length > 0) {
+      setFormErrors([]);
+    }
   };
 
   // Generate time slots
@@ -65,12 +91,14 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900">Book Parking Spot</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
+            title="Close booking form"
+            aria-label="Close booking form"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -78,10 +106,33 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
           </button>
         </div>
 
+        {/* Form Errors */}
+        {formErrors.length > 0 && (
+          <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-3">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {formErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Vehicle Number
+              Vehicle Number *
             </label>
             <input
               type="text"
@@ -103,6 +154,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={formData.vehicleType}
               onChange={handleChange}
+              aria-label="Select vehicle type"
             >
               <option value="car">Car</option>
               <option value="motorcycle">Motorcycle</option>
@@ -120,6 +172,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               value={formData.spotType}
               onChange={handleChange}
+              aria-label="Select spot type"
             >
               <option value="regular">Regular ($2/hour)</option>
               <option value="premium">Premium ($3/hour)</option>
@@ -131,7 +184,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Time
+                Start Time *
               </label>
               <select
                 name="startTime"
@@ -139,6 +192,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={formData.startTime}
                 onChange={handleChange}
+                aria-label="Select start time"
               >
                 <option value="">Select time</option>
                 {timeSlots.map(time => (
@@ -149,7 +203,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Time
+                End Time *
               </label>
               <select
                 name="endTime"
@@ -157,6 +211,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 value={formData.endTime}
                 onChange={handleChange}
+                aria-label="Select end time"
               >
                 <option value="">Select time</option>
                 {timeSlots.map(time => (

@@ -57,7 +57,7 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <AppContent />  
     </AuthProvider>
   );
 }
