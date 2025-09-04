@@ -142,7 +142,7 @@ const ManagerDashboard: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Total Revenue</p>
-                    <p className="text-3xl font-bold text-gray-900">${totalRevenue.toFixed(2)}</p>
+                    <p className="text-3xl font-bold text-gray-900">{totalRevenue.toFixed(2)}</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-orange-600" />
                 </div>
@@ -361,7 +361,7 @@ const ManagerDashboard: React.FC = () => {
                         </div>
                         <div className="text-right">
                           <p className="font-medium text-gray-900">
-                            {session.amount ? `$${session.amount.toFixed(2)}` : 'Active'}
+                            {session.amount ? `${session.amount.toFixed(2)}` : 'Active'}
                           </p>
                           <p className="text-sm text-gray-500">
                             {new Date(session.checkInTime).toLocaleDateString()}

@@ -1,5 +1,5 @@
- import React, { useState } from "react";
-import { X, Car, Mail, Lock, User, Phone, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { X, Car, Mail, Lock, User, Phone, Loader2, ChevronDown } from "lucide-react";
 import { useAuth } from "../hooks/useAuth.tsx";
 
 interface LoginPageProps {
@@ -18,6 +18,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("user");
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [error, setError] = useState("");
 
   const { login, signup, isLoading } = useAuth();
@@ -44,15 +46,22 @@ const LoginPage: React.FC<LoginPageProps> = ({
         setPassword("");
         setName("");
         setPhone("");
+        setRole("user");
       } else {
         setError(
-          "Invalid credentials. Try: user@example.com, manager@example.com, or admin@example.com"
+          "Invalid credentials."
         );
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
     }
   };
+
+  const roles = [
+    { value: "user", label: "User" },
+    { value: "manager", label: "Manager" },
+    { value: "admin", label: "Administrator" },
+  ];
 
   if (!isOpen) return null;
 
@@ -120,6 +129,40 @@ const LoginPage: React.FC<LoginPageProps> = ({
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Role
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between pl-3 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-left"
+                    onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+                  >
+                    <span>{roles.find(r => r.value === role)?.label}</span>
+                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                  </button>
+                  
+                  {showRoleDropdown && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                      {roles.map((roleOption) => (
+                        <button
+                          key={roleOption.value}
+                          type="button"
+                          className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors"
+                          onClick={() => {
+                            setRole(roleOption.value);
+                            setShowRoleDropdown(false);
+                          }}
+                        >
+                          {roleOption.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           )}
 
@@ -175,7 +218,10 @@ const LoginPage: React.FC<LoginPageProps> = ({
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              onClick={() => {
+                setMode(mode === "login" ? "signup" : "login");
+                setRole("user");
+              }}
               className="text-blue-600 hover:text-blue-700 transition-colors text-sm font-medium"
             >
               {mode === "login"
@@ -190,6 +236,3 @@ const LoginPage: React.FC<LoginPageProps> = ({
 };
 
 export default LoginPage;
-
-
-

@@ -6,6 +6,7 @@ interface BookingFormProps {
 }
 
 interface BookingFormData {
+  cardid: string;
   vehicleNumber: string;
   vehicleType: string;
   startTime: string;
@@ -15,6 +16,7 @@ interface BookingFormData {
 
 const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
   const [formData, setFormData] = useState<BookingFormData>({
+    cardid:'',
     vehicleNumber: '',
     vehicleType: 'car',
     startTime: '',
@@ -33,6 +35,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
     // Validate form data
     const errors: string[] = [];
     
+    if (!formData.cardid.trim()) {
+      errors.push('card id is required');
+    }
+
     if (!formData.vehicleNumber.trim()) {
       errors.push('Vehicle number is required');
     }
@@ -130,6 +136,21 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Card id *
+            </label>
+            <input
+              type="text"
+              name="cardid"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="e.g., A1234"
+              value={formData.cardid}
+              onChange={handleChange}
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Vehicle Number *

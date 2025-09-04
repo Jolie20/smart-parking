@@ -230,7 +230,7 @@ const AdminDashboard: React.FC = () => {
                   <div>
                     <p className="text-gray-500 text-sm">Total Revenue</p>
                     <p className="text-3xl font-bold text-gray-900">
-                      ${totalRevenue.toFixed(2)}
+                      FRW {totalRevenue.toFixed(2)}
                     </p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-red-600" />
