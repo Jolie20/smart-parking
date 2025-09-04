@@ -1,22 +1,20 @@
-const { SerialPort,ReadlineParser } = require('serialport');
+const { SerialPort, ReadlineParser } = require('serialport');
 
-const port = new SerialPort({ path: "COM9", baudRate: 9600 });
-
+const port = new SerialPort({ path: process.env.ARDUINO_PORT || "COM9", baudRate: 9600 });
 const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 
-// Listen for Arduino messages
+let latestLine = null;
+const listeners = new Set();
 parser.on("data", (data) => {
-  console.log("Arduino says:", data);
+  latestLine = data.toString();
+  console.log("Arduino says:", latestLine);
+  for (const cb of listeners) {
+    try { cb(latestLine); } catch (_) {}
+  }
 });
 
-// Function to send data to Arduino
-exports.getArduinoData = function (callback) {
-  parser.on("data", function (data) {
-    console.log("Arduino says:", data.toString());
-    if (callback) {
-      callback(data.toString()); // send data back to caller
-    }
-  });
+exports.getLatestArduinoData = function () {
+  return latestLine;
 };
 
 exports.sendToArduino = function (msg) {
@@ -27,4 +25,17 @@ exports.sendToArduino = function (msg) {
       console.log("Message sent to Arduino:", msg);
     }
   });
+};
+
+exports.openGate = function () {
+  exports.sendToArduino("OPEN_GATE");
+};
+
+exports.closeGate = function () {
+  exports.sendToArduino("CLOSE_GATE");
+};
+
+exports.onData = function (callback) {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
 };
