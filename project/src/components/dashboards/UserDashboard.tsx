@@ -28,10 +28,34 @@ const UserDashboard: React.FC = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookings, setBookings] = useState(mockBookings);
   const [errors, setErrors] = useState<string[]>([]);
+  const [deviceMessage, setDeviceMessage] = useState<string | null>(null);
+  const [deviceBalance, setDeviceBalance] = useState<number | null>(null);
+  const [deviceCost, setDeviceCost] = useState<number | null>(null);
+  const [deviceTime, setDeviceTime] = useState<number | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch available slots on component mount and every 30 seconds
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:4000/api/lots/available"
+        );
+        const data = await response.json();
+        setAvailableSlots(data);
+      } catch (error) {
+        console.error("Error fetching available slots:", error);
+      }
+    };
+
+    fetchAvailableSlots();
+    const interval = setInterval(fetchAvailableSlots, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const userVehicles = mockVehicles.filter((v) => v.userId === user?.id);
@@ -162,6 +186,62 @@ const UserDashboard: React.FC = () => {
     { id: "profile", label: "Profile", icon: User },
   ];
 
+  useEffect(() => {
+    let interval: any;
+    if (activeTab === "bookings") {
+      const fetchStatus = async () => {
+        try {
+          const [mRes, bRes, cRes, tRes] = await Promise.all([
+            fetch("http://localhost:4000/api/arduino/message"),
+            fetch("http://localhost:4000/api/arduino/balance"),
+            fetch("http://localhost:4000/api/arduino/cost"),
+            fetch("http://localhost:4000/api/arduino/time"),
+          ]);
+          const mJson = await mRes.json();
+          const bJson = await bRes.json();
+          const cJson = await cRes.json();
+          const tJson = await tRes.json();
+
+          // Only show payment success messages to users
+          const isPaymentSuccess =
+            mJson?.message && /Payment\s*successful/i.test(mJson.message);
+          setDeviceMessage(isPaymentSuccess ? mJson.message : null);
+          setDeviceBalance(
+            typeof bJson?.balance === "number" ? bJson.balance : null
+          );
+          setDeviceCost(typeof cJson?.cost === "number" ? cJson.cost : null);
+          setDeviceTime(typeof tJson?.time === "number" ? tJson.time : null);
+
+          // If payment succeeded and we have a cost, attach it to the latest booking
+          const paid = typeof cJson?.cost === "number" && isPaymentSuccess;
+          if (paid && user?.id) {
+            setBookings((prev) => {
+              const copy = [...prev];
+              const lastIdx = copy
+                .map((b, idx) => ({ b, idx }))
+                .filter(({ b }) => b.userId === user.id)
+                .map(({ idx }) => idx)
+                .pop();
+              if (lastIdx !== undefined) {
+                copy[lastIdx] = {
+                  ...copy[lastIdx],
+                  totalAmount: cJson.cost,
+                  status: "completed",
+                } as Booking;
+              }
+              return copy;
+            });
+          }
+        } catch (e) {
+          // ignore network errors
+        }
+      };
+      fetchStatus();
+      interval = setInterval(fetchStatus, 3000);
+    }
+    return () => interval && clearInterval(interval);
+  }, [activeTab, user?.id]);
+
   const getmessage = async () => {
     try {
       const res = await fetch("http://localhost:4000/api/arduino", {
@@ -228,6 +308,71 @@ const UserDashboard: React.FC = () => {
       <main className="px-6 py-8">
         {activeTab === "overview" && (
           <div className="space-y-8">
+            {/* Available Parking Slots */}
+            {availableSlots.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                  Available Parking Slots
+                </h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {availableSlots.map((lot) => (
+                    <div
+                      key={lot.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">
+                            {lot.name}
+                          </h4>
+                          <p className="text-sm text-gray-500">{lot.address}</p>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            lot.availableSpots > 5
+                              ? "bg-green-100 text-green-800"
+                              : lot.availableSpots > 0
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {lot.availableSpots} available
+                        </span>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Rate:</span>
+                          <span className="font-medium">
+                            FRW {lot.hourlyRate}/hr
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Occupancy:</span>
+                          <span className="font-medium">
+                            {lot.occupancyRate}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              lot.occupancyRate > 80
+                                ? "bg-red-500"
+                                : lot.occupancyRate > 60
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                            }`}
+                            style={{
+                              width: `${Math.min(lot.occupancyRate, 100)}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quick Stats */}
             <div className="grid md:grid-cols-4 gap-6">
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
@@ -318,7 +463,7 @@ const UserDashboard: React.FC = () => {
                       <div className="text-right">
                         <p className="font-medium text-gray-900">
                           {session.amount
-                            ? `$${session.amount.toFixed(2)}`
+                            ? `FRW ${session.amount.toFixed(2)}`
                             : "Active"}
                         </p>
                         <p className="text-sm text-gray-500">
@@ -347,6 +492,129 @@ const UserDashboard: React.FC = () => {
                 <span>New Booking</span>
               </button>
             </div>
+
+            {(deviceMessage ||
+              deviceBalance !== null ||
+              deviceCost !== null ||
+              deviceTime !== null) && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-lg">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-5 h-5 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Device Status
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Real-time parking information
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {deviceMessage && (
+                    <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">
+                          Message
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-800 font-medium leading-relaxed">
+                        {deviceMessage}
+                      </p>
+                    </div>
+                  )}
+
+                  {deviceBalance !== null && (
+                    <div className="bg-white rounded-lg p-4 border border-green-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-green-700 uppercase tracking-wide">
+                          Balance
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        FRW {deviceBalance}
+                      </p>
+                      <p className="text-xs text-gray-500">Remaining</p>
+                    </div>
+                  )}
+
+                  {deviceCost !== null && (
+                    <div className="bg-white rounded-lg p-4 border border-purple-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-purple-700 uppercase tracking-wide">
+                          Cost
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        FRW {deviceCost}
+                      </p>
+                      <p className="text-xs text-gray-500">Last Payment</p>
+                    </div>
+                  )}
+
+                  {deviceTime !== null && (
+                    <div className="bg-white rounded-lg p-4 border border-orange-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-orange-700 uppercase tracking-wide">
+                          Duration
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        {formatDuration(deviceTime)}
+                      </p>
+                      <p className="text-xs text-gray-500">Parking Time</p>
+                    </div>
+                  )}
+                </div>
+
+                {!deviceMessage &&
+                  !deviceBalance &&
+                  !deviceCost &&
+                  !deviceTime && (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg
+                          className="w-8 h-8 text-blue-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">
+                        Awaiting device message...
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Tap your card to see real-time updates
+                      </p>
+                    </div>
+                  )}
+              </div>
+            )}
 
             <div className="grid gap-6">
               {userBookings.map((booking) => {
@@ -409,7 +677,7 @@ const UserDashboard: React.FC = () => {
                       {booking.totalAmount && (
                         <div className="text-right">
                           <p className="text-2xl font-bold text-gray-900">
-                            ${booking.totalAmount.toFixed(2)}
+                            FRW {booking.totalAmount.toFixed(2)}
                           </p>
                           <p className="text-sm text-gray-500">Total Cost</p>
                         </div>
@@ -484,7 +752,7 @@ const UserDashboard: React.FC = () => {
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text sm font-medium text-gray-700 mb-2">
                       Full Name
                     </label>
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -494,7 +762,7 @@ const UserDashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text sm font-medium text-gray-700 mb-2">
                       Email Address
                     </label>
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -505,7 +773,7 @@ const UserDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text sm font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -517,7 +785,7 @@ const UserDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text sm font-medium text-gray-700 mb-2">
                     Member Since
                   </label>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">

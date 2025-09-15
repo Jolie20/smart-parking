@@ -236,7 +236,7 @@ const ManagerDashboard: React.FC = () => {
                         <div className="flex justify-between text-sm">
                           <span>Hourly Rate</span>
                           <span className="font-medium">
-                            ${lot.hourlyRate.toFixed(2)}
+                            FRW {lot.hourlyRate.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -259,7 +259,28 @@ const ManagerDashboard: React.FC = () => {
                     {latest || "No data yet"}
                   </p>
                 </div>
-                
+                <div className="flex items-center gap-3">
+                  <button
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    onClick={async () => {
+                      await fetch("http://localhost:4000/api/gate/open", {
+                        method: "POST",
+                      });
+                    }}
+                  >
+                    Open Gate
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    onClick={async () => {
+                      await fetch("http://localhost:4000/api/gate/close", {
+                        method: "POST",
+                      });
+                    }}
+                  >
+                    Close Gate
+                  </button>
+                </div>
               </div>
               <div className="text-sm text-gray-500">
                 Use these controls to manually open or close the gate. Live
@@ -332,7 +353,7 @@ const ManagerDashboard: React.FC = () => {
 
                       <div className="text-right">
                         <p className="text-2xl font-bold text-gray-900">
-                          ${estimatedCost.toFixed(2)}
+                          FRW {estimatedCost.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">Est. Cost</p>
                       </div>
@@ -412,13 +433,13 @@ const ManagerDashboard: React.FC = () => {
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-blue-600">
-                          ${lot.hourlyRate.toFixed(2)}
+                          FRW {lot.hourlyRate.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">Hourly Rate</p>
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-purple-600">
-                          ${lotRevenue.toFixed(2)}
+                          FRW {lotRevenue.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">Total Revenue</p>
                       </div>
@@ -444,7 +465,7 @@ const ManagerDashboard: React.FC = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <p className="text-3xl font-bold text-blue-600">
-                    ${totalRevenue.toFixed(2)}
+                    FRW {totalRevenue.toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-600">Total Revenue</p>
                 </div>
@@ -503,7 +524,7 @@ const ManagerDashboard: React.FC = () => {
                         <div className="text-right">
                           <p className="font-medium text-gray-900">
                             {session.amount
-                              ? `${session.amount.toFixed(2)}`
+                              ? `FRW ${session.amount.toFixed(2)}`
                               : "Active"}
                           </p>
                           <p className="text-sm text-gray-500">

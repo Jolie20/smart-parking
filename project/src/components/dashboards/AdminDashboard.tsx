@@ -564,7 +564,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-blue-600">
-                          ${lot.hourlyRate.toFixed(2)}
+                          FRW {lot.hourlyRate.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">Hourly Rate</p>
                       </div>
@@ -576,7 +576,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       <div className="text-center">
                         <p className="text-2xl font-bold text-orange-600">
-                          ${lotRevenue.toFixed(2)}
+                          FRW {lotRevenue.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">Revenue</p>
                       </div>
@@ -672,7 +672,7 @@ const AdminDashboard: React.FC = () => {
 
                       <div className="text-right">
                         <p className="text-2xl font-bold text-gray-900">
-                          ${estimatedCost.toFixed(2)}
+                          FRW {estimatedCost.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-500">Est. Cost</p>
                         <button
@@ -719,7 +719,7 @@ const AdminDashboard: React.FC = () => {
               <div className="grid md:grid-cols-4 gap-6">
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <p className="text-3xl font-bold text-green-600">
-                    ${totalRevenue.toFixed(2)}
+                    FRW {totalRevenue.toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-600">Total Revenue</p>
                 </div>
@@ -739,7 +739,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="text-center p-4 bg-orange-50 rounded-lg">
                   <p className="text-3xl font-bold text-orange-600">
-                    ${(totalRevenue * 0.1).toFixed(2)}
+                    FRW {(totalRevenue * 0.1).toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-600">
                     Platform Revenue (10%)
@@ -866,7 +866,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Default Parking Rate ($/hour)
+                      Default Parking Rate (FRW/hour)
                     </label>
                     <input
                       type="number"

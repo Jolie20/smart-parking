@@ -1,58 +1,57 @@
-const { prisma } = require('../db');
-const bcrypt = require('bcryptjs');
+const prisma = require('../generated/prisma');
 
+// Create User
 exports.createUser = async (req, res) => {
-	try {
-		const { email, name, phone, password } = req.body;
-		if (!password) return res.status(400).json({ error: 'Password is required' });
-		const passwordHash = await bcrypt.hash(password, 10);
-		const user = await prisma.user.create({ data: { email, name, role:'user', phone, password: passwordHash } });
-		res.status(201).json(user);
-	} catch (error) {
-		res.status(400).json({ error: error.message });
-	}
+  try {
+    const { email, name, role, phone, password, rfidno } = req.body;
+    const user = await prisma.user.create({
+      data: { email, name, role, phone, password, rfidno }
+    });
+    res.status(201).json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
+// Get All Users
 exports.getUsers = async (req, res) => {
-	try {
-		const users = await prisma.user.findMany();
-		res.json(users);
-	} catch (error) {
-		res.status(500).json({ error: error.message });
-	}
+  try {
+    const users = await prisma.user.findMany({ include: { vehicles: true, lots: true, bookings: true, sessions: true } });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
+// Get User by ID
 exports.getUserById = async (req, res) => {
-	try {
-		const user = await prisma.user.findUnique({ where: { id: req.params.id } });
-		if (!user) return res.status(404).json({ error: 'User not found' });
-		res.json(user);
-	} catch (error) {
-		res.status(500).json({ error: error.message });
-	}
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.findUnique({ where: { id }, include: { vehicles: true } });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
+// Update User
 exports.updateUser = async (req, res) => {
-	try {
-		const { email, name, role, phone, password } = req.body;
-		if (role === 'admin') return res.status(403).json({ error: 'Not allowed to set role admin' });
-		const data = { email, name, phone };
-		if (role) data.role = role;
-		if (password) data.password = await bcrypt.hash(password, 10);
-		const user = await prisma.user.update({ where: { id: req.params.id }, data });
-		res.json(user);
-	} catch (error) {
-		res.status(400).json({ error: error.message });
-	}
+  try {
+    const { id } = req.params;
+    const updated = await prisma.user.update({ where: { id }, data: req.body });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
+// Delete User
 exports.deleteUser = async (req, res) => {
-	try {
-		await prisma.user.delete({ where: { id: req.params.id } });
-		res.status(204).end();
-	} catch (error) {
-		res.status(400).json({ error: error.message });
-	}
+  try {
+    const { id } = req.params;
+    await prisma.user.delete({ where: { id } });
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
-
-

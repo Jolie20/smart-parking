@@ -1,4 +1,4 @@
-const { prisma } = require('../db');
+const { prisma } = require('../generated/prisma');
 
 exports.getManagedLots = async (req, res) => {
   try {

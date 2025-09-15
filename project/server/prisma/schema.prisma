@@ -22,6 +22,7 @@ model User {
   role      Role  
   phone     String? 
   password  String
+  rfidno    String
   createdAt DateTime @default(now())
 
   vehicles  Vehicle[]
@@ -108,6 +109,15 @@ model ParkingSession {
   spot       ParkingSpot @relation(fields: [spotId], references: [id])
 }
 
+model Payment {
+  paymentId String @id @default(uuid())
+  sessionId String
+  amount    String
+  method    String
+  status    status
+  timestamp String
+}
+
 model CardData{
   CardId String @id
   Balance String
@@ -130,4 +140,9 @@ enum BookingStatus {
 enum SessionStatus {
   active
   completed
+}
+enum status{
+  completed
+  pending
+  cancelled
 }

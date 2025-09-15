@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { prisma } = require('../db');
+const { prisma } = require('../generated/prisma');
 const { JWT_SECRET } = require('../middleware/auth');
 
 exports.login = async (req, res) => {

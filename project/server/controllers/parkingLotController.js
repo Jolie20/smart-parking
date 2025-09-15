@@ -1,51 +1,50 @@
-const { prisma } = require('../db');
+const prisma = require('../generated/prisma');
 
-exports.createParkingLot = async (req, res) => {
+exports.createLot = async (req, res) => {
   try {
     const { name, address, totalSpots, availableSpots, hourlyRate, managerId } = req.body;
     const lot = await prisma.parkingLot.create({ data: { name, address, totalSpots, availableSpots, hourlyRate, managerId } });
     res.status(201).json(lot);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-exports.getParkingLots = async (req, res) => {
+exports.getLots = async (req, res) => {
   try {
-    const lots = await prisma.parkingLot.findMany({ include: { spots: true } });
+    const lots = await prisma.parkingLot.findMany({ include: { manager: true, spots: true, bookings: true } });
     res.json(lots);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-exports.getParkingLotById = async (req, res) => {
+exports.getLotById = async (req, res) => {
   try {
-    const lot = await prisma.parkingLot.findUnique({ where: { id: req.params.id }, include: { spots: true } });
-    if (!lot) return res.status(404).json({ error: 'Parking lot not found' });
+    const { id } = req.params;
+    const lot = await prisma.parkingLot.findUnique({ where: { id }, include: { spots: true } });
     res.json(lot);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-exports.updateParkingLot = async (req, res) => {
+exports.updateLot = async (req, res) => {
   try {
-    const { name, address, totalSpots, availableSpots, hourlyRate, managerId } = req.body;
-    const lot = await prisma.parkingLot.update({ where: { id: req.params.id }, data: { name, address, totalSpots, availableSpots, hourlyRate, managerId } });
-    res.json(lot);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const { id } = req.params;
+    const updated = await prisma.parkingLot.update({ where: { id }, data: req.body });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-exports.deleteParkingLot = async (req, res) => {
+exports.deleteLot = async (req, res) => {
   try {
-    await prisma.parkingLot.delete({ where: { id: req.params.id } });
-    res.status(204).end();
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const { id } = req.params;
+    await prisma.parkingLot.delete({ where: { id } });
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
-
-

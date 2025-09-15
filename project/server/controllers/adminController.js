@@ -1,4 +1,4 @@
-const { prisma } = require('../db');
+const { prisma } = require('../generated/prisma');
 const bcrypt = require('bcryptjs');
 
 exports.getSystemStats = async (req, res) => {
