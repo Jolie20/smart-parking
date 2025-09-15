@@ -1,5 +1,5 @@
-const prisma = require('../generated/prisma');
-
+const  {PrismaClient}= require('../generated/prisma/client');
+const prisma = new PrismaClient();
 // Create User
 exports.createUser = async (req, res) => {
   try {
