@@ -14,12 +14,14 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const parkingSessionRoutes = require('./routes/parkingSessionRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const cardDataRoutes = require('./routes/cardDataRoutes');
+const adminManager = require('./routes/admin')
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
+app.use('/api/admin', adminManager);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/lots', parkingLotRoutes);
 app.use('/api/spots', parkingSpotRoutes);
