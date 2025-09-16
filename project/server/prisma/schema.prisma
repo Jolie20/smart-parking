@@ -14,40 +14,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String
-  role      Role  
-  phone     String? 
+  role      Role
+  phone     String?
   password  String
   rfidno    String
   createdAt DateTime @default(now())
 
-  vehicles  Vehicle[]
-  lots      ParkingLot[] @relation("ManagerLots")
-  bookings  Booking[]
-  sessions  ParkingSession[]
-
+  vehicles Vehicle[]
+  lots     ParkingLot[]     @relation("ManagerLots")
+  bookings Booking[]
+  sessions ParkingSession[]
 }
 
 model Vehicle {
-  id          String   @id @default(uuid())
-  userId      String
-  licensePlate String   @unique
-  make        String
-  model       String
-  color       String
-  rfidCard    String   @unique
-  Parkingspot ParkingSpot?
-  user        User     @relation(fields: [userId], references: [id])
-  bookings    Booking[]
-  sessions    ParkingSession[]
+  id           String           @id @default(uuid())
+  userId       String
+  licensePlate String           @unique
+  make         String
+  model        String
+  color        String
+  rfidCard     String           @unique
+  Parkingspot  ParkingSpot?
+  user         User             @relation(fields: [userId], references: [id])
+  bookings     Booking[]
+  sessions     ParkingSession[]
 }
 
 model ParkingLot {
-  id             String   @id @default(uuid())
+  id             String @id @default(uuid())
   name           String
   address        String
   totalSpots     Int
@@ -55,58 +53,58 @@ model ParkingLot {
   hourlyRate     Float
   managerId      String
 
-  manager        User      @relation("ManagerLots", fields: [managerId], references: [id])
-  spots          ParkingSpot[]
-  bookings       Booking[]
-  sessions       ParkingSession[]
+  manager  User             @relation("ManagerLots", fields: [managerId], references: [id])
+  spots    ParkingSpot[]
+  bookings Booking[]
+  sessions ParkingSession[]
 }
 
 model ParkingSpot {
-  id          String   @id @default(uuid())
+  id          String           @id @default(uuid())
   lotId       String
   spotNumber  String
-  isAvailable Boolean  @default(true)
-  isReserved  Boolean  @default(false)
-  vehicleId   String? @unique
-  lot         ParkingLot @relation(fields: [lotId], references: [id])
-  vehicle     Vehicle?   @relation(fields: [vehicleId], references: [id])
-  bookings    Booking[] 
+  isAvailable Boolean          @default(true)
+  isReserved  Boolean          @default(false)
+  vehicleId   String?          @unique
+  lot         ParkingLot       @relation(fields: [lotId], references: [id])
+  vehicle     Vehicle?         @relation(fields: [vehicleId], references: [id])
+  bookings    Booking[]
   sessions    ParkingSession[]
 }
 
 model Booking {
-  id         String   @id @default(uuid())
-  userId     String
-  lotId      String
-  spotId     String
-  vehicleId  String
-  startTime  DateTime
-  endTime    DateTime
-  status     BookingStatus
+  id          String        @id @default(uuid())
+  userId      String
+  lotId       String
+  spotId      String
+  vehicleId   String
+  startTime   DateTime
+  endTime     DateTime
+  status      BookingStatus
   totalAmount Float?
 
-  user       User        @relation(fields: [userId], references: [id])
-  lot        ParkingLot  @relation(fields: [lotId], references: [id])
-  spot       ParkingSpot @relation(fields: [spotId], references: [id])
-  vehicle    Vehicle     @relation(fields: [vehicleId], references: [id])
+  user    User        @relation(fields: [userId], references: [id])
+  lot     ParkingLot  @relation(fields: [lotId], references: [id])
+  spot    ParkingSpot @relation(fields: [spotId], references: [id])
+  vehicle Vehicle     @relation(fields: [vehicleId], references: [id])
 }
 
 model ParkingSession {
-  id         String   @id @default(uuid())
-  userId     String
-  vehicleId  String
-  lotId      String
-  spotId     String
-  checkInTime DateTime
+  id           String        @id @default(uuid())
+  userId       String
+  vehicleId    String
+  lotId        String
+  spotId       String
+  checkInTime  DateTime
   checkOutTime DateTime?
-  duration   Int?
-  amount     Float?
-  status     SessionStatus
+  duration     Int?
+  amount       Float?
+  status       SessionStatus
 
-  user       User        @relation(fields: [userId], references: [id])
-  vehicle    Vehicle     @relation(fields: [vehicleId], references: [id])
-  lot        ParkingLot  @relation(fields: [lotId], references: [id])
-  spot       ParkingSpot @relation(fields: [spotId], references: [id])
+  user    User        @relation(fields: [userId], references: [id])
+  vehicle Vehicle     @relation(fields: [vehicleId], references: [id])
+  lot     ParkingLot  @relation(fields: [lotId], references: [id])
+  spot    ParkingSpot @relation(fields: [spotId], references: [id])
 }
 
 model Payment {
@@ -118,9 +116,9 @@ model Payment {
   timestamp String
 }
 
-model CardData{
-  CardId String @id
-  Balance String
+model CardData {
+  CardId       String @id
+  Balance      String
   Parking_time String
 }
 
@@ -141,8 +139,16 @@ enum SessionStatus {
   active
   completed
 }
-enum status{
+
+enum status {
   completed
   pending
   cancelled
+}
+
+model admin {
+  id       String @id @default(uuid())
+  username String
+  email    String
+  Password String
 }
