@@ -15,6 +15,45 @@ exports.authenticate = function (req, res, next) {
   }
 };
 
+exports.AdminLogin= async(res,req)=>{
+  try {
+    const { email, password } = req.body;
+
+    // basic validation
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // find user by email
+    const user = await prisma.admin.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+   const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // create JWT (make sure JWT_SECRET is set in env)
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+
+    // remove password from returned user object
+    const { password: _pw, ...userSafe } = user;
+
+    // return user + token (or set cookie if you prefer)
+    return res.status(200).json({
+      message: 'Login successful',
+      user: userSafe,
+      token
+    });
+  } catch (err) {
+    console.error('AdminLogin error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+
+};
+
 exports.requireRole = function (...roles) {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
