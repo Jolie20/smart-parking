@@ -14,11 +14,10 @@ exports.Adminseed = async (req,res) =>{
         username,
         email,
         password,
-        role:'admin'
       }
 
     });
-    return res.status(200).json('admin created sucess',data);
+    return res.status(200).json('admin created sucess',admin);
   }catch{
     return res.status(500).json('internal server error', err.message);
   }
