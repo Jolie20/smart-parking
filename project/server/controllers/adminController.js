@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 exports.Adminseed = async (req,res) =>{
   const {username,email,password,role} = req.body;
   if (!username || !email || !password) return res.status(400).json("all field are required", error.message);
-  const alreadyexist = await prisma.admin.findMany({where :{email : email}});
+  const alreadyexist = await prisma.admin.findUnique({where :{email}});
   if (alreadyexist) return res.status(400).json("Email already exist");
   try{
     const admin = await prisma.admin.create({ data:
