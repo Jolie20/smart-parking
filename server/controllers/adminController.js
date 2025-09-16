@@ -1,6 +1,28 @@
 const { prisma } = require('../generated/prisma');
 const bcrypt = require('bcryptjs');
 
+
+
+exports.Adminseed = async (req,res) =>{
+  const {username,email,password,role} = req.body;
+  if (!username || !email || !password) return res.status(400).json("all field are required", error.message);
+  const alreadyexist = await prisma.admin.findMany({where :{email : email}});
+  if (alreadyexist) return res.status(400).json("Email already exist");
+  try{
+    const admin = await prisma.admin.create({ data:
+      {
+        username,
+        email,
+        password,
+        role:'admin'
+      }
+
+    });
+    return res.status(200).json('admin created sucess',data);
+  }catch{
+    return res.status(500).json('internal server error', err.message);
+  }
+};
 exports.getSystemStats = async (req, res) => {
   try {
     const [users, vehicles, lots, sessions] = await Promise.all([
