@@ -14,6 +14,7 @@ exports.Adminseed = async (req,res) =>{
         username,
         email,
         password,
+        role: 'admin'
       }
 
     });
@@ -22,6 +23,7 @@ exports.Adminseed = async (req,res) =>{
     return res.status(500).json('internal server error', err.message);
   }
 };
+
 exports.getSystemStats = async (req, res) => {
   try {
     const [users, vehicles, lots, sessions] = await Promise.all([
