@@ -151,4 +151,5 @@ model admin {
   username String
   email    String
   Password String
+  role     Role   @default(admin)
 }
