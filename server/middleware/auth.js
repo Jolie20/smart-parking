@@ -65,6 +65,15 @@ exports.requireRole = function (...roles) {
   };
 };
 
+exports.quicklogout = function (req, res, next) {
+  const logoutToken = req.headers['x-logout-token'];
+  if (!logoutToken) {
+    return res.status(400).json({ error: 'Missing logout token' });
+  }
+  blacklistedTokens.add(logoutToken);
+  res.json({ message: 'Logged out successfully' });
+}
+
 exports.JWT_SECRET = JWT_SECRET;
 
 
