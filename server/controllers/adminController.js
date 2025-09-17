@@ -15,7 +15,6 @@ exports.Adminseed = async (req,res) => {
         username,
         email,
         password,
-        role,
       }
 
     });
