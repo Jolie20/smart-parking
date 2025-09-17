@@ -15,7 +15,7 @@ exports.authenticate = function (req, res, next) {
   }
 };
 
-exports.AdminLogin= async(res,req)=>{
+exports.AdminLogin= async(req,res)=>{
   try {
     const { email, password } = req.body;
 
@@ -53,14 +53,14 @@ exports.AdminLogin= async(res,req)=>{
 
 };
 
-// exports.requireRole = function (...roles) {
-//   return (req, res, next) => {
-//     if (!req.user || !roles.includes(req.user.role)) {
-//       return res.status(403).json({ error: 'Forbidden' });
-//     }
-//     next();
-//   };
-// };
+exports.requireRole = function (...roles) {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    next();
+  };
+};
 
 exports.JWT_SECRET = JWT_SECRET;
 
