@@ -153,3 +153,11 @@ model admin {
   password String
   role     Role   @default (ADMIN)
 }
+
+model manager {
+  id       String @id @default(uuid())
+  username String
+  email    String @unique
+  password String
+  role     Role   @default (manager)
+}
