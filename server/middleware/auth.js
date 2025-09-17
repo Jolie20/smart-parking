@@ -32,7 +32,7 @@ exports.AdminLogin= async(req,res)=>{
     if (!admin) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-   const isMatch = await bcrypt.compare(password, prisma.admin.password);
+   const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
