@@ -62,10 +62,10 @@ exports.assignManagerToLot = async (req, res) => {
 
 exports.createManager = async (req, res) => {
   try {
-    const { email, name, phone, password } = req.body;
+    const { email, username, phone, password } = req.body;
     if (!password) return res.status(400).json({ error: 'Password is required' });
     const passwordHash = await bcrypt.hash(password, 10);
-    const manager = await prisma.manager.create({ data: { email, name, phone, role: 'manager', password: passwordHash } });
+    const manager = await prisma.manager.create({ data: { email, username, phone, role: 'manager', password: passwordHash } });
     res.status(201).json(manager);
   } catch (error) {
     res.status(400).json({ error: error.message });
