@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const express = require('express');
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 exports.Adminseed = async (req,res) => {
   const {username,email,password} = req.body;
