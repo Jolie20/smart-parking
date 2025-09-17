@@ -41,12 +41,12 @@ exports.AdminLogin= async(req,res)=>{
     const payload = { id: user.id, email: user.email, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
     // remove password from returned user object
-    const { password: _pw, ...userSafe } = admin;
+    const { password: _pw, ...userSafe } = user;
 
     // return user + token (or set cookie if you prefer)
     return res.status(200).json({
       message: 'Login successful',
-      user: userSafe,
+      user: payload,
       token
     });
   } catch (err) {
