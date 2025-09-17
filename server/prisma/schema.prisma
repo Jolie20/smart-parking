@@ -158,6 +158,7 @@ model manager {
   id       String @id @default(uuid())
   username String
   email    String @unique
+  phone    String @unique
   password String
   role     Role   @default (manager)
 }
