@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticate, requireRole } = require('../middleware/auth');
 const admin = require('../controllers/adminController');
 
+router.post('/login',admin.AdminLogin);
 router.post('/create',admin.Adminseed);
 router.use(authenticate, requireRole('admin'));
 router.get('/stats', admin.getSystemStats);
