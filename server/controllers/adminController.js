@@ -10,12 +10,13 @@ exports.Adminseed = async (req,res) => {
   if (!username || !email || !password) return res.status(400).json("all field are required", error.message);
   const alreadyexist = await prisma.admin.findUnique({where :{email}});
   if (alreadyexist) return res.status(400).json("Email already exist");
+  const passwordHash = await bcrypt.hash(password, 10);
   try{
     const admin = await prisma.admin.create({ data:
       {
         username,
         email,
-        password,
+        password:passwordHash,
       }
 
     });
