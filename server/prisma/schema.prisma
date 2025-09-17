@@ -149,7 +149,7 @@ enum status {
 model admin {
   id       String @id @default(uuid())
   username String
-  email    String
+  email    String @unique
   Password String
   role     Role   @default (ADMIN)
 }
