@@ -150,6 +150,6 @@ model admin {
   id       String @id @default(uuid())
   username String
   email    String @unique
-  Password String
+  password String
   role     Role   @default (ADMIN)
 }

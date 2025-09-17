@@ -20,7 +20,7 @@ exports.Adminseed = async (req,res) => {
 
     });
     return res.status(200).json('admin created sucess',admin);
-  }catch{
+  }catch(err){
     return res.status(500).json('internal server error', err.message);
   }
 };
