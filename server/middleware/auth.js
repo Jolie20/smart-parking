@@ -11,7 +11,7 @@ exports.authenticate = function (req, res, next) {
   if (!token) return res.status(401).json({ error: 'Missing token' });
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload;
+    req.admin = payload;
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
