@@ -28,17 +28,17 @@ exports.AdminLogin= async(req,res)=>{
     }
 
     // find user by email
-    const admin = await prisma.admin.findUnique({ where: { email } });
-    if (!admin) {
+    const user = await prisma.admin.findUnique({ where: { email } });
+    if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-   const isMatch = await bcrypt.compare(password, admin.password);
+   const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     // create JWT (make sure JWT_SECRET is set in env)
-    const payload = { id: admin.id, email: admin.email, role: admin.role };
+    const payload = { id: user.id, email: user.email, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
     // remove password from returned user object
     const { password: _pw, ...userSafe } = admin;
@@ -46,7 +46,7 @@ exports.AdminLogin= async(req,res)=>{
     // return user + token (or set cookie if you prefer)
     return res.status(200).json({
       message: 'Login successful',
-      admin: userSafe,
+      user: userSafe,
       token
     });
   } catch (err) {
