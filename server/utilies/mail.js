@@ -1,9 +1,9 @@
 const nodemailer = require("nodemailer");
 const express = require('express');
-const { configDotenv } = require("dotenv");
+const dotenv = require("dotenv");
 const app = express();
+dotenv.config();
 app.use(express.json());
-app.use(configDotenv());
 app.use(express.urlencoded({ extended: true }));
 
 const transporter = nodemailer.createTransport({
