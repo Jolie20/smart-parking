@@ -76,7 +76,7 @@ exports.UserLogin= async(req,res)=>{
       return res.status(401).json({ error: 'Invalid  password' });
     }
     // create JWT (make sure JWT_SECRET is set in env)
-    const payload = { id: user.id, email: user.email, role: user.role };
+    const payload = { id: user.id, email: user.email, role: user.role, rfidCard: user.rfidno };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
     // remove password from returned user object
     const { password: _pw, ...userSafe } = user;
