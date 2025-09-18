@@ -69,11 +69,11 @@ exports.UserLogin= async(req,res)=>{
     // find user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid email ' });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid  password' });
     }
     // create JWT (make sure JWT_SECRET is set in env)
     const payload = { id: user.id, email: user.email, role: user.role };
