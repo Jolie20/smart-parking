@@ -2,11 +2,12 @@ const {PrismaClient} = require('../generated/prisma');
 const prisma = new PrismaClient();
 
 exports.createBooking = async (req, res) => {
-  try {
-    const userId = req.user.id; // Extracted from login/session
+  const userId = req.user.id; // Extracted from login/session
     console.log('the user id from token is',userId);
     const { lotName, spotNumber, vehiclePlate, startTime, endTime, totalAmount } = req.body;
 
+  try {
+    
     // Find lotId by lotName
     const lot = await prisma.parkingLot.findFirst({ where: { name: lotName } });
     if (!lot) 
