@@ -1,8 +1,11 @@
-const prisma = require('../generated/prisma');
+const { PrismaClient } = require('../generated/prisma');
+const prisma = new PrismaClient();
 
 exports.createVehicle = async (req, res) => {
+  const userId = req.body.userId;
+  if (!userId) return res.status(400).json({ error: 'userId is required' });
   try {
-    const { userId, licensePlate, make, model, color, rfidCard } = req.body;
+    const { licensePlate, make, model, color, rfidCard } = req.body;
     const vehicle = await prisma.vehicle.create({ data: { userId, licensePlate, make, model, color, rfidCard } });
     res.status(201).json(vehicle);
   } catch (err) {
