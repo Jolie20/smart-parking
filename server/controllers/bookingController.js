@@ -9,7 +9,11 @@ exports.createBooking = async (req, res) => {
 
     // Find lotId by lotName
     const lot = await prisma.parkingLot.findFirst({ where: { name: lotName } });
-    if (!lot) return res.status(400).json({ error: 'Invalid lot name' });
+    if (!lot) 
+      {
+        console.log('Invalid lot name:', lotName);
+        return res.status(400).json({ error: 'Invalid lot name' });
+      }
 
     // Find spotId by spotNumber and lotId
     const spot = await prisma.parkingSpot.findFirst({ where: { spotNumber, lotId: lot.id } });
