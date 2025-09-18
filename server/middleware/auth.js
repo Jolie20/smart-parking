@@ -60,6 +60,7 @@ exports.AdminLogin= async(req,res)=>{
 exports.UserLogin= async(req,res)=>{
   try {
     const { email, password } = req.body;
+    console.log('Login attempt for email:', email);
     // basic validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
