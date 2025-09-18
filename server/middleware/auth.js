@@ -58,13 +58,14 @@ exports.AdminLogin= async(req,res)=>{
 
 //userlogin 
 exports.UserLogin= async(req,res)=>{
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
     console.log('Login attempt for email:', email);
     // basic validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     } 
+  try {
+    
     // find user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -80,9 +81,10 @@ exports.UserLogin= async(req,res)=>{
     // remove password from returned user object
     const { password: _pw, ...userSafe } = user;
     // return user + token (or set cookie if you prefer)
+    req.user = decoded; // Attach user info to req for downstream middleware
     return res.status(200).json({
       message: 'Login successful',
-      user: payload,
+      user: decoded,
       token
     });
   } catch (err) {
