@@ -1,9 +1,11 @@
-const prisma = require('../generated/prisma');
-
+const {PrismaClient} = require('../generated/prisma');
+const prisma = new PrismaClient();
 exports.createSpot = async (req, res) => {
   try {
-    const { lotId, spotNumber, isAvailable, isReserved, vehicleId } = req.body;
-    const spot = await prisma.parkingSpot.create({ data: { lotId, spotNumber, isAvailable, isReserved, vehicleId } });
+    const { spotNumber, isAvailable, isReserved, vehicleId,lotname } = req.body;
+    const parkingLot = await prisma.parkingLot.findUnique({ where: { name: lotname } });
+    if (!lot) return res.status(400).json({ error: 'Invalid lotId' }); 
+    const spot = await prisma.parkingSpot.create({ data: { spotNumber, isAvailable, isReserved, vehicleId, lotId:parkingLot.id } });
     res.status(201).json(spot);
   } catch (err) {
     res.status(500).json({ error: err.message });
