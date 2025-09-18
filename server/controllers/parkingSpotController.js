@@ -5,7 +5,7 @@ exports.createSpot = async (req, res) => {
     const { spotNumber, isAvailable, isReserved, vehicleId,lotname } = req.body;
     const parkingLot = await prisma.parkingLot.findUnique({ where: { name: lotname } });
     if (!lot) return res.status(400).json({ error: 'Invalid lotId' }); 
-    const spot = await prisma.parkingSpot.create({ data: { spotNumber, isAvailable, isReserved, vehicleId, lotId:parkingLot.id } });
+    const spot = await prisma.ParkingSpot.create({ data: { spotNumber, isAvailable, isReserved, vehicleId, lotId:parkingLot.id } });
     res.status(201).json(spot);
   } catch (err) {
     res.status(500).json({ error: err.message });
