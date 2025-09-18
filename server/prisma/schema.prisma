@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role
+  phone     String?
+  password  String
+  rfidno    String
+  createdAt DateTime @default(now())
+
+  vehicles Vehicle[]
+  lots     ParkingLot[]     @relation("ManagerLots")
+  bookings Booking[]
+  sessions ParkingSession[]
+}
+
+model Vehicle {
+  id           String           @id @default(uuid())
+  userId       String
+  licensePlate String           @unique
+  make         String
+  model        String
+  color        String
+  rfidCard     String ?           @unique
+  Parkingspot  ParkingSpot?
+  user         User             @relation(fields: [userId], references: [id])
+  bookings     Booking[]
+  sessions     ParkingSession[]
+}
+
+model ParkingLot {
+  id             String @id @default(uuid())
+  name           String
+  address        String
+  totalSpots     Int
+  availableSpots Int
+  hourlyRate     Float
+  managerId      String
+
+  manager  User             @relation("ManagerLots", fields: [managerId], references: [id])
+  spots    ParkingSpot[]
+  bookings Booking[]
+  sessions ParkingSession[]
+}
+
+model ParkingSpot {
+  id          String           @id @default(uuid())
+  lotId       String
+  spotNumber  String
+  isAvailable Boolean          @default(true)
+  isReserved  Boolean          @default(false)
+  vehicleId   String?          @unique
+  lot         ParkingLot       @relation(fields: [lotId], references: [id])
+  vehicle     Vehicle?         @relation(fields: [vehicleId], references: [id])
+  bookings    Booking[]
+  sessions    ParkingSession[]
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  userId      String
+  lotId       String
+  spotId      String
+  vehicleId   String
+  startTime   DateTime
+  endTime     DateTime
+  status      BookingStatus
+  totalAmount Float?
+
+  user    User        @relation(fields: [userId], references: [id])
+  lot     ParkingLot  @relation(fields: [lotId], references: [id])
+  spot    ParkingSpot @relation(fields: [spotId], references: [id])
+  vehicle Vehicle     @relation(fields: [vehicleId], references: [id])
+}
+
+model ParkingSession {
+  id           String        @id @default(uuid())
+  userId       String
+  vehicleId    String
+  lotId        String
+  spotId       String
+  checkInTime  DateTime
+  checkOutTime DateTime?
+  duration     Int?
+  amount       Float?
+  status       SessionStatus
+
+  user    User        @relation(fields: [userId], references: [id])
+  vehicle Vehicle     @relation(fields: [vehicleId], references: [id])
+  lot     ParkingLot  @relation(fields: [lotId], references: [id])
+  spot    ParkingSpot @relation(fields: [spotId], references: [id])
+}
+
+model Payment {
+  paymentId String @id @default(uuid())
+  sessionId String
+  amount    String
+  method    String
+  status    status
+  timestamp String
+}
+
+model CardData {
+  CardId       String @id
+  Balance      String
+  Parking_time String
+}
+
+enum Role {
+  user
+  manager
+  ADMIN
+}
+
+enum BookingStatus {
+  booked
+  active
+  completed
+  cancelled
+}
+
+enum SessionStatus {
+  active
+  completed
+}
+
+enum status {
+  completed
+  pending
+  cancelled
+}
+
+model admin {
+  id       String @id @default(uuid())
+  username String
+  email    String @unique
+  password String
+  role     Role   @default (ADMIN)
+}
+
+model manager {
+  id       String @id @default(uuid())
+  username String
+  email    String @unique
+  phone    String @unique
+  password String
+  role     Role   @default (manager)
+}
