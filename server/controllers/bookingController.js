@@ -27,7 +27,7 @@ exports.createBooking = async (req, res) => {
         vehicleId: vehicle.id,
         startTime,
         endTime,
-        status,
+        status:'pending',
         totalAmount
       }
     });
