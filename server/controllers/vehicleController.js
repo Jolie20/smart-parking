@@ -2,7 +2,7 @@ const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
 
 exports.createVehicle = async (req, res) => {
-  const userId = req.user.userId;
+  const userId = req.user;
   if (!userId) return res.status(400).json({ error: 'userId is required' });
   try {
     const { licensePlate, make, model, color } = req.body;
