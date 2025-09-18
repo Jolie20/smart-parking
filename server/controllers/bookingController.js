@@ -1,3 +1,4 @@
+const { connect } = require('mongoose');
 const {PrismaClient} = require('../generated/prisma');
 const prisma = new PrismaClient();
 
@@ -27,7 +28,7 @@ exports.createBooking = async (req, res) => {
     // Create booking
     const booking = await prisma.booking.create({
       data: {
-        userId,
+        user: {connect:{id:userId}},
         lotId: lot.id,
         spotId: spot.id,
         vehicleId: vehicle.id,
