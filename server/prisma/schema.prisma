@@ -53,7 +53,7 @@ model ParkingLot {
   hourlyRate     Float
   managerId      String
 
-  manager  User             @relation("ManagerLots", fields: [managerId], references: [id])
+  manager  User?             @relation("ManagerLots", fields: [managerId], references: [id])
   spots    ParkingSpot[]
   bookings Booking[]
   sessions ParkingSession[]
