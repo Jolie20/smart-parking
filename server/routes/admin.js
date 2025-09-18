@@ -11,6 +11,7 @@ router.get('/stats', admin.getSystemStats);
 router.get('/users', admin.listUsers);
 router.post('/assign-manager', admin.assignManagerToLot);
 router.post('/managers', admin.createManager);//completed
+router.get('/managers', admin.getManagers);//completed
 
 module.exports = router;
 
