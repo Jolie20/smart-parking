@@ -3,8 +3,8 @@ const prisma = new PrismaClient();
 
 exports.createLot = async (req, res) => {
   try {
-    const { name, address, totalSpots, availableSpots, hourlyRate, managerId } = req.body;
-    const lot = await prisma.parkingLot.create({ data: { name, address, totalSpots, availableSpots, hourlyRate, managerId } });
+    const { name, address, totalSpots, availableSpots, hourlyRate } = req.body;
+    const lot = await prisma.parkingLot.create({ data: { name, address, totalSpots, availableSpots, hourlyRate } });
     res.status(201).json(lot);
   } catch (err) {
     res.status(500).json({ error: err.message });
