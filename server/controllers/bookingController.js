@@ -4,7 +4,7 @@ exports.createBooking = async (req, res) => {
   try {
     const userId = req.user.id; // Extracted from login/session
 
-    const { lotName, spotNumber, vehiclePlate, startTime, endTime, status, totalAmount } = req.body;
+    const { lotName, spotNumber, vehiclePlate, startTime, endTime, totalAmount } = req.body;
 
     // Find lotId by lotName
     const lot = await prisma.parkingLot.findFirst({ where: { name: lotName } });
