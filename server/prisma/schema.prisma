@@ -37,7 +37,7 @@ model Vehicle {
   make         String
   model        String
   color        String
-  rfidCard     String           @unique
+  rfidCard     String ?           @unique
   Parkingspot  ParkingSpot?
   user         User             @relation(fields: [userId], references: [id])
   bookings     Booking[]
