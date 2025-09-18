@@ -8,7 +8,7 @@ exports.createLot = async (req, res) => {
     // Find the manager by name and email
     let manager = await prisma.manager.findFirst({
       where: {
-        name: managerName,
+        username: managerName,
         email: managerEmail
       }
     });
@@ -17,7 +17,7 @@ exports.createLot = async (req, res) => {
     if (!manager) {
       manager = await prisma.manager.create({
         data: {
-          name: managerName,
+          username: managerName,
           email: managerEmail
         }
       });
