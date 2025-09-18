@@ -1,9 +1,9 @@
-
+const{authenticate}=require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 const vehicleController = require('../controllers/vehicleController');
 
-router.post('/', vehicleController.createVehicle);
+router.post('/',authenticate, vehicleController.createVehicle);
 router.get('/', vehicleController.getVehicles);
 router.get('/:id', vehicleController.getVehicleById);
 router.put('/:id', vehicleController.updateVehicle);
