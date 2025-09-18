@@ -1,4 +1,5 @@
-const prisma = require('../generated/prisma');
+const{PrismaClient}= require('../generated/prisma');
+const prisma = new PrismaClient();
 
 exports.createLot = async (req, res) => {
   try {
