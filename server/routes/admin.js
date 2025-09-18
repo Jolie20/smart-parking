@@ -10,7 +10,7 @@ router.use(authenticate, requireRole('ADMIN'));
 router.get('/stats', admin.getSystemStats);
 router.get('/users', admin.listUsers);
 router.post('/assign-manager', admin.assignManagerToLot);
-router.post('/managers', admin.createManager);
+router.post('/managers', admin.createManager);//completed
 
 module.exports = router;
 
