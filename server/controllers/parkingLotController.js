@@ -16,6 +16,7 @@ exports.createLot = async (req, res) => {
 
     // If manager does not exist, you can choose to create or return error
     if (!manager) req.status(400).json({ error: 'create a manager first' });
+    console.log('the manager id is',manager.id);
 
     // Create the parking lot with the manager's ID
     const lot = await prisma.parkingLot.create({
