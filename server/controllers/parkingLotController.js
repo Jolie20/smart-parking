@@ -3,8 +3,38 @@ const prisma = new PrismaClient();
 
 exports.createLot = async (req, res) => {
   try {
-    const { name, address, totalSpots, availableSpots, hourlyRate,managerId } = req.body;
-    const lot = await prisma.parkingLot.create({ data: { name, address, totalSpots, availableSpots, hourlyRate,managerId } });
+    const { name, address, totalSpots, availableSpots, hourlyRate, managerName, managerEmail } = req.body;
+
+    // Find the manager by name and email
+    let manager = await prisma.manager.findFirst({
+      where: {
+        name: managerName,
+        email: managerEmail
+      }
+    });
+
+    // If manager does not exist, you can choose to create or return error
+    if (!manager) {
+      manager = await prisma.manager.create({
+        data: {
+          name: managerName,
+          email: managerEmail
+        }
+      });
+    }
+
+    // Create the parking lot with the manager's ID
+    const lot = await prisma.parkingLot.create({
+      data: {
+        name,
+        address,
+        totalSpots,
+        availableSpots,
+        hourlyRate,
+        managerId: manager.id
+      }
+    });
+
     res.status(201).json(lot);
   } catch (err) {
     res.status(500).json({ error: err.message });
