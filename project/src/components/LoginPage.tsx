@@ -14,13 +14,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
   initialMode,
 }) => {
   const [mode, setMode] = useState(initialMode);
+  const [who, setWho] = useState<'user' | 'admin'>('user');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
 
-  const { login, signup, isLoading } = useAuth();
+  const { login, adminLogin, signup, isLoading } = useAuth();
 
   React.useEffect(() => {
     setMode(initialMode);
@@ -33,7 +34,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
     try {
       let success = false;
       if (mode === "login") {
-        success = await login(email, password);
+        success = who === 'admin' ? await adminLogin(email, password) : await login(email, password);
       } else {
         success = await signup(email, password, name, phone);
       }
@@ -45,12 +46,11 @@ const LoginPage: React.FC<LoginPageProps> = ({
         setName("");
         setPhone("");
       } else {
-        setError(
-          "Invalid credentials. Try: user@example.com, manager@example.com, or admin@example.com"
-        );
+        setError("Invalid email or password.");
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      const message = (err as any)?.response?.data?.error || 'An error occurred. Please try again.';
+      setError(message);
     }
   };
 
@@ -80,6 +80,24 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {mode === 'login' && (
+            <div className="flex justify-center gap-2">
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-lg text-sm ${who === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                onClick={() => setWho('user')}
+              >
+                User
+              </button>
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-lg text-sm ${who === 'admin' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                onClick={() => setWho('admin')}
+              >
+                Admin
+              </button>
+            </div>
+          )}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {error}

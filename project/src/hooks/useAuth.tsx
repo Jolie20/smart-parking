@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
+  adminLogin: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, phone?: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
@@ -48,13 +49,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return false;
   };
 
+  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const { user } = await authService.adminLogin(email, password);
+      setUser({
+        id: String(user.id),
+        email: user.email,
+        name: (user as any).name || user.email,
+        role: 'admin',
+        createdAt: new Date().toISOString(),
+      });
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     authService.logout();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, adminLogin, signup, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
