@@ -90,8 +90,8 @@ const UserDashboard: React.FC = () => {
       }
 
       if (bookingData.startTime && bookingData.endTime) {
-        const startTime = new Date(`2024-01-01T${bookingData.startTime}:00`);
-        const endTime = new Date(`2024-01-01T${bookingData.endTime}:00`);
+        const startTime = new Date(`2025-09-16T${bookingData.startTime}:00`);
+        const endTime = new Date(`2026-0-01T${bookingData.endTime}:00`);
 
         if (endTime <= startTime) {
           validationErrors.push("End time must be after start time");
