@@ -21,7 +21,7 @@ model User {
   role      Role
   phone     String?
   password  String
-  rfidno    String
+  cards   CardData[] @relation("CardToUser")
   createdAt DateTime @default(now())
 
   vehicles Vehicle[]
@@ -118,7 +118,11 @@ model Payment {
 model CardData {
   CardId       String @id
   Balance      String
+  rfidno       String @unique
+  cardholder   String
   Parking_time String
+  User         User   @relation("CardToUser",fields: [cardholder], references: [id])
+
 }
 
 enum Role {
