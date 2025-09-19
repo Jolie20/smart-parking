@@ -398,45 +398,41 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {mockUsers.map((user) => {
-                      const userVehicles = mockVehicles.filter(
-                        (v) => v.userId === user.id
-                      );
-                      const userSessions = mockParkingSessions.filter(
-                        (s) => s.userId === user.id
+                    {users.map((u) => {
+                      const userSessions = sessions.filter(
+                        (s: any) => s.userId === u.id
                       );
 
                       return (
-                        <tr key={user.id} className="hover:bg-gray-50">
+                        <tr key={u.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4">
                             <div>
                               <p className="font-medium text-gray-900">
-                                {user.name}
+                                {u.name || u.email}
                               </p>
                               <p className="text-sm text-gray-500">
-                                {user.email}
+                                {u.email}
                               </p>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                user.role === "admin"
+                                (u.role === "admin" || u.role === "ADMIN")
                                   ? "bg-purple-100 text-purple-800"
-                                  : user.role === "manager"
+                                  : (u.role === "manager" || u.role === "MANAGER")
                                   ? "bg-green-100 text-green-800"
                                   : "bg-blue-100 text-blue-800"
                               }`}
                             >
-                              {user.role.charAt(0).toUpperCase() +
-                                user.role.slice(1)}
+                              {(u.role || '').toString().toLowerCase().replace(/^[a-z]/, c => c.toUpperCase())}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
-                            {user.phone || "N/A"}
+                            {u.phone || "N/A"}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
-                            {userVehicles.length}
+                            -
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
                             {userSessions.length}
@@ -444,8 +440,8 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-6 py-4">
                             <button 
                               className="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                              onClick={() => handleAction('view user details', user.id)}
-                              aria-label={`View details for ${user.name}`}
+                              onClick={() => handleAction('view user details', u.id)}
+                              aria-label={`View details for ${u.name || u.email}`}
                             >
                               View Details
                             </button>
@@ -477,17 +473,17 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="grid gap-6">
-              {mockParkingLots.map((lot) => {
+              {lots.map((lot) => {
                 const lotOccupancy =
                   ((lot.totalSpots - lot.availableSpots) / lot.totalSpots) *
                   100;
-                const lotSessions = mockParkingSessions.filter(
-                  (s) => s.lotId === lot.id
+                const lotSessions = sessions.filter(
+                  (s: any) => s.lotId === lot.id
                 );
                 const lotRevenue = lotSessions
                   .filter((s) => s.amount)
                   .reduce((sum, s) => sum + (s.amount || 0), 0);
-                const manager = mockUsers.find((u) => u.id === lot.managerId);
+                const manager = users.find((u) => u.id === lot.managerId);
 
                 return (
                   <div
@@ -687,14 +683,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <p className="text-3xl font-bold text-blue-600">
-                    {mockParkingSessions.length}
+                    {sessions.length}
                   </p>
                   <p className="text-sm text-gray-600">Total Sessions</p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <p className="text-3xl font-bold text-purple-600">
-                    {mockParkingSessions.length > 0
-                      ? (totalRevenue / mockParkingSessions.length).toFixed(2)
+                    {sessions.length > 0
+                      ? (totalRevenue / sessions.length).toFixed(2)
                       : "0.00"}
                   </p>
                   <p className="text-sm text-gray-600">Avg. Session Value</p>
@@ -764,7 +760,7 @@ const AdminDashboard: React.FC = () => {
                         Active Users
                       </span>
                       <span className="text-sm font-medium">
-                        {mockUsers.filter((u) => u.role === "user").length}
+                        {users.filter((u) => (u.role || '').toString().toLowerCase() === "user").length}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -780,7 +776,7 @@ const AdminDashboard: React.FC = () => {
                         Total Bookings
                       </span>
                       <span className="text-sm font-medium">
-                        {mockBookings.length}
+                        {bookings.length}
                       </span>
                     </div>
                     <div className="flex justify-between">
