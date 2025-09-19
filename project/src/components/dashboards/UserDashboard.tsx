@@ -66,7 +66,7 @@ const UserDashboard: React.FC = () => {
     return Math.floor(diffMs / (1000 * 60));
   };
 
-  const handleBookingSubmit = (bookingData: any) => {
+  const handleBookingSubmit = async (bookingData: any) => {
     try {
       // Validate booking data
       const validationErrors: string[] = [];
