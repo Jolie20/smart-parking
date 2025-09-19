@@ -6,7 +6,6 @@ import { bookingService } from '../../services/bookingService';
 import { sessionService } from '../../services/sessionService';
 import { lotService } from '../../services/lotService';
 import BookingForm from './bookingForm.tsx';
-import { Booking } from '../../types';
 
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -17,7 +16,6 @@ const UserDashboard: React.FC = () => {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [lots, setLots] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -28,7 +26,6 @@ const UserDashboard: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        setLoading(true);
         const [b, v, s, l] = await Promise.all([
           bookingService.list(),
           vehicleService.list(),
@@ -41,8 +38,6 @@ const UserDashboard: React.FC = () => {
         setLots(l || []);
       } catch (e) {
         setErrors(['Failed to load your data.']);
-      } finally {
-        setLoading(false);
       }
     };
     load();
@@ -59,12 +54,7 @@ const UserDashboard: React.FC = () => {
     return `${hours}h ${mins}m`;
   };
 
-  const getActiveSessionDuration = () => {
-    if (!activeSession) return 0;
-    const checkIn = new Date(activeSession.checkInTime);
-    const diffMs = currentTime.getTime() - checkIn.getTime();
-    return Math.floor(diffMs / (1000 * 60));
-  };
+  // active session duration can be computed inline when needed
 
   const handleBookingSubmit = async (bookingData: any) => {
     try {
@@ -124,7 +114,7 @@ const UserDashboard: React.FC = () => {
       setErrors([]);
       setShowBookingForm(false);
       
-      console.log('Booking created successfully:', newBooking);
+      console.log('Booking created successfully:', created);
       
     } catch (error) {
       console.error('Error creating booking:', error);
@@ -260,7 +250,7 @@ const UserDashboard: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h3>
               <div className="space-y-4">
                 {userSessions.slice(0, 3).map((session) => {
-                  const lot = mockParkingLots.find(l => l.id === session.lotId);
+                  const lot = lots.find((l: any) => l.id === session.lotId);
                   return (
                     <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-4">
