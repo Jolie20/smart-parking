@@ -76,8 +76,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
     }
 
     if (formData.startTime && formData.endTime) {
-      const startTime = new Date(`2024-01-01T${formData.startTime}:00`);
-      const endTime = new Date(`2024-01-01T${formData.endTime}:00`);
+      const startTime = new Date(`2025-09-18T${formData.startTime}:00`);
+      const endTime = new Date(`2025-09-29T${formData.endTime}:00`);
 
       if (endTime <= startTime) {
         errors.push("End time must be after start time");
@@ -197,7 +197,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
               onChange={handleChange}
               aria-label="Select parking lot"
             >
-              <option value="">Choose a parking lot</option>
+              <option value=""></option>
+              <option value="Downtown">Downtown plaza</option>
+              <option value="chic">Chic mall</option>
+              <option value="city">City town</option>
+              
               {availableSlots.map((lot) => (
                 <option key={lot.id} value={lot.id}>
                   {lot.name} - {lot.availableSpots} spots available (FRW
@@ -207,7 +211,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
             </select>
             {availableSlots.length === 0 && (
               <p className="text-sm text-red-600 mt-1">
-                No parking lots available
+              
+                
               </p>
             )}
           </div>
@@ -271,10 +276,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook }) => {
               onChange={handleChange}
               aria-label="Select spot type"
             >
-              <option value="regular">Regular (FRW 2/hour)</option>
-              <option value="premium">Premium (FRW 3/hour)</option>
-              <option value="covered">Covered (FRW 4/hour)</option>
-              <option value="electric">Electric Vehicle (FRW 5/hour)</option>
+              <option value="regular">Regular (FRW 200/hour)</option>
+              <option value="premium">Premium (FRW 300/hour)</option>
+              <option value="covered">Covered (FRW 400/hour)</option>
+              <option value="electric">Electric Vehicle (FRW 100/hour)</option>
             </select>
           </div>
 

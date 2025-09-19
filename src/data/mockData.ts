@@ -31,7 +31,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: '1',
     userId: '1',
-    licensePlate: 'ABC123',
+    licensePlate: 'RAC123',
     make: 'Toyota',
     model: 'Camry',
     color: 'Blue',
@@ -40,7 +40,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: '2',
     userId: '2',
-    licensePlate: 'XYZ789',
+    licensePlate: 'RAD789',
     make: 'Honda',
     model: 'Civic',
     color: 'Red',
@@ -52,7 +52,7 @@ export const mockParkingLots: ParkingLot[] = [
   {
     id: '1',
     name: 'Downtown Plaza',
-    address: '123 Main St, Downtown',
+    address: 'KN4 Ave',
     totalSpots: 50,
     availableSpots: 23,
     hourlyRate: 300,
@@ -60,8 +60,8 @@ export const mockParkingLots: ParkingLot[] = [
   },
   {
     id: '2',
-    name: 'Mall Parking',
-    address: '456 Shopping Ave',
+    name: 'Chic Mall ',
+    address: 'KN4 Ave',
     totalSpots: 100,
     availableSpots: 67,
     hourlyRate: 3.50,
@@ -79,7 +79,7 @@ export const mockBookings: Booking[] = [
     startTime: '2024-01-15T10:00:00Z',
     endTime: '2024-01-15T12:00:00Z',
     status: 'completed',
-    totalAmount: 10.00
+    totalAmount: 400.00
   },
   {
     id: '2',
@@ -87,8 +87,8 @@ export const mockBookings: Booking[] = [
     lotId: '1',
     spotId: '2',
     vehicleId: '1',
-    startTime: '2024-01-16T14:00:00Z',
-    endTime: '2024-01-16T16:00:00Z',
+    startTime: '2025-09-16T14:00:00Z',
+    endTime: '2025-09-16T16:00:00Z',
     status: 'booked'
   }
 ];
@@ -100,10 +100,10 @@ export const mockParkingSessions: ParkingSession[] = [
     vehicleId: '1',
     lotId: '1',
     spotId: '1',
-    checkInTime: '2024-01-15T10:00:00Z',
-    checkOutTime: '2024-01-15T12:00:00Z',
+    checkInTime: '2025-09-15T10:00:00Z',
+    checkOutTime: '2025-09-15T12:00:00Z',
     duration: 120,
-    amount: 10.00,
+    amount: 400.00,
     status: 'completed'
   },
   {
@@ -112,7 +112,7 @@ export const mockParkingSessions: ParkingSession[] = [
     vehicleId: '1',
     lotId: '1',
     spotId: '3',
-    checkInTime: '2024-01-16T09:00:00Z',
+    checkInTime: '2025-09-16T09:00:00Z',
     status: 'active'
   }
 ];
