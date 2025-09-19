@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Car, MapPin, Clock, CreditCard, Plus, Calendar, Activity, User, Phone, Mail } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.tsx';
-import { mockVehicles, mockBookings, mockParkingSessions, mockParkingLots } from '../../data/mockData';
+import { vehicleService } from '../../services/vehicleService';
+import { bookingService } from '../../services/bookingService';
+import { sessionService } from '../../services/sessionService';
+import { lotService } from '../../services/lotService';
 import BookingForm from './bookingForm.tsx';
 import { Booking } from '../../types';
 
@@ -10,7 +13,11 @@ const UserDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [bookings, setBookings] = useState(mockBookings);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [lots, setLots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -18,9 +25,32 @@ const UserDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const userVehicles = mockVehicles.filter(v => v.userId === user?.id);
-  const userBookings = bookings.filter(b => b.userId === user?.id);
-  const userSessions = mockParkingSessions.filter(s => s.userId === user?.id);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const [b, v, s, l] = await Promise.all([
+          bookingService.list(),
+          vehicleService.list(),
+          sessionService.list(),
+          lotService.list(),
+        ]);
+        setBookings(b || []);
+        setVehicles(v || []);
+        setSessions(s || []);
+        setLots(l || []);
+      } catch (e) {
+        setErrors(['Failed to load your data.']);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const userVehicles = vehicles.filter((v: any) => v.userId === user?.id);
+  const userBookings = bookings.filter((b: any) => b.userId === user?.id);
+  const userSessions = sessions.filter((s: any) => s.userId === user?.id);
   const activeSession = userSessions.find(s => s.status === 'active');
 
   const formatDuration = (minutes: number) => {
@@ -72,7 +102,7 @@ const UserDashboard: React.FC = () => {
       }
 
       // Find an available parking lot
-      const availableLot = mockParkingLots.find(lot => lot.availableSpots > 0);
+      const availableLot = lots.find((lot: any) => lot.availableSpots > 0);
       
       if (!availableLot) {
         setErrors(['No available parking spots at the moment.']);
@@ -80,20 +110,15 @@ const UserDashboard: React.FC = () => {
       }
 
       // Create new booking
-      const newBooking: Booking = {
-        id: Date.now().toString(),
-        userId: user?.id || '',
+      const created = await bookingService.create({
+        userId: user?.id,
         lotId: availableLot.id,
-        spotId: `spot-${Date.now()}`,
         vehicleId: userVehicle.id,
         startTime: `2024-01-01T${bookingData.startTime}:00Z`,
         endTime: `2024-01-01T${bookingData.endTime}:00Z`,
-        status: 'booked',
-        totalAmount: calculateBookingAmount(bookingData.startTime, bookingData.endTime, bookingData.spotType)
-      };
-
-      // Add to bookings
-      setBookings(prev => [...prev, newBooking]);
+        spotType: bookingData.spotType,
+      });
+      setBookings(prev => [...prev, created]);
       
       // Clear errors and close form
       setErrors([]);
@@ -280,8 +305,8 @@ const UserDashboard: React.FC = () => {
 
             <div className="grid gap-6">
               {userBookings.map((booking) => {
-                const lot = mockParkingLots.find(l => l.id === booking.lotId);
-                const vehicle = mockVehicles.find(v => v.id === booking.vehicleId);
+                const lot = lots.find((l: any) => l.id === booking.lotId);
+                const vehicle = vehicles.find((v: any) => v.id === booking.vehicleId);
                 
                 return (
                   <div key={booking.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">

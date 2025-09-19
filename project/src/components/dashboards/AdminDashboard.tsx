@@ -268,7 +268,7 @@ const AdminDashboard: React.FC = () => {
                   Parking Lots Overview
                 </h3>
                 <div className="space-y-4">
-                  {mockParkingLots.map((lot) => {
+                  {lots.map((lot) => {
                     const lotOccupancy =
                       ((lot.totalSpots - lot.availableSpots) / lot.totalSpots) *
                       100;
@@ -316,7 +316,7 @@ const AdminDashboard: React.FC = () => {
                 </h3>
                 <div className="space-y-4">
                   {["user", "manager", "admin"].map((role) => {
-                    const roleUsers = mockUsers.filter((u) => u.role === role);
+                    const roleUsers = users.filter((u) => u.role === role || u.role === role.toUpperCase());
                     const percentage = totalUsers > 0 ? (roleUsers.length / totalUsers) * 100 : 0;
 
                     return (
@@ -717,12 +717,12 @@ const AdminDashboard: React.FC = () => {
                     Parking Lot Performance
                   </h4>
                   <div className="space-y-3">
-                    {mockParkingLots.map((lot) => {
-                      const lotSessions = mockParkingSessions.filter(
-                        (s) => s.lotId === lot.id
+                    {lots.map((lot) => {
+                      const lotSessions = sessions.filter(
+                        (s: any) => s.lotId === lot.id
                       );
-                      const percentage = mockParkingSessions.length > 0
-                        ? (lotSessions.length / mockParkingSessions.length) * 100
+                      const percentage = sessions.length > 0
+                        ? (lotSessions.length / sessions.length) * 100
                         : 0;
 
                       return (
