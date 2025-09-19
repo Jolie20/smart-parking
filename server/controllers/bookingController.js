@@ -3,8 +3,8 @@ const {PrismaClient} = require('../generated/prisma');
 const prisma = new PrismaClient();
 
 exports.createBooking = async (req, res) => {
-  const userId = req.user; // Extracted from login/session      
-    console.log('the user id from token is',userId.id);
+  const userId = req.user.userId; // Extracted from login/session      
+    console.log('the user id from token is',userId);
     const { lotName, spotNumber, vehiclePlate, startTime, endTime, totalAmount } = req.body;
 
   try {
