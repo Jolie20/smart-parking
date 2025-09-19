@@ -11,13 +11,10 @@ import {
   Activity,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.tsx";
-import {
-  mockUsers,
-  mockParkingLots,
-  mockParkingSessions,
-  mockVehicles,
-  mockBookings,
-} from "../../data/mockData";
+import { adminService } from '../../services/adminService';
+import { userService } from '../../services/userService';
+import { lotService } from '../../services/lotService';
+import { sessionService } from '../../services/sessionService';
 import { User, ParkingLot, ParkingSession, Vehicle, Booking } from "../../types";
 
 const AdminDashboard: React.FC = () => {
@@ -26,6 +23,10 @@ const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [users, setUsers] = useState<any[]>([]);
+  const [lots, setLots] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [managers, setManagers] = useState<any[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
