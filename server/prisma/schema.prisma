@@ -25,7 +25,6 @@ model User {
   createdAt DateTime @default(now())
 
   vehicles Vehicle[]
-  lots     ParkingLot[]     @relation("ManagerLots")
   bookings Booking[]
   sessions ParkingSession[]
 }
@@ -53,7 +52,7 @@ model ParkingLot {
   hourlyRate     Float
   managerId      String
 
-  manager  User             @relation("ManagerLots", fields: [managerId], references: [id])
+  manager  manager?             @relation("ManagerLots", fields: [managerId], references: [id])
   spots    ParkingSpot[]
   bookings Booking[]
   sessions ParkingSession[]
@@ -161,4 +160,5 @@ model manager {
   phone    String @unique
   password String
   role     Role   @default (manager)
+  managedLots ParkingLot[] @relation("ManagerLots")
 }

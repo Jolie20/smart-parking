@@ -1,9 +1,44 @@
-const prisma = require('../generated/prisma');
+const { connect } = require('mongoose');
+const {PrismaClient} = require('../generated/prisma');
+const prisma = new PrismaClient();
 
 exports.createBooking = async (req, res) => {
+  const userId = req.user; // Extracted from login/session
+    console.log('the user id from token is',userId.id);
+    const { lotName, spotNumber, vehiclePlate, startTime, endTime, totalAmount } = req.body;
+
   try {
-    const { userId, lotId, spotId, vehicleId, startTime, endTime, status, totalAmount } = req.body;
-    const booking = await prisma.booking.create({ data: { userId, lotId, spotId, vehicleId, startTime, endTime, status, totalAmount } });
+    
+    // Find lotId by lotName
+    const lot = await prisma.parkingLot.findFirst({ where: { name: lotName } });
+    if (!lot) 
+      {
+        console.log('Invalid lot name:', lotName);
+        return res.status(400).json({ error: 'Invalid lot name' });
+      }
+
+    // Find spotId by spotNumber and lotId
+    const spot = await prisma.parkingSpot.findFirst({ where: { spotNumber, lotId: lot.id } });
+    if (!spot) return res.status(400).json({ error: 'Invalid spot number for this lot' });
+
+    // Find vehicleId by licensePlate and userId
+    const vehicle = await prisma.vehicle.findFirst({ where: { licensePlate: vehiclePlate, userId } });
+    if (!vehicle) return res.status(400).json({ error: 'Invalid vehicle plate for this user' });
+
+    // Create booking
+    const booking = await prisma.booking.create({
+      data: {
+        user: {connect:{id:userId}},
+        lotId: lot.id,
+        spotId: spot.id,
+        vehicleId: vehicle.id,
+        startTime,
+        endTime,
+        status:'pending',
+        totalAmount
+      }
+    });
+
     res.status(201).json(booking);
   } catch (err) {
     res.status(500).json({ error: err.message });

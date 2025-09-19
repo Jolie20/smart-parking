@@ -85,4 +85,12 @@ exports.createManager = async (req, res) => {
 return res.status(500).json({ error: error.message })
 };
 
-
+//get all managers
+exports.getManagers = async (req, res) => {
+  try {
+    const managers = await prisma.manager.findMany();
+    res.json(managers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
