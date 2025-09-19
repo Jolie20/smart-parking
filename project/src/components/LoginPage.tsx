@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Car, Mail, Lock, User, Phone, Loader2 } from "lucide-react";
+import { X, Car, Mail, Lock, Loader2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth.tsx";
 
 interface LoginPageProps {
@@ -13,18 +13,17 @@ const LoginPage: React.FC<LoginPageProps> = ({
   onClose,
   initialMode,
 }) => {
-  const [mode, setMode] = useState(initialMode);
+  // login-only flow
   const [who, setWho] = useState<'user' | 'admin'>('user');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
 
   const { login, adminLogin, signup, isLoading } = useAuth();
 
+  // keep backward compatibility with prop but ignore signup
   React.useEffect(() => {
-    setMode(initialMode);
+    // no-op: always show login
   }, [initialMode]); 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,19 +31,12 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setError("");
 
     try {
-      let success = false;
-      if (mode === "login") {
-        success = who === 'admin' ? await adminLogin(email, password) : await login(email, password);
-      } else {
-        success = await signup(email, password, name, phone);
-      }
+      const success = who === 'admin' ? await adminLogin(email, password) : await login(email, password);
 
       if (success) {
         onClose();
         setEmail("");
         setPassword("");
-        setName("");
-        setPhone("");
       } else {
         setError("Invalid email or password.");
       }
@@ -64,9 +56,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Car className="h-6 w-6 text-white" />
-              <h2 className="text-xl font-semibold text-white">
-                {mode === "login" ? "Welcome Back" : "Join SmartPark"}
-              </h2>
+              <h2 className="text-xl font-semibold text-white">Welcome Back</h2>
             </div>
             <button
               onClick={onClose}
@@ -80,7 +70,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {mode === 'login' && (
+          {
             <div className="flex justify-center gap-2">
               <button
                 type="button"
@@ -97,49 +87,13 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 Admin
               </button>
             </div>
-          )}
+          }
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
-          {mode === "signup" && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-              </div>
-            </>
-          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -186,21 +140,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 <span>Processing...</span>
               </>
             ) : (
-              <span>{mode === "login" ? "Sign In" : "Create Account"}</span>
+              <span>Sign In</span>
             )}
           </button>
-
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => setMode(mode === "login" ? "signup" : "login")}
-              className="text-blue-600 hover:text-blue-700 transition-colors text-sm font-medium"
-            >
-              {mode === "login"
-                ? "Don't have an account? Sign up"
-                : "Already have an account? Sign in"}
-            </button>
-          </div>
         </form>
       </div>
     </div>
