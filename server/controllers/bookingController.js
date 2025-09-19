@@ -33,7 +33,8 @@ exports.createBooking = async (req, res) => {
         vehicle: { connect: { id: vehicle.id } },
         startTime,
         endTime,
-        status:'pending',
+        status:'active',
+        paymentstatus:'pending',
         totalAmount
       }
     });

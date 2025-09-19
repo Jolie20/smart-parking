@@ -81,6 +81,8 @@ model Booking {
   endTime     DateTime
   status      BookingStatus
   totalAmount Float?
+  paymentstatus status
+  
 
   user    User        @relation(fields: [userId], references: [id])
   lot     ParkingLot  @relation(fields: [lotId], references: [id])
