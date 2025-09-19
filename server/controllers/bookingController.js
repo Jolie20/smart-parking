@@ -29,7 +29,7 @@ exports.createBooking = async (req, res) => {
     const booking = await prisma.booking.create({
       data: {
         user: {connect:{id:userId}},
-        lotId: lot.id,
+        lot: { connect: { id: lotId } },
         spotId: spot.id,
         vehicleId: vehicle.id,
         startTime,
