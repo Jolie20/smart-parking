@@ -33,22 +33,43 @@ const AdminDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // System-wide statistics with error handling
-  const totalUsers = mockUsers.length;
-  const totalVehicles = mockVehicles.length;
-  const totalParkingLots = mockParkingLots.length;
-  const activeSessions = mockParkingSessions.filter(
-    (s) => s.status === "active"
-  );
-  const totalRevenue = mockParkingSessions
-    .filter((s) => s.amount)
-    .reduce((sum, s) => sum + (s.amount || 0), 0);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsLoading(true);
+        const [u, l, s, m] = await Promise.all([
+          userService.list(),
+          lotService.list(),
+          sessionService.list(),
+          adminService.getManagers().catch(() => []),
+        ]);
+        setUsers(u || []);
+        setLots(l || []);
+        setSessions(s || []);
+        setManagers(m || []);
+      } catch (e) {
+        setErrors(["Failed to load dashboard data."]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, []);
 
-  const totalSpots = mockParkingLots.reduce(
+  // System-wide statistics with error handling
+  const totalUsers = users.length;
+  const totalVehicles = 0;
+  const totalParkingLots = lots.length;
+  const activeSessions = sessions.filter((s: any) => s.status === 'active');
+  const totalRevenue = sessions
+    .filter((s: any) => s.amount)
+    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+
+  const totalSpots = lots.reduce(
     (sum, lot) => sum + lot.totalSpots,
     0
   );
-  const availableSpots = mockParkingLots.reduce(
+  const availableSpots = lots.reduce(
     (sum, lot) => sum + lot.availableSpots,
     0
   );
