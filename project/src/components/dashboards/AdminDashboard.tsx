@@ -15,6 +15,7 @@ import { adminService } from '../../services/adminService';
 import { userService } from '../../services/userService';
 import { lotService } from '../../services/lotService';
 import { sessionService } from '../../services/sessionService';
+import { bookingService } from '../../services/bookingService';
 import { User, ParkingLot, ParkingSession, Vehicle, Booking } from "../../types";
 
 const AdminDashboard: React.FC = () => {
@@ -27,6 +28,7 @@ const AdminDashboard: React.FC = () => {
   const [lots, setLots] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -37,16 +39,18 @@ const AdminDashboard: React.FC = () => {
     const load = async () => {
       try {
         setIsLoading(true);
-        const [u, l, s, m] = await Promise.all([
+        const [u, l, s, m, b] = await Promise.all([
           userService.list(),
           lotService.list(),
           sessionService.list(),
           adminService.getManagers().catch(() => []),
+          bookingService.list().catch(() => []),
         ]);
         setUsers(u || []);
         setLots(l || []);
         setSessions(s || []);
         setManagers(m || []);
+        setBookings(b || []);
       } catch (e) {
         setErrors(["Failed to load dashboard data."]);
       } finally {
