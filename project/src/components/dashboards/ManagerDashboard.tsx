@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Car, Users, Activity, AlertTriangle, MapPin, Clock, TrendingUp, Eye } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.tsx';
-import { mockParkingLots, mockParkingSessions, mockUsers, mockVehicles } from '../../data/mockData';
+import { managerService } from '../../services/managerService';
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -13,19 +13,34 @@ const ManagerDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Manager sees data for their assigned parking lots
-  const managedLots = mockParkingLots.filter(lot => lot.managerId === user?.id);
-  const managedLotIds = managedLots.map(lot => lot.id);
-  const activeSessions = mockParkingSessions.filter(session => 
-    session.status === 'active' && managedLotIds.includes(session.lotId)
-  );
-  const todaySessions = mockParkingSessions.filter(session => {
-    const sessionDate = new Date(session.checkInTime).toDateString();
-    const today = new Date().toDateString();
-    return sessionDate === today && managedLotIds.includes(session.lotId);
-  });
+  const [managedLots, setManagedLots] = useState<any[]>([]);
+  const [activeSessions, setActiveSessions] = useState<any[]>([]);
+  const [todaySessions, setTodaySessions] = useState<any[]>([]);
 
-  const totalRevenue = mockParkingSessions
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [lots, sessions] = await Promise.all([
+          managerService.getLots(),
+          managerService.getSessions(),
+        ]);
+        setManagedLots(lots || []);
+        const active = (sessions || []).filter((s: any) => s.status === 'active');
+        setActiveSessions(active);
+        const today = new Date().toDateString();
+        setTodaySessions((sessions || []).filter((s: any) => new Date(s.checkInTime).toDateString() === today));
+      } catch (e) {
+        setManagedLots([]);
+        setActiveSessions([]);
+        setTodaySessions([]);
+      }
+    };
+    load();
+  }, []);
+
+  const managedLotIds = managedLots.map(lot => lot.id);
+
+  const totalRevenue = activeSessions
     .filter(session => session.amount && managedLotIds.includes(session.lotId))
     .reduce((sum, session) => sum + (session.amount || 0), 0);
 
@@ -202,8 +217,8 @@ const ManagerDashboard: React.FC = () => {
             <div className="grid gap-6">
               {activeSessions.map((session) => {
                 const lot = managedLots.find(l => l.id === session.lotId);
-                const vehicle = mockVehicles.find(v => v.id === session.vehicleId);
-                const customer = mockUsers.find(u => u.id === session.userId);
+                const vehicle = session.vehicle;
+                const customer = session.user;
                 const duration = getSessionDuration(session);
                 const estimatedCost = (duration / 60) * (lot?.hourlyRate || 0);
                 

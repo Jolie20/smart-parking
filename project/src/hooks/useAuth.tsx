@@ -1,6 +1,6 @@
 import { useState, createContext, useContext, ReactNode } from 'react';
 import { User } from '../types';
-import { mockUsers } from '../data/mockData';
+import { authService } from '../services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -26,40 +26,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser) {
-      setUser(foundUser);
-      setIsLoading(false);
+    try {
+      const { user, token } = await authService.userLogin(email, password);
+      setUser({
+        id: String(user.id),
+        email: user.email,
+        name: (user as any).name || user.email,
+        role: (user.role as any) === 'ADMIN' ? 'admin' : (user.role as any),
+        createdAt: new Date().toISOString(),
+      });
       return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-    return false;
   };
 
   const signup = async (email: string, password: string, name: string, phone?: string): Promise<boolean> => {
-    setIsLoading(true);
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newUser: User = {
-      id: String(mockUsers.length + 1),
-      email,
-      name,
-      role: 'user',
-      phone,
-      createdAt: new Date().toISOString()
-    };
-    
-    mockUsers.push(newUser);
-    setUser(newUser);
-    setIsLoading(false);
-    return true;
+    // If backend has signup, wire it here. For now, return false to indicate not implemented.
+    return false;
   };
 
   const logout = () => {
+    authService.logout();
     setUser(null);
   };
 
