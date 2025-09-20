@@ -150,6 +150,51 @@ const UserDashboard: React.FC = () => {
     setErrors([]);
   };
 
+  const handleVehicleSubmit = async (vehicleData: CreateVehicleRequest) => {
+    try {
+      setIsLoading(true);
+      const created = await vehicleService.create(vehicleData);
+      setVehicles(prev => [...prev, created]);
+      setShowVehicleForm(false);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error creating vehicle:', error);
+      setErrors(['Failed to add vehicle. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteVehicle = async (vehicleId: string) => {
+    try {
+      setIsLoading(true);
+      await vehicleService.remove(vehicleId);
+      setVehicles(prev => prev.filter(v => v.id !== vehicleId));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      setErrors(['Failed to delete vehicle. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      setIsLoading(true);
+      await bookingService.cancel(bookingId);
+      setBookings(prev => prev.map(b => 
+        b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
+      ));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      setErrors(['Failed to cancel booking. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Activity },
     { id: 'bookings', label: 'My Bookings', icon: Calendar },
