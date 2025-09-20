@@ -16,7 +16,17 @@ import { userService } from '../../services/userService';
 import { lotService } from '../../services/lotService';
 import { sessionService } from '../../services/sessionService';
 import { bookingService } from '../../services/bookingService';
-import { User, ParkingLot, ParkingSession, Vehicle, Booking } from "../../types";
+import { 
+  User, 
+  ParkingLot, 
+  ParkingSession, 
+  Vehicle, 
+  Booking, 
+  Manager, 
+  Analytics,
+  DashboardStats 
+} from "../../types";
+import { mockParkingSessions, mockUsers, mockVehicles } from '../../data/mockData';
 
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -24,11 +34,11 @@ const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
-  const [lots, setLots] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [managers, setManagers] = useState<any[]>([]);
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [lots, setLots] = useState<ParkingLot[]>([]);
+  const [sessions, setSessions] = useState<ParkingSession[]>([]);
+  const [managers, setManagers] = useState<Manager[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
