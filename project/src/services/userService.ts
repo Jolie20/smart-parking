@@ -3,8 +3,7 @@ import {
 	User, 
 	CreateUserRequest, 
 	UpdateUserRequest, 
-	ApiResponse, 
-	PaginatedResponse 
+	ApiResponse
 } from '../types';
 
 export const userService = {

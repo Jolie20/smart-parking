@@ -3,8 +3,7 @@ import {
 	Booking, 
 	CreateBookingRequest, 
 	UpdateBookingRequest, 
-	ApiResponse, 
-	PaginatedResponse 
+	ApiResponse
 } from '../types';
 
 export const bookingService = {
