@@ -1097,6 +1097,44 @@ const AdminDashboard: React.FC = () => {
         )}
       </main>
 
+      {/* Form Modals */}
+      {showUserForm && (
+        <UserForm 
+          onClose={() => {
+            setShowUserForm(false);
+            setEditingUser(null);
+          }}
+          onSubmit={handleUserSubmit}
+          editingUser={editingUser}
+          isEditing={!!editingUser}
+        />
+      )}
+
+      {showLotForm && (
+        <LotForm 
+          onClose={() => {
+            setShowLotForm(false);
+            setEditingLot(null);
+          }}
+          onSubmit={handleLotSubmit}
+          editingLot={editingLot}
+          isEditing={!!editingLot}
+          managers={users.filter(u => u.role === 'manager')}
+        />
+      )}
+
+      {showManagerForm && (
+        <ManagerForm 
+          onClose={() => {
+            setShowManagerForm(false);
+            setEditingManager(null);
+          }}
+          onSubmit={handleManagerSubmit}
+          editingManager={editingManager}
+          isEditing={!!editingManager}
+        />
+      )}
+
       {/* Error Display */}
       {errors.length > 0 && (
         <div className="fixed top-4 right-4 z-50 max-w-md">
