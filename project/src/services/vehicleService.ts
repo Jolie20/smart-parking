@@ -8,7 +8,7 @@ import {
 
 export const vehicleService = {
 	list: (): Promise<Vehicle[]> => 
-		api.get('/vehicles').then(r => r.data),
+		api.get('api/vehicles').then(r => r.data),
 	
 	getById: (id: string): Promise<Vehicle> => 
 		api.get(`/vehicles/${id}`).then(r => r.data),
