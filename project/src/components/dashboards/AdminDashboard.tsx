@@ -72,12 +72,12 @@ const AdminDashboard: React.FC = () => {
 
   // System-wide statistics with error handling
   const totalUsers = users.length;
-  const totalVehicles = 0;
+  const totalVehicles = mockVehicles.length; // Using mock data for now
   const totalParkingLots = lots.length;
-  const activeSessions = sessions.filter((s: any) => s.status === 'active');
+  const activeSessions = sessions.filter((s: ParkingSession) => s.status === 'active');
   const totalRevenue = sessions
-    .filter((s: any) => s.amount)
-    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+    .filter((s: ParkingSession) => s.amount)
+    .reduce((sum: number, s: ParkingSession) => sum + (s.amount || 0), 0);
 
   const totalSpots = lots.reduce(
     (sum, lot) => sum + lot.totalSpots,
