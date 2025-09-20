@@ -27,6 +27,9 @@ import {
   DashboardStats 
 } from "../../types";
 import { mockParkingSessions, mockUsers, mockVehicles } from '../../data/mockData';
+import UserForm from './forms/UserForm';
+import LotForm from './forms/LotForm';
+import ManagerForm from './forms/ManagerForm';
 
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -34,6 +37,12 @@ const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [showLotForm, setShowLotForm] = useState(false);
+  const [showManagerForm, setShowManagerForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingLot, setEditingLot] = useState<ParkingLot | null>(null);
+  const [editingManager, setEditingManager] = useState<Manager | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [lots, setLots] = useState<ParkingLot[]>([]);
   const [sessions, setSessions] = useState<ParkingSession[]>([]);
