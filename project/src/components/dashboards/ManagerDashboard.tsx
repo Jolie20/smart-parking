@@ -19,7 +19,11 @@ const ManagerDashboard: React.FC = () => {
   const [managedLots, setManagedLots] = useState<ParkingLot[]>([]);
   const [activeSessions, setActiveSessions] = useState<ParkingSession[]>([]);
   const [todaySessions, setTodaySessions] = useState<ParkingSession[]>([]);
+  const [spots, setSpots] = useState<ParkingSpot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSpotForm, setShowSpotForm] = useState(false);
+  const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
+  const [selectedLotId, setSelectedLotId] = useState<string>('');
 
   useEffect(() => {
     const load = async () => {
