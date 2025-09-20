@@ -357,7 +357,7 @@ const UserDashboard: React.FC = () => {
                         <div className="flex items-center space-x-3 mb-3">
                           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                             booking.status === 'active' ? 'bg-green-100 text-green-800' :
-                            booking.status === 'booked' ? 'bg-blue-100 text-blue-800' :
+                            booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
                             booking.status === 'completed' ? 'bg-gray-100 text-gray-800' :
                             'bg-red-100 text-red-800'
                           }`}>
