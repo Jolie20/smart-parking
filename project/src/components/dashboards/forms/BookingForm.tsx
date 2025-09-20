@@ -225,6 +225,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
                   value={formData.endTime}
                   onChange={(e) => handleChange('endTime', e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  title="Select end time"
                 />
               </div>
             </div>
