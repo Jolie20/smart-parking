@@ -12,7 +12,7 @@ import VehicleForm from './VehicleForm.tsx';
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [, setCurrentTime] = useState(new Date());
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -55,7 +55,7 @@ const UserDashboard: React.FC = () => {
   const userVehicles = vehicles.filter((v: Vehicle) => v.userId === user?.id);
   const userBookings = bookings.filter((b: Booking) => b.userId === user?.id);
   const userSessions = sessions.filter((s: ParkingSession) => s.userId === user?.id);
-  const activeSession = userSessions.find(s => s.status === 'active');
+  // const activeSession = userSessions.find(s => s.status === 'active');
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
