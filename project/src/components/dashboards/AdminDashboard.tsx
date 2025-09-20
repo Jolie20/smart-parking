@@ -604,7 +604,7 @@ const AdminDashboard: React.FC = () => {
               </h2>
               <button 
                 className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-                onClick={() => handleAction('add parking lot')}
+                onClick={() => setShowLotForm(true)}
                 disabled={isLoading}
                 aria-label="Add new parking lot"
               >
