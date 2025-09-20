@@ -1,7 +1,6 @@
 import api from '../lib/axios';
 import { 
-	ParkingSession, 
-	ApiResponse 
+	ParkingSession
 } from '../types';
 
 export interface CheckInRequest {

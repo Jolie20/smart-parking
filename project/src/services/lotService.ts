@@ -3,8 +3,7 @@ import {
 	ParkingLot, 
 	CreateLotRequest, 
 	UpdateLotRequest, 
-	ApiResponse, 
-	PaginatedResponse 
+	ApiResponse
 } from '../types';
 
 export const lotService = {

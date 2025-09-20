@@ -2,9 +2,7 @@ import api from '../lib/axios';
 import { 
 	ParkingLot, 
 	ParkingSession, 
-	Manager, 
-	ManagerDashboardData,
-	ApiResponse 
+	ManagerDashboardData
 } from '../types';
 
 export const managerService = {
