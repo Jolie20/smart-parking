@@ -165,6 +165,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, onSubmit }) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 min="1900"
                 max={new Date().getFullYear() + 1}
+                title="Enter vehicle year"
+                placeholder="2024"
               />
             </div>
             <div>
