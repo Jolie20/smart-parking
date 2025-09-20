@@ -12,6 +12,7 @@ import {
   Activity,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.tsx";
+<<<<<<< HEAD
 import {
   mockUsers,
   mockParkingLots,
@@ -26,6 +27,27 @@ import {
   Vehicle,
   Booking,
 } from "../../types";
+=======
+import { adminService } from '../../services/adminService';
+import { userService } from '../../services/userService';
+import { lotService } from '../../services/lotService';
+import { sessionService } from '../../services/sessionService';
+import { bookingService } from '../../services/bookingService';
+import { 
+  User, 
+  ParkingLot, 
+  ParkingSession, 
+  Vehicle, 
+  Booking, 
+  Manager, 
+  Analytics,
+  DashboardStats 
+} from "../../types";
+import { mockParkingSessions, mockUsers, mockVehicles, mockParkingLots } from '../../data/mockData';
+import UserForm from './forms/UserForm';
+import LotForm from './forms/LotForm';
+import ManagerForm from './forms/ManagerForm';
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -33,29 +55,66 @@ const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+<<<<<<< HEAD
   const { latest } = useArduinoStream();
+=======
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [showLotForm, setShowLotForm] = useState(false);
+  const [showManagerForm, setShowManagerForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingLot, setEditingLot] = useState<ParkingLot | null>(null);
+  const [editingManager, setEditingManager] = useState<Manager | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [lots, setLots] = useState<ParkingLot[]>([]);
+  const [sessions, setSessions] = useState<ParkingSession[]>([]);
+  const [managers, setManagers] = useState<Manager[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // System-wide statistics with error handling
-  const totalUsers = mockUsers.length;
-  const totalVehicles = mockVehicles.length;
-  const totalParkingLots = mockParkingLots.length;
-  const activeSessions = mockParkingSessions.filter(
-    (s) => s.status === "active"
-  );
-  const totalRevenue = mockParkingSessions
-    .filter((s) => s.amount)
-    .reduce((sum, s) => sum + (s.amount || 0), 0);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsLoading(true);
+        const [u, l, s, m, b] = await Promise.all([
+          userService.list(),
+          lotService.list(),
+          sessionService.list(),
+          adminService.getManagers().catch(() => []),
+          bookingService.list().catch(() => []),
+        ]);
+        setUsers(u || []);
+        setLots(l || []);
+        setSessions(s || []);
+        setManagers(m || []);
+        setBookings(b || []);
+      } catch (e) {
+        setErrors(["Failed to load dashboard data."]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, []);
 
-  const totalSpots = mockParkingLots.reduce(
+  // System-wide statistics with error handling
+  const totalUsers = users.length;
+  const totalVehicles = mockVehicles.length; // Using mock data for now
+  const totalParkingLots = lots.length;
+  const activeSessions = sessions.filter((s: ParkingSession) => s.status === 'active');
+  const totalRevenue = sessions
+    .filter((s: ParkingSession) => s.amount)
+    .reduce((sum: number, s: ParkingSession) => sum + (s.amount || 0), 0);
+
+  const totalSpots = lots.reduce(
     (sum, lot) => sum + lot.totalSpots,
     0
   );
-  const availableSpots = mockParkingLots.reduce(
+  const availableSpots = lots.reduce(
     (sum, lot) => sum + lot.availableSpots,
     0
   );
@@ -100,6 +159,107 @@ const AdminDashboard: React.FC = () => {
 
   const clearErrors = () => {
     setErrors([]);
+  };
+
+  const handleUserSubmit = async (userData: any) => {
+    try {
+      setIsLoading(true);
+      if (editingUser) {
+        const updated = await adminService.updateUser(editingUser.id, userData);
+        setUsers(prev => prev.map(u => u.id === editingUser.id ? updated : u));
+      } else {
+        const created = await adminService.createUser(userData);
+        setUsers(prev => [...prev, created]);
+      }
+      setShowUserForm(false);
+      setEditingUser(null);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error saving user:', error);
+      setErrors(['Failed to save user. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLotSubmit = async (lotData: any) => {
+    try {
+      setIsLoading(true);
+      if (editingLot) {
+        const updated = await lotService.update(editingLot.id, lotData);
+        setLots(prev => prev.map(l => l.id === editingLot.id ? updated : l));
+      } else {
+        const created = await lotService.create(lotData);
+        setLots(prev => [...prev, created]);
+      }
+      setShowLotForm(false);
+      setEditingLot(null);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error saving lot:', error);
+      setErrors(['Failed to save parking lot. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleManagerSubmit = async (managerData: any) => {
+    try {
+      setIsLoading(true);
+      const created = await adminService.createManager({
+        userId: 'temp', // This would be handled by the backend
+        employeeId: managerData.employeeId,
+        department: managerData.department,
+        permissions: managerData.permissions
+      });
+      setManagers(prev => [...prev, created]);
+      setShowManagerForm(false);
+      setEditingManager(null);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error saving manager:', error);
+      setErrors(['Failed to save manager. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setShowUserForm(true);
+  };
+
+  const handleEditLot = (lot: ParkingLot) => {
+    setEditingLot(lot);
+    setShowLotForm(true);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      setIsLoading(true);
+      await adminService.deleteUser(userId);
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setErrors(['Failed to delete user. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteLot = async (lotId: string) => {
+    try {
+      setIsLoading(true);
+      await lotService.remove(lotId);
+      setLots(prev => prev.filter(l => l.id !== lotId));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error deleting lot:', error);
+      setErrors(['Failed to delete parking lot. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const tabs = [
@@ -255,7 +415,7 @@ const AdminDashboard: React.FC = () => {
                   Parking Lots Overview
                 </h3>
                 <div className="space-y-4">
-                  {mockParkingLots.map((lot) => {
+                  {lots.map((lot) => {
                     const lotOccupancy =
                       ((lot.totalSpots - lot.availableSpots) / lot.totalSpots) *
                       100;
@@ -305,11 +465,16 @@ const AdminDashboard: React.FC = () => {
                 </h3>
                 <div className="space-y-4">
                   {["user", "manager", "admin"].map((role) => {
+<<<<<<< HEAD
                     const roleUsers = mockUsers.filter((u) => u.role === role);
                     const percentage =
                       totalUsers > 0
                         ? (roleUsers.length / totalUsers) * 100
                         : 0;
+=======
+                    const roleUsers = users.filter((u) => u.role === role || u.role === role.toUpperCase());
+                    const percentage = totalUsers > 0 ? (roleUsers.length / totalUsers) * 100 : 0;
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
                     return (
                       <div
@@ -392,6 +557,7 @@ const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 User Management
               </h2>
+<<<<<<< HEAD
               <button
                 className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
                 onClick={() => handleAction("add user")}
@@ -400,6 +566,26 @@ const AdminDashboard: React.FC = () => {
               >
                 {isLoading ? "Adding..." : "Add New User"}
               </button>
+=======
+              <div className="flex space-x-3">
+                <button 
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  onClick={() => setShowUserForm(true)}
+                  disabled={isLoading}
+                  aria-label="Add new user"
+                >
+                  {isLoading ? 'Adding...' : 'Add New User'}
+                </button>
+                <button 
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  onClick={() => setShowManagerForm(true)}
+                  disabled={isLoading}
+                  aria-label="Add new manager"
+                >
+                  {isLoading ? 'Adding...' : 'Add Manager'}
+                </button>
+              </div>
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
             </div>
 
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
@@ -428,50 +614,47 @@ const AdminDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {mockUsers.map((user) => {
-                      const userVehicles = mockVehicles.filter(
-                        (v) => v.userId === user.id
-                      );
-                      const userSessions = mockParkingSessions.filter(
-                        (s) => s.userId === user.id
+                    {users.map((u) => {
+                      const userSessions = sessions.filter(
+                        (s: ParkingSession) => s.userId === u.id
                       );
 
                       return (
-                        <tr key={user.id} className="hover:bg-gray-50">
+                        <tr key={u.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4">
                             <div>
                               <p className="font-medium text-gray-900">
-                                {user.name}
+                                {u.name || u.email}
                               </p>
                               <p className="text-sm text-gray-500">
-                                {user.email}
+                                {u.email}
                               </p>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                user.role === "admin"
+                                u.role === "admin"
                                   ? "bg-purple-100 text-purple-800"
-                                  : user.role === "manager"
+                                  : u.role === "manager"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-blue-100 text-blue-800"
                               }`}
                             >
-                              {user.role.charAt(0).toUpperCase() +
-                                user.role.slice(1)}
+                              {(u.role || '').toString().toLowerCase().replace(/^[a-z]/, c => c.toUpperCase())}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
-                            {user.phone || "N/A"}
+                            {u.phone || "N/A"}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
-                            {userVehicles.length}
+                            -
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
                             {userSessions.length}
                           </td>
                           <td className="px-6 py-4">
+<<<<<<< HEAD
                             <button
                               className="text-purple-600 hover:text-purple-900 text-sm font-medium"
                               onClick={() =>
@@ -481,6 +664,25 @@ const AdminDashboard: React.FC = () => {
                             >
                               View Details
                             </button>
+=======
+                            <div className="flex space-x-2">
+                              <button 
+                                className="text-purple-600 hover:text-purple-900 text-sm font-medium"
+                                onClick={() => handleEditUser(u)}
+                                aria-label={`Edit ${u.name || u.email}`}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className="text-red-600 hover:text-red-900 text-sm font-medium"
+                                onClick={() => handleDeleteUser(u.id)}
+                                disabled={isLoading}
+                                aria-label={`Delete ${u.name || u.email}`}
+                              >
+                                Delete
+                              </button>
+                            </div>
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                           </td>
                         </tr>
                       );
@@ -500,7 +702,11 @@ const AdminDashboard: React.FC = () => {
               </h2>
               <button
                 className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+<<<<<<< HEAD
                 onClick={() => handleAction("add parking lot")}
+=======
+                onClick={() => setShowLotForm(true)}
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                 disabled={isLoading}
                 aria-label="Add new parking lot"
               >
@@ -509,17 +715,17 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="grid gap-6">
-              {mockParkingLots.map((lot) => {
+              {lots.map((lot) => {
                 const lotOccupancy =
                   ((lot.totalSpots - lot.availableSpots) / lot.totalSpots) *
                   100;
-                const lotSessions = mockParkingSessions.filter(
-                  (s) => s.lotId === lot.id
+                const lotSessions = sessions.filter(
+                  (s: ParkingSession) => s.lotId === lot.id
                 );
                 const lotRevenue = lotSessions
                   .filter((s) => s.amount)
                   .reduce((sum, s) => sum + (s.amount || 0), 0);
-                const manager = mockUsers.find((u) => u.id === lot.managerId);
+                const manager = users.find((u) => u.id === lot.managerId);
 
                 return (
                   <div
@@ -585,19 +791,31 @@ const AdminDashboard: React.FC = () => {
                     <div className="mt-6 flex justify-end space-x-3">
                       <button
                         className="px-4 py-2 text-purple-600 hover:text-purple-800 transition-colors"
+<<<<<<< HEAD
                         onClick={() => handleAction("edit parking lot", lot.id)}
+=======
+                        onClick={() => handleEditLot(lot)}
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                         aria-label={`Edit ${lot.name}`}
                       >
                         Edit
                       </button>
+<<<<<<< HEAD
                       <button
                         className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                         onClick={() =>
                           handleAction("view parking lot details", lot.id)
                         }
                         aria-label={`View details for ${lot.name}`}
+=======
+                      <button 
+                        className="px-4 py-2 text-red-600 hover:text-red-800 transition-colors"
+                        onClick={() => handleDeleteLot(lot.id)}
+                        disabled={isLoading}
+                        aria-label={`Delete ${lot.name}`}
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                       >
-                        View Details
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -725,14 +943,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <p className="text-3xl font-bold text-blue-600">
-                    {mockParkingSessions.length}
+                    {sessions.length}
                   </p>
                   <p className="text-sm text-gray-600">Total Sessions</p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <p className="text-3xl font-bold text-purple-600">
-                    {mockParkingSessions.length > 0
-                      ? (totalRevenue / mockParkingSessions.length).toFixed(2)
+                    {sessions.length > 0
+                      ? (totalRevenue / sessions.length).toFixed(2)
                       : "0.00"}
                   </p>
                   <p className="text-sm text-gray-600">Avg. Session Value</p>
@@ -759,15 +977,21 @@ const AdminDashboard: React.FC = () => {
                     Parking Lot Performance
                   </h4>
                   <div className="space-y-3">
-                    {mockParkingLots.map((lot) => {
-                      const lotSessions = mockParkingSessions.filter(
-                        (s) => s.lotId === lot.id
+                    {lots.map((lot) => {
+                      const lotSessions = sessions.filter(
+                        (s: ParkingSession) => s.lotId === lot.id
                       );
+<<<<<<< HEAD
                       const percentage =
                         mockParkingSessions.length > 0
                           ? (lotSessions.length / mockParkingSessions.length) *
                             100
                           : 0;
+=======
+                      const percentage = sessions.length > 0
+                        ? (lotSessions.length / sessions.length) * 100
+                        : 0;
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
                       return (
                         <div
@@ -806,7 +1030,7 @@ const AdminDashboard: React.FC = () => {
                         Active Users
                       </span>
                       <span className="text-sm font-medium">
-                        {mockUsers.filter((u) => u.role === "user").length}
+                        {users.filter((u) => (u.role || '').toString().toLowerCase() === "user").length}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -822,7 +1046,7 @@ const AdminDashboard: React.FC = () => {
                         Total Bookings
                       </span>
                       <span className="text-sm font-medium">
-                        {mockBookings.length}
+                        {bookings.length}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1012,6 +1236,44 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Form Modals */}
+      {showUserForm && (
+        <UserForm 
+          onClose={() => {
+            setShowUserForm(false);
+            setEditingUser(null);
+          }}
+          onSubmit={handleUserSubmit}
+          editingUser={editingUser}
+          isEditing={!!editingUser}
+        />
+      )}
+
+      {showLotForm && (
+        <LotForm 
+          onClose={() => {
+            setShowLotForm(false);
+            setEditingLot(null);
+          }}
+          onSubmit={handleLotSubmit}
+          editingLot={editingLot}
+          isEditing={!!editingLot}
+          managers={users.filter(u => u.role === 'manager')}
+        />
+      )}
+
+      {showManagerForm && (
+        <ManagerForm 
+          onClose={() => {
+            setShowManagerForm(false);
+            setEditingManager(null);
+          }}
+          onSubmit={handleManagerSubmit}
+          editingManager={editingManager}
+          isEditing={!!editingManager}
+        />
+      )}
 
       {/* Error Display */}
       {errors.length > 0 && (

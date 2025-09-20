@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import {
   Car,
@@ -25,20 +26,46 @@ const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [currentTime, setCurrentTime] = useState(new Date());
+=======
+import React, { useState, useEffect } from 'react';
+import { Car, MapPin, Clock, CreditCard, Plus, Calendar, Activity, User, Phone, Mail, Edit, Trash2 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { vehicleService } from '../../services/vehicleService';
+import { bookingService } from '../../services/bookingService';
+import { sessionService } from '../../services/sessionService';
+import { lotService } from '../../services/lotService';
+import { Vehicle, Booking, ParkingSession, ParkingLot, CreateVehicleRequest } from '../../types';
+import BookingForm from './forms/BookingForm.tsx';
+import VehicleForm from './VehicleForm.tsx';
+
+const UserDashboard: React.FC = () => {
+  const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [, setCurrentTime] = useState(new Date());
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [bookings, setBookings] = useState(mockBookings);
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [sessions, setSessions] = useState<ParkingSession[]>([]);
+  const [lots, setLots] = useState<ParkingLot[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+<<<<<<< HEAD
   const [deviceMessage, setDeviceMessage] = useState<string | null>(null);
   const [deviceBalance, setDeviceBalance] = useState<number | null>(null);
   const [deviceCost, setDeviceCost] = useState<number | null>(null);
   const [deviceTime, setDeviceTime] = useState<number | null>(null);
   const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+=======
+  const [isLoading, setIsLoading] = useState(false);
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+<<<<<<< HEAD
   // Fetch available slots on component mount and every 30 seconds
   useEffect(() => {
     const fetchAvailableSlots = async () => {
@@ -62,6 +89,37 @@ const UserDashboard: React.FC = () => {
   const userBookings = bookings.filter((b) => b.userId === user?.id);
   const userSessions = mockParkingSessions.filter((s) => s.userId === user?.id);
   const activeSession = userSessions.find((s) => s.status === "active");
+=======
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsLoading(true);
+        const [b, v, s, l] = await Promise.all([
+          bookingService.getByUserId(user?.id || ''),
+          vehicleService.getByUserId(user?.id || ''),
+          sessionService.getByUserId(user?.id || ''),
+          lotService.list(),
+        ]);
+        setBookings(b || []);
+        setVehicles(v || []);
+        setSessions(s || []);
+        setLots(l || []);
+      } catch (e) {
+        setErrors(['Failed to load your data.']);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (user?.id) {
+      load();
+    }
+  }, [user?.id]);
+
+  const userVehicles = vehicles.filter((v: Vehicle) => v.userId === user?.id);
+  const userBookings = bookings.filter((b: Booking) => b.userId === user?.id);
+  const userSessions = sessions.filter((s: ParkingSession) => s.userId === user?.id);
+  // const activeSession = userSessions.find(s => s.status === 'active');
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -69,14 +127,9 @@ const UserDashboard: React.FC = () => {
     return `${hours}h ${mins}m`;
   };
 
-  const getActiveSessionDuration = () => {
-    if (!activeSession) return 0;
-    const checkIn = new Date(activeSession.checkInTime);
-    const diffMs = currentTime.getTime() - checkIn.getTime();
-    return Math.floor(diffMs / (1000 * 60));
-  };
+  // active session duration can be computed inline when needed
 
-  const handleBookingSubmit = (bookingData: any) => {
+  const handleBookingSubmit = async (bookingData: any) => {
     try {
       // Validate booking data
       const validationErrors: string[] = [];
@@ -115,24 +168,33 @@ const UserDashboard: React.FC = () => {
       }
 
       // Find an available parking lot
+<<<<<<< HEAD
       const availableLot = mockParkingLots.find(
         (lot) => lot.availableSpots > 0
       );
 
+=======
+      const availableLot = lots.find((lot: any) => lot.availableSpots > 0);
+      
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
       if (!availableLot) {
         setErrors(["No available parking spots at the moment."]);
         return;
       }
 
       // Create new booking
+<<<<<<< HEAD
       const newBooking: Booking = {
         id: Date.now().toString(),
         userId: user?.id || "",
+=======
+      const created = await bookingService.create({
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
         lotId: availableLot.id,
-        spotId: `spot-${Date.now()}`,
         vehicleId: userVehicle.id,
         startTime: `2024-01-01T${bookingData.startTime}:00Z`,
         endTime: `2024-01-01T${bookingData.endTime}:00Z`,
+<<<<<<< HEAD
         status: "booked",
         totalAmount: calculateBookingAmount(
           bookingData.startTime,
@@ -149,12 +211,24 @@ const UserDashboard: React.FC = () => {
       setShowBookingForm(false);
 
       console.log("Booking created successfully:", newBooking);
+=======
+      });
+      setBookings(prev => [...prev, created]);
+      
+      // Clear errors and close form
+      setErrors([]);
+      setShowBookingForm(false);
+      
+      console.log('Booking created successfully:', created);
+      
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
     } catch (error) {
       console.error("Error creating booking:", error);
       setErrors(["An unexpected error occurred. Please try again."]);
     }
   };
 
+<<<<<<< HEAD
   const calculateBookingAmount = (
     startTime: string,
     endTime: string,
@@ -173,10 +247,71 @@ const UserDashboard: React.FC = () => {
 
     return hours * (rates[spotType as keyof typeof rates] || 2);
   };
+=======
+  // const calculateBookingAmount = (startTime: string, endTime: string, spotType: string): number => {
+  //   const start = new Date(`2024-01-01T${startTime}:00`);
+  //   const end = new Date(`2024-01-01T${endTime}:00`);
+  //   const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    
+  //   const rates = {
+  //     regular: 2,
+  //     premium: 3,
+  //     covered: 4,
+  //     electric: 5
+  //   };
+    
+  //   return hours * (rates[spotType as keyof typeof rates] || 2);
+  // };
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
   const handleCloseBookingForm = () => {
     setShowBookingForm(false);
     setErrors([]);
+  };
+
+  const handleVehicleSubmit = async (vehicleData: CreateVehicleRequest) => {
+    try {
+      setIsLoading(true);
+      const created = await vehicleService.create(vehicleData);
+      setVehicles(prev => [...prev, created]);
+      setShowVehicleForm(false);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error creating vehicle:', error);
+      setErrors(['Failed to add vehicle. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteVehicle = async (vehicleId: string) => {
+    try {
+      setIsLoading(true);
+      await vehicleService.remove(vehicleId);
+      setVehicles(prev => prev.filter(v => v.id !== vehicleId));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      setErrors(['Failed to delete vehicle. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      setIsLoading(true);
+      await bookingService.cancel(bookingId);
+      setBookings(prev => prev.map(b => 
+        b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
+      ));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      setErrors(['Failed to cancel booking. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const tabs = [
@@ -435,9 +570,13 @@ const UserDashboard: React.FC = () => {
               </h3>
               <div className="space-y-4">
                 {userSessions.slice(0, 3).map((session) => {
+<<<<<<< HEAD
                   const lot = mockParkingLots.find(
                     (l) => l.id === session.lotId
                   );
+=======
+                  const lot = lots.find((l: any) => l.id === session.lotId);
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                   return (
                     <div
                       key={session.id}
@@ -618,11 +757,17 @@ const UserDashboard: React.FC = () => {
 
             <div className="grid gap-6">
               {userBookings.map((booking) => {
+<<<<<<< HEAD
                 const lot = mockParkingLots.find((l) => l.id === booking.lotId);
                 const vehicle = mockVehicles.find(
                   (v) => v.id === booking.vehicleId
                 );
 
+=======
+                const lot = lots.find((l: any) => l.id === booking.lotId);
+                const vehicle = vehicles.find((v: any) => v.id === booking.vehicleId);
+                
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                 return (
                   <div
                     key={booking.id}
@@ -631,6 +776,7 @@ const UserDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-3">
+<<<<<<< HEAD
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-medium ${
                               booking.status === "active"
@@ -644,6 +790,15 @@ const UserDashboard: React.FC = () => {
                           >
                             {booking.status.charAt(0).toUpperCase() +
                               booking.status.slice(1)}
+=======
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            booking.status === 'active' ? 'bg-green-100 text-green-800' :
+                            booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
+                            booking.status === 'completed' ? 'bg-gray-100 text-gray-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                           </span>
                           <h3 className="text-lg font-semibold text-gray-900">
                             {lot?.name}
@@ -673,6 +828,7 @@ const UserDashboard: React.FC = () => {
                           </div>
                         </div>
                       </div>
+<<<<<<< HEAD
 
                       {booking.totalAmount && (
                         <div className="text-right">
@@ -682,6 +838,26 @@ const UserDashboard: React.FC = () => {
                           <p className="text-sm text-gray-500">Total Cost</p>
                         </div>
                       )}
+=======
+                      
+                      <div className="text-right">
+                        {booking.totalAmount && (
+                          <>
+                            <p className="text-2xl font-bold text-gray-900">${booking.totalAmount.toFixed(2)}</p>
+                            <p className="text-sm text-gray-500">Total Cost</p>
+                          </>
+                        )}
+                        {booking.status === 'confirmed' && (
+                          <button 
+                            className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition-colors"
+                            onClick={() => handleCancelBooking(booking.id)}
+                            disabled={isLoading}
+                          >
+                            Cancel Booking
+                          </button>
+                        )}
+                      </div>
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                     </div>
                   </div>
                 );
@@ -694,7 +870,11 @@ const UserDashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">My Vehicles</h2>
-              <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <button 
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                onClick={() => setShowVehicleForm(true)}
+                disabled={isLoading}
+              >
                 <Plus className="h-5 w-5" />
                 <span>Add Vehicle</span>
               </button>
@@ -715,8 +895,33 @@ const UserDashboard: React.FC = () => {
                         <h3 className="text-lg font-semibold text-gray-900">
                           {vehicle.make} {vehicle.model}
                         </h3>
-                        <p className="text-sm text-gray-500">{vehicle.color}</p>
+                        <p className="text-sm text-gray-500">{vehicle.color} • {vehicle.year}</p>
+                        <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                          vehicle.vehicleType === 'car' ? 'bg-blue-100 text-blue-800' :
+                          vehicle.vehicleType === 'suv' ? 'bg-green-100 text-green-800' :
+                          vehicle.vehicleType === 'truck' ? 'bg-orange-100 text-orange-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {vehicle.vehicleType.toUpperCase()}
+                        </span>
                       </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button 
+                        className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                        onClick={() => {/* Edit vehicle */}}
+                        title="Edit vehicle"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button 
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                        onClick={() => handleDeleteVehicle(vehicle.id)}
+                        disabled={isLoading}
+                        title="Delete vehicle"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
 
@@ -731,10 +936,24 @@ const UserDashboard: React.FC = () => {
                       <span className="text-gray-500">RFID Card</span>
                       <span className="font-medium">{vehicle.rfidCard}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Status</span>
+                      <span className={`font-medium ${vehicle.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                        {vehicle.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            {userVehicles.length === 0 && (
+              <div className="text-center py-12">
+                <Car className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500">No Vehicles Added</h3>
+                <p className="text-gray-400">Add your first vehicle to start making bookings</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -810,6 +1029,17 @@ const UserDashboard: React.FC = () => {
         <BookingForm
           onClose={handleCloseBookingForm}
           onBook={handleBookingSubmit}
+          lots={lots}
+          vehicles={vehicles}
+          userVehicles={userVehicles}
+        />
+      )}
+
+      {/* Vehicle Form Modal */}
+      {showVehicleForm && (
+        <VehicleForm 
+          onClose={() => setShowVehicleForm(false)}
+          onSubmit={handleVehicleSubmit}
         />
       )}
 

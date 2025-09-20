@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 interface BookingFormProps {
   onClose: () => void;
-  onBook: (booking: BookingFormData) => void;
+  onBook: (booking: BookingFormData) => Promise<void> | void;
 }
 
 interface BookingFormData {
