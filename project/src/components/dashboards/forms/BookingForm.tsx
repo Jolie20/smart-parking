@@ -149,6 +149,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
               onChange={(e) => setSelectedDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              title="Select booking date"
             />
           </div>
 
