@@ -689,17 +689,18 @@ const AdminDashboard: React.FC = () => {
                     <div className="mt-6 flex justify-end space-x-3">
                       <button 
                         className="px-4 py-2 text-purple-600 hover:text-purple-800 transition-colors"
-                        onClick={() => handleAction('edit parking lot', lot.id)}
+                        onClick={() => handleEditLot(lot)}
                         aria-label={`Edit ${lot.name}`}
                       >
                         Edit
                       </button>
                       <button 
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                        onClick={() => handleAction('view parking lot details', lot.id)}
-                        aria-label={`View details for ${lot.name}`}
+                        className="px-4 py-2 text-red-600 hover:text-red-800 transition-colors"
+                        onClick={() => handleDeleteLot(lot.id)}
+                        disabled={isLoading}
+                        aria-label={`Delete ${lot.name}`}
                       >
-                        View Details
+                        Delete
                       </button>
                     </div>
                   </div>
