@@ -129,20 +129,20 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  const calculateBookingAmount = (startTime: string, endTime: string, spotType: string): number => {
-    const start = new Date(`2024-01-01T${startTime}:00`);
-    const end = new Date(`2024-01-01T${endTime}:00`);
-    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  // const calculateBookingAmount = (startTime: string, endTime: string, spotType: string): number => {
+  //   const start = new Date(`2024-01-01T${startTime}:00`);
+  //   const end = new Date(`2024-01-01T${endTime}:00`);
+  //   const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
     
-    const rates = {
-      regular: 2,
-      premium: 3,
-      covered: 4,
-      electric: 5
-    };
+  //   const rates = {
+  //     regular: 2,
+  //     premium: 3,
+  //     covered: 4,
+  //     electric: 5
+  //   };
     
-    return hours * (rates[spotType as keyof typeof rates] || 2);
-  };
+  //   return hours * (rates[spotType as keyof typeof rates] || 2);
+  // };
 
   const handleCloseBookingForm = () => {
     setShowBookingForm(false);
