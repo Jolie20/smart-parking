@@ -488,7 +488,7 @@ const AdminDashboard: React.FC = () => {
                   ((lot.totalSpots - lot.availableSpots) / lot.totalSpots) *
                   100;
                 const lotSessions = sessions.filter(
-                  (s: any) => s.lotId === lot.id
+                  (s: ParkingSession) => s.lotId === lot.id
                 );
                 const lotRevenue = lotSessions
                   .filter((s) => s.amount)
@@ -729,7 +729,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="space-y-3">
                     {lots.map((lot) => {
                       const lotSessions = sessions.filter(
-                        (s: any) => s.lotId === lot.id
+                        (s: ParkingSession) => s.lotId === lot.id
                       );
                       const percentage = sessions.length > 0
                         ? (lotSessions.length / sessions.length) * 100
