@@ -403,7 +403,11 @@ const UserDashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">My Vehicles</h2>
-              <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <button 
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                onClick={() => setShowVehicleForm(true)}
+                disabled={isLoading}
+              >
                 <Plus className="h-5 w-5" />
                 <span>Add Vehicle</span>
               </button>
@@ -421,8 +425,31 @@ const UserDashboard: React.FC = () => {
                         <h3 className="text-lg font-semibold text-gray-900">
                           {vehicle.make} {vehicle.model}
                         </h3>
-                        <p className="text-sm text-gray-500">{vehicle.color}</p>
+                        <p className="text-sm text-gray-500">{vehicle.color} • {vehicle.year}</p>
+                        <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                          vehicle.vehicleType === 'car' ? 'bg-blue-100 text-blue-800' :
+                          vehicle.vehicleType === 'suv' ? 'bg-green-100 text-green-800' :
+                          vehicle.vehicleType === 'truck' ? 'bg-orange-100 text-orange-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {vehicle.vehicleType.toUpperCase()}
+                        </span>
                       </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button 
+                        className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                        onClick={() => {/* Edit vehicle */}}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button 
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                        onClick={() => handleDeleteVehicle(vehicle.id)}
+                        disabled={isLoading}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                   
@@ -435,10 +462,24 @@ const UserDashboard: React.FC = () => {
                       <span className="text-gray-500">RFID Card</span>
                       <span className="font-medium">{vehicle.rfidCard}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Status</span>
+                      <span className={`font-medium ${vehicle.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                        {vehicle.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            {userVehicles.length === 0 && (
+              <div className="text-center py-12">
+                <Car className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-500">No Vehicles Added</h3>
+                <p className="text-gray-400">Add your first vehicle to start making bookings</p>
+              </div>
+            )}
           </div>
         )}
 
