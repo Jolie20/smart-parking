@@ -62,7 +62,7 @@ const ManagerDashboard: React.FC = () => {
     return `${hours}h ${mins}m`;
   };
 
-  const getSessionDuration = (session: any) => {
+  const getSessionDuration = (session: ParkingSession) => {
     const checkIn = new Date(session.checkInTime);
     const diffMs = currentTime.getTime() - checkIn.getTime();
     return Math.floor(diffMs / (1000 * 60));
