@@ -450,6 +450,7 @@ const UserDashboard: React.FC = () => {
                       <button 
                         className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
                         onClick={() => {/* Edit vehicle */}}
+                        title="Edit vehicle"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
@@ -457,6 +458,7 @@ const UserDashboard: React.FC = () => {
                         className="p-2 text-gray-400 hover:text-red-600 transition-colors"
                         onClick={() => handleDeleteVehicle(vehicle.id)}
                         disabled={isLoading}
+                        title="Delete vehicle"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
