@@ -15,26 +15,30 @@ const ManagerDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const [managedLots, setManagedLots] = useState<any[]>([]);
-  const [activeSessions, setActiveSessions] = useState<any[]>([]);
-  const [todaySessions, setTodaySessions] = useState<any[]>([]);
+  const [managedLots, setManagedLots] = useState<ParkingLot[]>([]);
+  const [activeSessions, setActiveSessions] = useState<ParkingSession[]>([]);
+  const [todaySessions, setTodaySessions] = useState<ParkingSession[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
+        setIsLoading(true);
         const [lots, sessions] = await Promise.all([
           managerService.getLots(),
           managerService.getSessions(),
         ]);
         setManagedLots(lots || []);
-        const active = (sessions || []).filter((s: any) => s.status === 'active');
+        const active = (sessions || []).filter((s: ParkingSession) => s.status === 'active');
         setActiveSessions(active);
         const today = new Date().toDateString();
-        setTodaySessions((sessions || []).filter((s: any) => new Date(s.checkInTime).toDateString() === today));
+        setTodaySessions((sessions || []).filter((s: ParkingSession) => new Date(s.checkInTime).toDateString() === today));
       } catch (e) {
         setManagedLots([]);
         setActiveSessions([]);
         setTodaySessions([]);
+      } finally {
+        setIsLoading(false);
       }
     };
     load();
