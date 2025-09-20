@@ -45,7 +45,7 @@ const UserForm: React.FC<UserFormProps> = ({ onClose, onSubmit, editingUser, isE
       validationErrors.push('Password must be at least 6 characters long');
     }
     
-    if (!formData.phone.trim()) {
+    if (!formData.phone?.trim()) {
       validationErrors.push('Phone number is required');
     }
 

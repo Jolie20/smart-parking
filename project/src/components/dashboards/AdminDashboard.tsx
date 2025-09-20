@@ -26,7 +26,7 @@ import {
   Analytics,
   DashboardStats 
 } from "../../types";
-import { mockParkingSessions, mockUsers, mockVehicles } from '../../data/mockData';
+import { mockParkingSessions, mockUsers, mockVehicles, mockParkingLots } from '../../data/mockData';
 import UserForm from './forms/UserForm';
 import LotForm from './forms/LotForm';
 import ManagerForm from './forms/ManagerForm';
@@ -548,9 +548,9 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-6 py-4">
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                (u.role === "admin" || u.role === "ADMIN")
+                                u.role === "admin"
                                   ? "bg-purple-100 text-purple-800"
-                                  : (u.role === "manager" || u.role === "MANAGER")
+                                  : u.role === "manager"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-blue-100 text-blue-800"
                               }`}
