@@ -139,6 +139,107 @@ const AdminDashboard: React.FC = () => {
     setErrors([]);
   };
 
+  const handleUserSubmit = async (userData: any) => {
+    try {
+      setIsLoading(true);
+      if (editingUser) {
+        const updated = await adminService.updateUser(editingUser.id, userData);
+        setUsers(prev => prev.map(u => u.id === editingUser.id ? updated : u));
+      } else {
+        const created = await adminService.createUser(userData);
+        setUsers(prev => [...prev, created]);
+      }
+      setShowUserForm(false);
+      setEditingUser(null);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error saving user:', error);
+      setErrors(['Failed to save user. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLotSubmit = async (lotData: any) => {
+    try {
+      setIsLoading(true);
+      if (editingLot) {
+        const updated = await lotService.update(editingLot.id, lotData);
+        setLots(prev => prev.map(l => l.id === editingLot.id ? updated : l));
+      } else {
+        const created = await lotService.create(lotData);
+        setLots(prev => [...prev, created]);
+      }
+      setShowLotForm(false);
+      setEditingLot(null);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error saving lot:', error);
+      setErrors(['Failed to save parking lot. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleManagerSubmit = async (managerData: any) => {
+    try {
+      setIsLoading(true);
+      const created = await adminService.createManager({
+        userId: 'temp', // This would be handled by the backend
+        employeeId: managerData.employeeId,
+        department: managerData.department,
+        permissions: managerData.permissions
+      });
+      setManagers(prev => [...prev, created]);
+      setShowManagerForm(false);
+      setEditingManager(null);
+      setErrors([]);
+    } catch (error) {
+      console.error('Error saving manager:', error);
+      setErrors(['Failed to save manager. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setShowUserForm(true);
+  };
+
+  const handleEditLot = (lot: ParkingLot) => {
+    setEditingLot(lot);
+    setShowLotForm(true);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      setIsLoading(true);
+      await adminService.deleteUser(userId);
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setErrors(['Failed to delete user. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteLot = async (lotId: string) => {
+    try {
+      setIsLoading(true);
+      await lotService.remove(lotId);
+      setLots(prev => prev.filter(l => l.id !== lotId));
+      setErrors([]);
+    } catch (error) {
+      console.error('Error deleting lot:', error);
+      setErrors(['Failed to delete parking lot. Please try again.']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const tabs = [
     { id: "overview", label: "Overview", icon: BarChart3 },
     { id: "users", label: "User Management", icon: Users },
