@@ -12,22 +12,6 @@ import {
   Activity,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.tsx";
-<<<<<<< HEAD
-import {
-  mockUsers,
-  mockParkingLots,
-  mockParkingSessions,
-  mockVehicles,
-  mockBookings,
-} from "../../data/mockData";
-import {
-  User,
-  ParkingLot,
-  ParkingSession,
-  Vehicle,
-  Booking,
-} from "../../types";
-=======
 import { adminService } from '../../services/adminService';
 import { userService } from '../../services/userService';
 import { lotService } from '../../services/lotService';
@@ -47,7 +31,6 @@ import { mockParkingSessions, mockUsers, mockVehicles, mockParkingLots } from '.
 import UserForm from './forms/UserForm';
 import LotForm from './forms/LotForm';
 import ManagerForm from './forms/ManagerForm';
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -55,9 +38,7 @@ const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-<<<<<<< HEAD
   const { latest } = useArduinoStream();
-=======
   const [showUserForm, setShowUserForm] = useState(false);
   const [showLotForm, setShowLotForm] = useState(false);
   const [showManagerForm, setShowManagerForm] = useState(false);
@@ -69,7 +50,6 @@ const AdminDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<ParkingSession[]>([]);
   const [managers, setManagers] = useState<Manager[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

@@ -1,32 +1,11 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
-import { useArduinoStream } from "../../hooks/useArduinoStream";
-import {
-  Car,
-  Users,
-  Activity,
-  AlertTriangle,
-  MapPin,
-  Clock,
-  TrendingUp,
-  Eye,
-} from "lucide-react";
-import { useAuth } from "../../hooks/useAuth.tsx";
-import {
-  mockParkingLots,
-  mockParkingSessions,
-  mockUsers,
-  mockVehicles,
-} from "../../data/mockData";
-=======
 import React, { useState, useEffect } from 'react';
-import { Car, Users, Activity, AlertTriangle, MapPin, Clock, TrendingUp, Eye } from 'lucide-react';
+import { useArduinoStream } from "../../hooks/useArduinoStream";
+import { Car, Activity, MapPin, Clock, TrendingUp, Eye, Settings } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { managerService } from '../../services/managerService';
-import { ParkingLot, ParkingSession, ManagerDashboardData, ParkingSpot } from '../../types';
-import { mockParkingSessions, mockUsers, mockVehicles, mockParkingSpots } from '../../data/mockData';
+import { ParkingLot, ParkingSession, ParkingSpot } from '../../types';
+import { mockParkingSessions, mockUsers, mockParkingSpots } from '../../data/mockData';
 import SpotForm from './forms/SpotForm';
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -39,32 +18,11 @@ const ManagerDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-<<<<<<< HEAD
-  // Manager sees data for their assigned parking lots
-  const managedLots = mockParkingLots.filter(
-    (lot) => lot.managerId === user?.id
-  );
-  const managedLotIds = managedLots.map((lot) => lot.id);
-  const activeSessions = mockParkingSessions.filter(
-    (session) =>
-      session.status === "active" && managedLotIds.includes(session.lotId)
-  );
-  const todaySessions = mockParkingSessions.filter((session) => {
-    const sessionDate = new Date(session.checkInTime).toDateString();
-    const today = new Date().toDateString();
-    return sessionDate === today && managedLotIds.includes(session.lotId);
-  });
-
-  const totalRevenue = mockParkingSessions
-    .filter(
-      (session) => session.amount && managedLotIds.includes(session.lotId)
-    )
-=======
   const [managedLots, setManagedLots] = useState<ParkingLot[]>([]);
   const [activeSessions, setActiveSessions] = useState<ParkingSession[]>([]);
   const [todaySessions, setTodaySessions] = useState<ParkingSession[]>([]);
   const [spots, setSpots] = useState<ParkingSpot[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
   const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
   const [selectedLotId, setSelectedLotId] = useState<string>('');
@@ -98,7 +56,6 @@ const ManagerDashboard: React.FC = () => {
 
   const totalRevenue = activeSessions
     .filter(session => session.amount && managedLotIds.includes(session.lotId))
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
     .reduce((sum, session) => sum + (session.amount || 0), 0);
 
   const getOccupancyRate = (lotId: string) => {
@@ -147,19 +104,11 @@ const ManagerDashboard: React.FC = () => {
   };
 
   const tabs = [
-<<<<<<< HEAD
-    { id: "overview", label: "Overview", icon: Activity },
-    { id: "live", label: "Live Sessions", icon: Eye },
-    { id: "lots", label: "Parking Lots", icon: MapPin },
-    { id: "gate", label: "Gate Control", icon: AlertTriangle },
-    { id: "analytics", label: "Analytics", icon: TrendingUp },
-=======
     { id: 'overview', label: 'Overview', icon: Activity },
     { id: 'live', label: 'Live Sessions', icon: Eye },
     { id: 'lots', label: 'Parking Lots', icon: MapPin },
     { id: 'spots', label: 'Spot Management', icon: Car },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   ];
 
   return (
@@ -384,17 +333,9 @@ const ManagerDashboard: React.FC = () => {
 
             <div className="grid gap-6">
               {activeSessions.map((session) => {
-<<<<<<< HEAD
-                const lot = managedLots.find((l) => l.id === session.lotId);
-                const vehicle = mockVehicles.find(
-                  (v) => v.id === session.vehicleId
-                );
-                const customer = mockUsers.find((u) => u.id === session.userId);
-=======
                 const lot = managedLots.find(l => l.id === session.lotId);
                 const vehicle = session.vehicle;
                 const customer = session.user;
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                 const duration = getSessionDuration(session);
                 const estimatedCost = (duration / 60) * (lot?.hourlyRate || 0);
 
@@ -543,9 +484,6 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
 
-<<<<<<< HEAD
-        {activeTab === "analytics" && (
-=======
         {activeTab === 'spots' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Spot Management</h2>
@@ -643,7 +581,6 @@ const ManagerDashboard: React.FC = () => {
         )}
 
         {activeTab === 'analytics' && (
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">
               Analytics & Reports
