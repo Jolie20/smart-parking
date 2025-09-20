@@ -110,12 +110,10 @@ const UserDashboard: React.FC = () => {
 
       // Create new booking
       const created = await bookingService.create({
-        userId: user?.id,
         lotId: availableLot.id,
         vehicleId: userVehicle.id,
         startTime: `2024-01-01T${bookingData.startTime}:00Z`,
         endTime: `2024-01-01T${bookingData.endTime}:00Z`,
-        spotType: bookingData.spotType,
       });
       setBookings(prev => [...prev, created]);
       
