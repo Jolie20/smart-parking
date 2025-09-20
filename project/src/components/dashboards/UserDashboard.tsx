@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Car, MapPin, Clock, CreditCard, Plus, Calendar, Activity, User, Phone, Mail } from 'lucide-react';
+import { Car, MapPin, Clock, CreditCard, Plus, Calendar, Activity, User, Phone, Mail, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { vehicleService } from '../../services/vehicleService';
 import { bookingService } from '../../services/bookingService';
 import { sessionService } from '../../services/sessionService';
 import { lotService } from '../../services/lotService';
+import { Vehicle, Booking, ParkingSession, ParkingLot, CreateVehicleRequest } from '../../types';
 import BookingForm from './bookingForm.tsx';
 
 const UserDashboard: React.FC = () => {
@@ -12,11 +13,13 @@ const UserDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [lots, setLots] = useState<any[]>([]);
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [sessions, setSessions] = useState<ParkingSession[]>([]);
+  const [lots, setLots] = useState<ParkingLot[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -26,10 +29,11 @@ const UserDashboard: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
+        setIsLoading(true);
         const [b, v, s, l] = await Promise.all([
-          bookingService.list(),
-          vehicleService.list(),
-          sessionService.list(),
+          bookingService.getByUserId(user?.id || ''),
+          vehicleService.getByUserId(user?.id || ''),
+          sessionService.getByUserId(user?.id || ''),
           lotService.list(),
         ]);
         setBookings(b || []);
@@ -38,14 +42,18 @@ const UserDashboard: React.FC = () => {
         setLots(l || []);
       } catch (e) {
         setErrors(['Failed to load your data.']);
+      } finally {
+        setIsLoading(false);
       }
     };
-    load();
-  }, []);
+    if (user?.id) {
+      load();
+    }
+  }, [user?.id]);
 
-  const userVehicles = vehicles.filter((v: any) => v.userId === user?.id);
-  const userBookings = bookings.filter((b: any) => b.userId === user?.id);
-  const userSessions = sessions.filter((s: any) => s.userId === user?.id);
+  const userVehicles = vehicles.filter((v: Vehicle) => v.userId === user?.id);
+  const userBookings = bookings.filter((b: Booking) => b.userId === user?.id);
+  const userSessions = sessions.filter((s: ParkingSession) => s.userId === user?.id);
   const activeSession = userSessions.find(s => s.status === 'active');
 
   const formatDuration = (minutes: number) => {

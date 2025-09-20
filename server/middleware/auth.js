@@ -101,6 +101,26 @@ exports.requireRole = function (...roles) {
   };
 };
 
+exports.ManagerLogin= async(req,res)=>{
+  const { email, password } = req.body;
+  const user = await prisma.manager.findUnique({ where: { email } });
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  try {
+  const payload = { id: user.id, email: user.email, role: user.role };
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+  return res.status(200).json({ message: 'Login successful', user: payload, token });
+  } catch (err) {
+    console.error('ManagerLogin error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
 exports.quicklogout = function (req, res, next) {
   const logoutToken = req.headers['x-logout-token'];
   if (!logoutToken) {

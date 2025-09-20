@@ -4,6 +4,7 @@ const { authenticate, requireRole } = require('../middleware/auth');
 const manager = require('../controllers/managerController');
 
 router.use(authenticate, requireRole('manager', 'admin'));
+router.post('/login', auth.ManagerLogin);
 
 router.get('/lots', manager.getManagedLots);
 router.get('/sessions', manager.getManagedSessions);
