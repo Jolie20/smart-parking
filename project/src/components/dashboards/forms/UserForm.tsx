@@ -12,7 +12,7 @@ interface UserFormProps {
 const UserForm: React.FC<UserFormProps> = ({ onClose, onSubmit, editingUser, isEditing = false }) => {
   const [formData, setFormData] = useState<CreateUserRequest>({
     email: editingUser?.email || '',
-    name: editingUser?.name || '',
+    username: editingUser?.name || '',
     password: '',
     role: editingUser?.role || 'user',
     phone: editingUser?.phone || ''
@@ -35,7 +35,7 @@ const UserForm: React.FC<UserFormProps> = ({ onClose, onSubmit, editingUser, isE
       validationErrors.push('Please enter a valid email address');
     }
     
-    if (!formData.name.trim()) {
+    if (!formData.username.trim()) {
       validationErrors.push('Name is required');
     }
     
@@ -100,14 +100,14 @@ const UserForm: React.FC<UserFormProps> = ({ onClose, onSubmit, editingUser, isE
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name *
+              Name *
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                value={formData.username}
+                onChange={(e) => handleChange('username', e.target.value)}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="John Doe"
               />
@@ -116,7 +116,7 @@ const UserForm: React.FC<UserFormProps> = ({ onClose, onSubmit, editingUser, isE
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address *
+              Email*
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -132,7 +132,7 @@ const UserForm: React.FC<UserFormProps> = ({ onClose, onSubmit, editingUser, isE
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number *
+              Phone*
             </label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />

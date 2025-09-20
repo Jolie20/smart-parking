@@ -1,33 +1,12 @@
-<<<<<<< HEAD
-import React from "react";
-import {
-  Car,
-  Shield,
-  Clock,
-  Smartphone,
-  ArrowRight,
-  MapPin,
-  Users,
-  BarChart3,
-} from "lucide-react";
-=======
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lotService } from '../services/lotService';
 import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
 interface LandingPageProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
 }
 
-<<<<<<< HEAD
-const LandingPage: React.FC<LandingPageProps> = ({
-  onLoginClick,
-  onSignupClick,
-}) => {
-=======
 const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }) => {
   const [lotsSummary, setLotsSummary] = useState<{ totalLots: number; totalSpots: number; availableSpots: number } | null>(null);
 
@@ -45,7 +24,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
     };
     load();
   }, []);
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
@@ -100,15 +78,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
               Made Simple
             </span>
           </h1>
-<<<<<<< HEAD
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Book parking spots ahead of time, check in with RFID cards, and
-            enjoy seamless parking experiences with real-time availability and
-            automated billing.
-=======
           <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed">
             Book parking spots ahead of time, check in with RFID cards, and enjoy seamless parking experiences with real-time availability and automated billing.
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
           </p>
           {lotsSummary && (
             <div className="mb-8 text-gray-700">

@@ -445,16 +445,8 @@ const AdminDashboard: React.FC = () => {
                 </h3>
                 <div className="space-y-4">
                   {["user", "manager", "admin"].map((role) => {
-<<<<<<< HEAD
-                    const roleUsers = mockUsers.filter((u) => u.role === role);
-                    const percentage =
-                      totalUsers > 0
-                        ? (roleUsers.length / totalUsers) * 100
-                        : 0;
-=======
                     const roleUsers = users.filter((u) => u.role === role || u.role === role.toUpperCase());
                     const percentage = totalUsers > 0 ? (roleUsers.length / totalUsers) * 100 : 0;
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
                     return (
                       <div
@@ -537,16 +529,6 @@ const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 User Management
               </h2>
-<<<<<<< HEAD
-              <button
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-                onClick={() => handleAction("add user")}
-                disabled={isLoading}
-                aria-label="Add new user"
-              >
-                {isLoading ? "Adding..." : "Add New User"}
-              </button>
-=======
               <div className="flex space-x-3">
                 <button 
                   className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
@@ -565,7 +547,6 @@ const AdminDashboard: React.FC = () => {
                   {isLoading ? 'Adding...' : 'Add Manager'}
                 </button>
               </div>
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
             </div>
 
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
@@ -634,17 +615,6 @@ const AdminDashboard: React.FC = () => {
                             {userSessions.length}
                           </td>
                           <td className="px-6 py-4">
-<<<<<<< HEAD
-                            <button
-                              className="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                              onClick={() =>
-                                handleAction("view user details", user.id)
-                              }
-                              aria-label={`View details for ${user.name}`}
-                            >
-                              View Details
-                            </button>
-=======
                             <div className="flex space-x-2">
                               <button 
                                 className="text-purple-600 hover:text-purple-900 text-sm font-medium"
@@ -662,7 +632,6 @@ const AdminDashboard: React.FC = () => {
                                 Delete
                               </button>
                             </div>
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                           </td>
                         </tr>
                       );
@@ -682,11 +651,7 @@ const AdminDashboard: React.FC = () => {
               </h2>
               <button
                 className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-<<<<<<< HEAD
-                onClick={() => handleAction("add parking lot")}
-=======
                 onClick={() => setShowLotForm(true)}
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                 disabled={isLoading}
                 aria-label="Add new parking lot"
               >
@@ -771,29 +736,16 @@ const AdminDashboard: React.FC = () => {
                     <div className="mt-6 flex justify-end space-x-3">
                       <button
                         className="px-4 py-2 text-purple-600 hover:text-purple-800 transition-colors"
-<<<<<<< HEAD
-                        onClick={() => handleAction("edit parking lot", lot.id)}
-=======
                         onClick={() => handleEditLot(lot)}
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                         aria-label={`Edit ${lot.name}`}
                       >
                         Edit
                       </button>
-<<<<<<< HEAD
-                      <button
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                        onClick={() =>
-                          handleAction("view parking lot details", lot.id)
-                        }
-                        aria-label={`View details for ${lot.name}`}
-=======
                       <button 
                         className="px-4 py-2 text-red-600 hover:text-red-800 transition-colors"
                         onClick={() => handleDeleteLot(lot.id)}
                         disabled={isLoading}
                         aria-label={`Delete ${lot.name}`}
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                       >
                         Delete
                       </button>
@@ -961,17 +913,9 @@ const AdminDashboard: React.FC = () => {
                       const lotSessions = sessions.filter(
                         (s: ParkingSession) => s.lotId === lot.id
                       );
-<<<<<<< HEAD
-                      const percentage =
-                        mockParkingSessions.length > 0
-                          ? (lotSessions.length / mockParkingSessions.length) *
-                            100
-                          : 0;
-=======
                       const percentage = sessions.length > 0
                         ? (lotSessions.length / sessions.length) * 100
                         : 0;
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
                       return (
                         <div
