@@ -367,6 +367,102 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'spots' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Spot Management</h2>
+            
+            <div className="grid gap-6">
+              {managedLots.map((lot) => {
+                const lotSpots = spots.filter(spot => spot.lotId === lot.id);
+                
+                return (
+                  <div key={lot.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">{lot.name}</h3>
+                        <p className="text-gray-500">{lot.address}</p>
+                        <p className="text-sm text-gray-400 mt-1">
+                          {lotSpots.length} spots configured
+                        </p>
+                      </div>
+                      <button 
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                        onClick={() => handleAddSpot(lot.id)}
+                      >
+                        Add Spot
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {lotSpots.map((spot) => (
+                        <div key={spot.id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-medium text-gray-900">{spot.spotNumber}</h4>
+                              <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                                spot.spotType === 'regular' ? 'bg-blue-100 text-blue-800' :
+                                spot.spotType === 'premium' ? 'bg-purple-100 text-purple-800' :
+                                spot.spotType === 'electric' ? 'bg-green-100 text-green-800' :
+                                spot.spotType === 'covered' ? 'bg-gray-100 text-gray-800' :
+                                'bg-orange-100 text-orange-800'
+                              }`}>
+                                {spot.spotType.toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="flex space-x-1">
+                              <button 
+                                className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                onClick={() => handleEditSpot(spot)}
+                                title="Edit spot"
+                              >
+                                <Settings className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Status</span>
+                              <span className={`font-medium ${
+                                spot.isAvailable ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {spot.isAvailable ? 'Available' : 'Occupied'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">RFID Reader</span>
+                              <span className="font-medium">{spot.rfidReaderId}</span>
+                            </div>
+                            {spot.isMaintenance && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Maintenance</span>
+                                <span className="font-medium text-orange-600">Yes</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {lotSpots.length === 0 && (
+                      <div className="text-center py-8">
+                        <Car className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500">No spots configured for this lot</p>
+                        <button 
+                          className="mt-3 text-green-600 hover:text-green-700 text-sm font-medium"
+                          onClick={() => handleAddSpot(lot.id)}
+                        >
+                          Add first spot
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'analytics' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Analytics & Reports</h2>
