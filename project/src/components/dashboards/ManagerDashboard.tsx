@@ -526,6 +526,20 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Spot Form Modal */}
+      {showSpotForm && (
+        <SpotForm 
+          onClose={() => {
+            setShowSpotForm(false);
+            setEditingSpot(null);
+          }}
+          onSubmit={handleSpotSubmit}
+          editingSpot={editingSpot}
+          isEditing={!!editingSpot}
+          lotId={selectedLotId}
+        />
+      )}
     </div>
   );
 };

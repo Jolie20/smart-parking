@@ -6,7 +6,7 @@ import { bookingService } from '../../services/bookingService';
 import { sessionService } from '../../services/sessionService';
 import { lotService } from '../../services/lotService';
 import { Vehicle, Booking, ParkingSession, ParkingLot, CreateVehicleRequest } from '../../types';
-import BookingForm from './bookingForm.tsx';
+import BookingForm from './forms/BookingForm.tsx';
 import VehicleForm from './VehicleForm.tsx';
 
 const UserDashboard: React.FC = () => {
@@ -561,6 +561,9 @@ const UserDashboard: React.FC = () => {
         <BookingForm 
           onClose={handleCloseBookingForm}
           onBook={handleBookingSubmit}
+          lots={lots}
+          vehicles={vehicles}
+          userVehicles={userVehicles}
         />
       )}
 
