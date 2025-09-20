@@ -38,6 +38,7 @@ const ManagerDashboard: React.FC = () => {
         setActiveSessions(active);
         const today = new Date().toDateString();
         setTodaySessions((sessions || []).filter((s: ParkingSession) => new Date(s.checkInTime).toDateString() === today));
+        setSpots(mockParkingSpots); // Using mock data for now
       } catch (e) {
         setManagedLots([]);
         setActiveSessions([]);
