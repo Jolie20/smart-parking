@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from "react";
 import {
   Car,
@@ -9,16 +10,42 @@ import {
   Users,
   BarChart3,
 } from "lucide-react";
+=======
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { lotService } from '../services/lotService';
+import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
 interface LandingPageProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
 }
 
+<<<<<<< HEAD
 const LandingPage: React.FC<LandingPageProps> = ({
   onLoginClick,
   onSignupClick,
 }) => {
+=======
+const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }) => {
+  const [lotsSummary, setLotsSummary] = useState<{ totalLots: number; totalSpots: number; availableSpots: number } | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const lots = await lotService.list();
+        const totalLots = (lots || []).length;
+        const totalSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.totalSpots || 0), 0);
+        const availableSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.availableSpots || 0), 0);
+        setLotsSummary({ totalLots, totalSpots, availableSpots });
+      } catch (e) {
+        setLotsSummary(null);
+      }
+    };
+    load();
+  }, []);
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
@@ -73,11 +100,26 @@ const LandingPage: React.FC<LandingPageProps> = ({
               Made Simple
             </span>
           </h1>
+<<<<<<< HEAD
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
             Book parking spots ahead of time, check in with RFID cards, and
             enjoy seamless parking experiences with real-time availability and
             automated billing.
+=======
+          <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed">
+            Book parking spots ahead of time, check in with RFID cards, and enjoy seamless parking experiences with real-time availability and automated billing.
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
           </p>
+          {lotsSummary && (
+            <div className="mb-8 text-gray-700">
+              <span className="inline-flex items-center space-x-2 bg-white/70 border border-gray-200 rounded-lg px-4 py-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                <span>
+                  {lotsSummary.availableSpots} available spots across {lotsSummary.totalLots} lots
+                </span>
+              </span>
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
               onClick={onSignupClick}

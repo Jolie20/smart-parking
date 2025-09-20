@@ -1,5 +1,9 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
 import { X, Car, Mail, Lock, User, Phone, Loader2, ChevronDown } from "lucide-react";
+=======
+import { X, Car, Mail, Lock, Loader2 } from "lucide-react";
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 import { useAuth } from "../hooks/useAuth.tsx";
 
 interface LoginPageProps {
@@ -13,19 +17,24 @@ const LoginPage: React.FC<LoginPageProps> = ({
   onClose,
   initialMode,
 }) => {
-  const [mode, setMode] = useState(initialMode);
+  // login-only flow
+  const [who, setWho] = useState<'user' | 'admin'>('user');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+<<<<<<< HEAD
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("user");
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+=======
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   const [error, setError] = useState("");
 
-  const { login, signup, isLoading } = useAuth();
+  const { login, adminLogin, signup, isLoading } = useAuth();
 
+  // keep backward compatibility with prop but ignore signup
   React.useEffect(() => {
-    setMode(initialMode);
+    // no-op: always show login
   }, [initialMode]); 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,17 +42,13 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setError("");
 
     try {
-      let success = false;
-      if (mode === "login") {
-        success = await login(email, password);
-      } else {
-        success = await signup(email, password, name, phone);
-      }
+      const success = who === 'admin' ? await adminLogin(email, password) : await login(email, password);
 
       if (success) {
         onClose();
         setEmail("");
         setPassword("");
+<<<<<<< HEAD
         setName("");
         setPhone("");
         setRole("user");
@@ -51,9 +56,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
         setError(
           "Invalid credentials."
         );
+=======
+      } else {
+        setError("Invalid email or password.");
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      const message = (err as any)?.response?.data?.error || 'An error occurred. Please try again.';
+      setError(message);
     }
   };
 
@@ -73,9 +83,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Car className="h-6 w-6 text-white" />
-              <h2 className="text-xl font-semibold text-white">
-                {mode === "login" ? "Welcome Back" : "Join SmartPark"}
-              </h2>
+              <h2 className="text-xl font-semibold text-white">Welcome Back</h2>
             </div>
             <button
               onClick={onClose}
@@ -89,12 +97,31 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {
+            <div className="flex justify-center gap-2">
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-lg text-sm ${who === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                onClick={() => setWho('user')}
+              >
+                User
+              </button>
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-lg text-sm ${who === 'admin' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                onClick={() => setWho('admin')}
+              >
+                Admin
+              </button>
+            </div>
+          }
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
+<<<<<<< HEAD
           {mode === "signup" && (
             <>
               <div>
@@ -165,6 +192,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
               </div>
             </>
           )}
+=======
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -211,9 +240,10 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 <span>Processing...</span>
               </>
             ) : (
-              <span>{mode === "login" ? "Sign In" : "Create Account"}</span>
+              <span>Sign In</span>
             )}
           </button>
+<<<<<<< HEAD
 
           <div className="text-center">
             <button
@@ -229,6 +259,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 : "Already have an account? Sign in"}
             </button>
           </div>
+=======
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
         </form>
       </div>
     </div>

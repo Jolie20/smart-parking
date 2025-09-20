@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { useArduinoStream } from "../../hooks/useArduinoStream";
 import {
@@ -17,6 +18,15 @@ import {
   mockUsers,
   mockVehicles,
 } from "../../data/mockData";
+=======
+import React, { useState, useEffect } from 'react';
+import { Car, Users, Activity, AlertTriangle, MapPin, Clock, TrendingUp, Eye } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { managerService } from '../../services/managerService';
+import { ParkingLot, ParkingSession, ManagerDashboardData, ParkingSpot } from '../../types';
+import { mockParkingSessions, mockUsers, mockVehicles, mockParkingSpots } from '../../data/mockData';
+import SpotForm from './forms/SpotForm';
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -29,6 +39,7 @@ const ManagerDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+<<<<<<< HEAD
   // Manager sees data for their assigned parking lots
   const managedLots = mockParkingLots.filter(
     (lot) => lot.managerId === user?.id
@@ -48,6 +59,46 @@ const ManagerDashboard: React.FC = () => {
     .filter(
       (session) => session.amount && managedLotIds.includes(session.lotId)
     )
+=======
+  const [managedLots, setManagedLots] = useState<ParkingLot[]>([]);
+  const [activeSessions, setActiveSessions] = useState<ParkingSession[]>([]);
+  const [todaySessions, setTodaySessions] = useState<ParkingSession[]>([]);
+  const [spots, setSpots] = useState<ParkingSpot[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSpotForm, setShowSpotForm] = useState(false);
+  const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
+  const [selectedLotId, setSelectedLotId] = useState<string>('');
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsLoading(true);
+        const [lots, sessions] = await Promise.all([
+          managerService.getLots(),
+          managerService.getSessions(),
+        ]);
+        setManagedLots(lots || []);
+        const active = (sessions || []).filter((s: ParkingSession) => s.status === 'active');
+        setActiveSessions(active);
+        const today = new Date().toDateString();
+        setTodaySessions((sessions || []).filter((s: ParkingSession) => new Date(s.checkInTime).toDateString() === today));
+        setSpots(mockParkingSpots); // Using mock data for now
+      } catch (e) {
+        setManagedLots([]);
+        setActiveSessions([]);
+        setTodaySessions([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const managedLotIds = managedLots.map(lot => lot.id);
+
+  const totalRevenue = activeSessions
+    .filter(session => session.amount && managedLotIds.includes(session.lotId))
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
     .reduce((sum, session) => sum + (session.amount || 0), 0);
 
   const getOccupancyRate = (lotId: string) => {
@@ -62,18 +113,53 @@ const ManagerDashboard: React.FC = () => {
     return `${hours}h ${mins}m`;
   };
 
-  const getSessionDuration = (session: any) => {
+  const getSessionDuration = (session: ParkingSession) => {
     const checkIn = new Date(session.checkInTime);
     const diffMs = currentTime.getTime() - checkIn.getTime();
     return Math.floor(diffMs / (1000 * 60));
   };
 
+  const handleSpotSubmit = async (spotData: any) => {
+    try {
+      setIsLoading(true);
+      // Here you would call the API to create/update spot
+      console.log('Spot data:', spotData);
+      setSpots(prev => [...prev, { ...spotData, id: Date.now().toString() }]);
+      setShowSpotForm(false);
+      setEditingSpot(null);
+    } catch (error) {
+      console.error('Error saving spot:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditSpot = (spot: ParkingSpot) => {
+    setEditingSpot(spot);
+    setSelectedLotId(spot.lotId);
+    setShowSpotForm(true);
+  };
+
+  const handleAddSpot = (lotId: string) => {
+    setSelectedLotId(lotId);
+    setEditingSpot(null);
+    setShowSpotForm(true);
+  };
+
   const tabs = [
+<<<<<<< HEAD
     { id: "overview", label: "Overview", icon: Activity },
     { id: "live", label: "Live Sessions", icon: Eye },
     { id: "lots", label: "Parking Lots", icon: MapPin },
     { id: "gate", label: "Gate Control", icon: AlertTriangle },
     { id: "analytics", label: "Analytics", icon: TrendingUp },
+=======
+    { id: 'overview', label: 'Overview', icon: Activity },
+    { id: 'live', label: 'Live Sessions', icon: Eye },
+    { id: 'lots', label: 'Parking Lots', icon: MapPin },
+    { id: 'spots', label: 'Spot Management', icon: Car },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   ];
 
   return (
@@ -298,11 +384,17 @@ const ManagerDashboard: React.FC = () => {
 
             <div className="grid gap-6">
               {activeSessions.map((session) => {
+<<<<<<< HEAD
                 const lot = managedLots.find((l) => l.id === session.lotId);
                 const vehicle = mockVehicles.find(
                   (v) => v.id === session.vehicleId
                 );
                 const customer = mockUsers.find((u) => u.id === session.userId);
+=======
+                const lot = managedLots.find(l => l.id === session.lotId);
+                const vehicle = session.vehicle;
+                const customer = session.user;
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                 const duration = getSessionDuration(session);
                 const estimatedCost = (duration / 60) * (lot?.hourlyRate || 0);
 
@@ -451,7 +543,107 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
 
+<<<<<<< HEAD
         {activeTab === "analytics" && (
+=======
+        {activeTab === 'spots' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Spot Management</h2>
+            
+            <div className="grid gap-6">
+              {managedLots.map((lot) => {
+                const lotSpots = spots.filter(spot => spot.lotId === lot.id);
+                
+                return (
+                  <div key={lot.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">{lot.name}</h3>
+                        <p className="text-gray-500">{lot.address}</p>
+                        <p className="text-sm text-gray-400 mt-1">
+                          {lotSpots.length} spots configured
+                        </p>
+                      </div>
+                      <button 
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                        onClick={() => handleAddSpot(lot.id)}
+                      >
+                        Add Spot
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {lotSpots.map((spot) => (
+                        <div key={spot.id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-medium text-gray-900">{spot.spotNumber}</h4>
+                              <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                                spot.spotType === 'regular' ? 'bg-blue-100 text-blue-800' :
+                                spot.spotType === 'premium' ? 'bg-purple-100 text-purple-800' :
+                                spot.spotType === 'electric' ? 'bg-green-100 text-green-800' :
+                                spot.spotType === 'covered' ? 'bg-gray-100 text-gray-800' :
+                                'bg-orange-100 text-orange-800'
+                              }`}>
+                                {spot.spotType.toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="flex space-x-1">
+                              <button 
+                                className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                onClick={() => handleEditSpot(spot)}
+                                title="Edit spot"
+                              >
+                                <Settings className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Status</span>
+                              <span className={`font-medium ${
+                                spot.isAvailable ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {spot.isAvailable ? 'Available' : 'Occupied'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">RFID Reader</span>
+                              <span className="font-medium">{spot.rfidReaderId}</span>
+                            </div>
+                            {spot.isMaintenance && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Maintenance</span>
+                                <span className="font-medium text-orange-600">Yes</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {lotSpots.length === 0 && (
+                      <div className="text-center py-8">
+                        <Car className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500">No spots configured for this lot</p>
+                        <button 
+                          className="mt-3 text-green-600 hover:text-green-700 text-sm font-medium"
+                          onClick={() => handleAddSpot(lot.id)}
+                        >
+                          Add first spot
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'analytics' && (
+>>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">
               Analytics & Reports
@@ -539,6 +731,20 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Spot Form Modal */}
+      {showSpotForm && (
+        <SpotForm 
+          onClose={() => {
+            setShowSpotForm(false);
+            setEditingSpot(null);
+          }}
+          onSubmit={handleSpotSubmit}
+          editingSpot={editingSpot}
+          isEditing={!!editingSpot}
+          lotId={selectedLotId}
+        />
+      )}
     </div>
   );
 };

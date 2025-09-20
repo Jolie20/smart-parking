@@ -15,13 +15,18 @@ const parkingSessionRoutes = require('./routes/parkingSessionRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const cardDataRoutes = require('./routes/cardDataRoutes');
 const adminManager = require('./routes/admin')
+const managerRoutes = require('./routes/manager')
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",  // frontend URL
+  credentials: true                 // allow cookies/authorization headers
+}));
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminManager);
+app.use('/api/manager', managerRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/lots', parkingLotRoutes);
 app.use('/api/spots', parkingSpotRoutes);
