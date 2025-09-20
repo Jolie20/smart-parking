@@ -74,6 +74,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, onSubmit }) => {
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            title="Close form"
           >
             <X className="h-5 w-5" />
           </button>
