@@ -385,12 +385,23 @@ const UserDashboard: React.FC = () => {
                         </div>
                       </div>
                       
-                      {booking.totalAmount && (
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-gray-900">${booking.totalAmount.toFixed(2)}</p>
-                          <p className="text-sm text-gray-500">Total Cost</p>
-                        </div>
-                      )}
+                      <div className="text-right">
+                        {booking.totalAmount && (
+                          <>
+                            <p className="text-2xl font-bold text-gray-900">${booking.totalAmount.toFixed(2)}</p>
+                            <p className="text-sm text-gray-500">Total Cost</p>
+                          </>
+                        )}
+                        {booking.status === 'confirmed' && (
+                          <button 
+                            className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition-colors"
+                            onClick={() => handleCancelBooking(booking.id)}
+                            disabled={isLoading}
+                          >
+                            Cancel Booking
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
