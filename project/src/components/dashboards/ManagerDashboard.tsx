@@ -74,10 +74,38 @@ const ManagerDashboard: React.FC = () => {
     return Math.floor(diffMs / (1000 * 60));
   };
 
+  const handleSpotSubmit = async (spotData: any) => {
+    try {
+      setIsLoading(true);
+      // Here you would call the API to create/update spot
+      console.log('Spot data:', spotData);
+      setSpots(prev => [...prev, { ...spotData, id: Date.now().toString() }]);
+      setShowSpotForm(false);
+      setEditingSpot(null);
+    } catch (error) {
+      console.error('Error saving spot:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditSpot = (spot: ParkingSpot) => {
+    setEditingSpot(spot);
+    setSelectedLotId(spot.lotId);
+    setShowSpotForm(true);
+  };
+
+  const handleAddSpot = (lotId: string) => {
+    setSelectedLotId(lotId);
+    setEditingSpot(null);
+    setShowSpotForm(true);
+  };
+
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Activity },
     { id: 'live', label: 'Live Sessions', icon: Eye },
     { id: 'lots', label: 'Parking Lots', icon: MapPin },
+    { id: 'spots', label: 'Spot Management', icon: Car },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
   ];
 
