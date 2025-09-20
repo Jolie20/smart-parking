@@ -568,13 +568,23 @@ const AdminDashboard: React.FC = () => {
                             {userSessions.length}
                           </td>
                           <td className="px-6 py-4">
-                            <button 
-                              className="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                              onClick={() => handleAction('view user details', u.id)}
-                              aria-label={`View details for ${u.name || u.email}`}
-                            >
-                              View Details
-                            </button>
+                            <div className="flex space-x-2">
+                              <button 
+                                className="text-purple-600 hover:text-purple-900 text-sm font-medium"
+                                onClick={() => handleEditUser(u)}
+                                aria-label={`Edit ${u.name || u.email}`}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                className="text-red-600 hover:text-red-900 text-sm font-medium"
+                                onClick={() => handleDeleteUser(u.id)}
+                                disabled={isLoading}
+                                aria-label={`Delete ${u.name || u.email}`}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
