@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Car, Users, Activity, AlertTriangle, MapPin, Clock, TrendingUp, Eye } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { managerService } from '../../services/managerService';
-import { ParkingLot, ParkingSession, ManagerDashboardData } from '../../types';
-import { mockParkingSessions, mockUsers, mockVehicles } from '../../data/mockData';
+import { ParkingLot, ParkingSession, ManagerDashboardData, ParkingSpot } from '../../types';
+import { mockParkingSessions, mockUsers, mockVehicles, mockParkingSpots } from '../../data/mockData';
+import SpotForm from './forms/SpotForm';
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
