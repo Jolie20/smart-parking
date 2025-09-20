@@ -269,6 +269,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                 </label>
                 <input
                   type="number"
+                  title="Enter total spots"
                   value={formData.totalSpots}
                   onChange={(e) => handleChange('totalSpots', parseInt(e.target.value) || 0)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -282,6 +283,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                 </label>
                 <input
                   type="number"
+                  title="Enter hourly rate"
                   step="0.01"
                   value={formData.hourlyRate}
                   onChange={(e) => handleChange('hourlyRate', parseFloat(e.target.value) || 0)}
@@ -296,6 +298,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                 </label>
                 <input
                   type="number"
+                  title="Enter daily rate"
                   step="0.01"
                   value={formData.dailyRate}
                   onChange={(e) => handleChange('dailyRate', parseFloat(e.target.value) || 0)}
