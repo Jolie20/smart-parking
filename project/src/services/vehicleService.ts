@@ -3,8 +3,7 @@ import {
 	Vehicle, 
 	CreateVehicleRequest, 
 	UpdateVehicleRequest, 
-	ApiResponse, 
-	PaginatedResponse 
+	ApiResponse
 } from '../types';
 
 export const vehicleService = {
