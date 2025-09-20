@@ -482,14 +482,24 @@ const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 User Management
               </h2>
-              <button 
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-                onClick={() => handleAction('add user')}
-                disabled={isLoading}
-                aria-label="Add new user"
-              >
-                {isLoading ? 'Adding...' : 'Add New User'}
-              </button>
+              <div className="flex space-x-3">
+                <button 
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  onClick={() => setShowUserForm(true)}
+                  disabled={isLoading}
+                  aria-label="Add new user"
+                >
+                  {isLoading ? 'Adding...' : 'Add New User'}
+                </button>
+                <button 
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  onClick={() => setShowManagerForm(true)}
+                  disabled={isLoading}
+                  aria-label="Add new manager"
+                >
+                  {isLoading ? 'Adding...' : 'Add Manager'}
+                </button>
+              </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
