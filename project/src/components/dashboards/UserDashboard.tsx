@@ -564,6 +564,14 @@ const UserDashboard: React.FC = () => {
         />
       )}
 
+      {/* Vehicle Form Modal */}
+      {showVehicleForm && (
+        <VehicleForm 
+          onClose={() => setShowVehicleForm(false)}
+          onSubmit={handleVehicleSubmit}
+        />
+      )}
+
       {/* Error Display */}
       {errors.length > 0 && (
         <div className="fixed top-4 right-4 z-50 max-w-md">
