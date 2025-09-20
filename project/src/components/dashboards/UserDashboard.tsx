@@ -7,6 +7,7 @@ import { sessionService } from '../../services/sessionService';
 import { lotService } from '../../services/lotService';
 import { Vehicle, Booking, ParkingSession, ParkingLot, CreateVehicleRequest } from '../../types';
 import BookingForm from './bookingForm.tsx';
+import VehicleForm from './VehicleForm.tsx';
 
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
