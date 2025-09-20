@@ -410,7 +410,7 @@ const AdminDashboard: React.FC = () => {
                   <tbody className="divide-y divide-gray-200">
                     {users.map((u) => {
                       const userSessions = sessions.filter(
-                        (s: any) => s.userId === u.id
+                        (s: ParkingSession) => s.userId === u.id
                       );
 
                       return (
