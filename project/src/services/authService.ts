@@ -26,6 +26,11 @@ export const authService = {
 		localStorage.setItem('auth_token', data.token);
 		return data;
 	},
+	signupuser: async (email: string, name: string, password: string, phone?: string, role: string = 'user') => {
+		const { data } = await api.post<LoginResponse>('/api/users', { email, name, password, phone, role });
+		localStorage.setItem('auth_token', data.token);
+		return data;
+	},
 	logout: () => {
 		localStorage.removeItem('auth_token');
 	},

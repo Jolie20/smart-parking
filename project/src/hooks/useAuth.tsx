@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   adminLogin: (email: string, password: string) => Promise<boolean>;
+  managerLogin: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, phone?: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
@@ -27,15 +28,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    localStorage.setItem('role', 'user');
     try {
-      const { user, token } = await authService.userLogin(email, password);
+      const { user: loggedInUser } = await authService.userLogin(email, password);
+
       setUser({
-        id: String(user.id),
-        email: user.email,
-        name: (user as any).name || user.email,
-        role: (user.role as any) === 'ADMIN' ? 'admin' : (user.role as any),
-        createdAt: new Date().toISOString(),
+        id: String(loggedInUser.id),
+        email: loggedInUser.email,
+        name: (loggedInUser as any).name || loggedInUser.email,
+        role: loggedInUser.role === 'ADMIN' ? 'admin' : loggedInUser.role,
+        createdAt: (loggedInUser as any).createdAt || new Date().toISOString(),
       });
       return true;
     } catch (e) {
@@ -46,8 +47,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signup = async (email: string, password: string, name: string, phone?: string): Promise<boolean> => {
-    // If backend has signup, wire it here. For now, return false to indicate not implemented.
+    setIsLoading(true);
+    try {
+      const { user: newUser } = await authService.signupuser(email, name, password, phone, 'user');
+      setUser({
+        id: String(newUser.id),
+        email: newUser.email,
+        name: (newUser as any).name || newUser.email,
+        role: newUser.role === 'ADMIN' ? 'admin' : newUser.role,
+        createdAt: (newUser as any).createdAt || new Date().toISOString(),
+      });
+      return true;
+    } catch (e) {   
     return false;
+    } finally {
+      setIsLoading(false);
+    }
+
   };
 
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
