@@ -69,8 +69,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { user: newUser } = await authService.signupuser(email, name, phone, password);
       setUser({
+        id: String(newUser.id),
         email: newUser.email,
         name: newUser.username || newUser.email,
+        role: 'user',
         phone: newUser.phone || '',
         password: newUser.password,
         createdAt: (newUser as any).createdAt || new Date().toISOString(),
