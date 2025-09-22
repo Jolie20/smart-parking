@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { lotService } from '../services/lotService';
 import SignupPage  from './signup';
 import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
+import { set } from 'mongoose';
 
 interface LandingPageProps {
   onLoginClick: () => void;
@@ -10,6 +11,7 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }) => {
   const [lotsSummary, setLotsSummary] = useState<{ totalLots: number; totalSpots: number; availableSpots: number } | null>(null);
+  const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -60,7 +62,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
               Login
             </button>
             <button
-              onClick={onSignupClick}
+              onClick={()=>setShowSignup(true)}
               className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
             >
               Sign Up
@@ -94,7 +96,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
           )}
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
-              onClick={onSignupClick}
+              onClick={()=>setShowSignup(true)}
               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
             >
               <span>Get Started</span>
