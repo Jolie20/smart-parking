@@ -5,10 +5,10 @@ const bcrypt = require('bcryptjs');
 exports.createUser = async (req, res) => {
   try {
     
-    const { email, name, role, phone, password, rfidno } = req.body;
+    const { email, name, phone, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before storing
     const user = await prisma.user.create({
-      data: { email, name, role, phone, password:hashedPassword, rfidno }
+      data: { email, name, phone, password:hashedPassword }
     });
     res.status(201).json(user);
   } catch (err) {
