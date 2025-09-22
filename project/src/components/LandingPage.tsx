@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lotService } from '../services/lotService';
 import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
 
@@ -28,22 +27,40 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className="px-6 py-4 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <header className="px-6 py-4 bg-white/90 backdrop-blur-md border-b border-gray-200/60">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Left: Logo */}
           <div className="flex items-center space-x-2">
-            <Car className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">SmartPark</span>
+            <Car className="h-7 w-7 text-blue-600" />
+            <span className="text-xl md:text-2xl font-bold text-gray-900">
+              SmartPark
+            </span>
           </div>
-          <div className="flex items-center space-x-4">
+
+          {/* Center: Nav */}
+          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+            <a href="#home" className="hover:text-gray-900">
+              Home
+            </a>
+            <a href="#pricing" className="hover:text-gray-900">
+              Pricing
+            </a>
+            <a href="#contact" className="hover:text-gray-900">
+              Contact
+            </a>
+          </nav>
+
+          {/* Right: Auth Buttons */}
+          <div className="flex items-center space-x-3">
             <button
               onClick={onLoginClick}
-              className="px-6 py-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              className="px-4 py-2 rounded-md text-blue-600 hover:text-blue-700 border border-blue-200 hover:border-blue-300 bg-white shadow-sm"
             >
               Login
             </button>
             <button
               onClick={onSignupClick}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
             >
               Sign Up
             </button>
@@ -57,7 +74,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Smart Parking
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              {' '}Made Simple
+              {" "}
+              Made Simple
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed">
@@ -102,27 +120,37 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
               <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-6">
                 <Smartphone className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-4">Easy Booking</h3>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                Easy Booking
+              </h3>
               <p className="text-gray-600 leading-relaxed">
-                Reserve your parking spot in advance through our intuitive mobile and web interface. Never worry about finding a spot again.
+                Reserve your parking spot in advance through our intuitive
+                mobile and web interface. Never worry about finding a spot
+                again.
               </p>
             </div>
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 hover:shadow-xl transition-shadow duration-300">
               <div className="w-16 h-16 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-6">
                 <Shield className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-4">RFID Access</h3>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                RFID Access
+              </h3>
               <p className="text-gray-600 leading-relaxed">
-                Seamless check-in and check-out with RFID cards. Automatic timer tracking and billing for a hassle-free experience.
+                Seamless check-in and check-out with RFID cards. Automatic timer
+                tracking and billing for a hassle-free experience.
               </p>
             </div>
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-xl transition-shadow duration-300">
               <div className="w-16 h-16 bg-purple-600 rounded-xl flex items-center justify-center mx-auto mb-6">
                 <Clock className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-4">Real-time Tracking</h3>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                Real-time Tracking
+              </h3>
               <p className="text-gray-600 leading-relaxed">
-                Monitor your parking duration in real-time and get transparent billing based on actual usage time.
+                Monitor your parking duration in real-time and get transparent
+                billing based on actual usage time.
               </p>
             </div>
           </div>
@@ -141,7 +169,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Users className="h-6 w-6 text-blue-600" />
                 </div>
-                <h3 className="text-2xl font-semibold text-gray-900">Customers</h3>
+                <h3 className="text-2xl font-semibold text-gray-900">
+                  Customers
+                </h3>
               </div>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center space-x-2">
@@ -167,7 +197,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <MapPin className="h-6 w-6 text-green-600" />
                 </div>
-                <h3 className="text-2xl font-semibold text-gray-900">Managers</h3>
+                <h3 className="text-2xl font-semibold text-gray-900">
+                  Managers
+                </h3>
               </div>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center space-x-2">

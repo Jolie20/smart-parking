@@ -17,6 +17,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
   const [who, setWho] = useState<'user' | 'admin'>('user');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+// ...existing code...
   const [error, setError] = useState("");
 
   const { login, adminLogin, signup, isLoading } = useAuth();
@@ -45,6 +46,12 @@ const LoginPage: React.FC<LoginPageProps> = ({
       setError(message);
     }
   };
+
+  const roles = [
+    { value: "user", label: "User" },
+    { value: "manager", label: "Manager" },
+    { value: "admin", label: "Administrator" },
+  ];
 
   if (!isOpen) return null;
 
@@ -93,7 +100,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
               {error}
             </div>
           )}
-
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -150,6 +156,3 @@ const LoginPage: React.FC<LoginPageProps> = ({
 };
 
 export default LoginPage;
-
-
-

@@ -20,11 +20,35 @@ const UserDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<ParkingSession[]>([]);
   const [lots, setLots] = useState<ParkingLot[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [deviceMessage, setDeviceMessage] = useState<string | null>(null);
+  const [deviceBalance, setDeviceBalance] = useState<number | null>(null);
+  const [deviceCost, setDeviceCost] = useState<number | null>(null);
+  const [deviceTime, setDeviceTime] = useState<number | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch available slots on component mount and every 30 seconds
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:4000/api/lots/available"
+        );
+        const data = await response.json();
+        setAvailableSlots(data);
+      } catch (error) {
+        console.error("Error fetching available slots:", error);
+      }
+    };
+
+    fetchAvailableSlots();
+    const interval = setInterval(fetchAvailableSlots, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -55,7 +79,7 @@ const UserDashboard: React.FC = () => {
   const userVehicles = vehicles.filter((v: Vehicle) => v.userId === user?.id);
   const userBookings = bookings.filter((b: Booking) => b.userId === user?.id);
   const userSessions = sessions.filter((s: ParkingSession) => s.userId === user?.id);
-  // const activeSession = userSessions.find(s => s.status === 'active');
+  // const activeSession = userSessions.find((s) => s.status === "active");
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -69,42 +93,44 @@ const UserDashboard: React.FC = () => {
     try {
       // Validate booking data
       const validationErrors: string[] = [];
-      
+
       if (!bookingData.vehicleNumber) {
-        validationErrors.push('Vehicle number is required');
+        validationErrors.push("Vehicle number is required");
       }
-      
+
       if (!bookingData.startTime || !bookingData.endTime) {
-        validationErrors.push('Start and end times are required');
+        validationErrors.push("Start and end times are required");
       }
-      
+
       if (bookingData.startTime && bookingData.endTime) {
-        const startTime = new Date(`2024-01-01T${bookingData.startTime}:00`);
-        const endTime = new Date(`2024-01-01T${bookingData.endTime}:00`);
-        
+        const startTime = new Date(`2025-09-16T${bookingData.startTime}:00`);
+        const endTime = new Date(`2026-0-01T${bookingData.endTime}:00`);
+
         if (endTime <= startTime) {
-          validationErrors.push('End time must be after start time');
+          validationErrors.push("End time must be after start time");
         }
       }
-      
+
       if (validationErrors.length > 0) {
         setErrors(validationErrors);
         return;
       }
 
       // Find a vehicle for the user
-      const userVehicle = userVehicles.find(v => v.licensePlate === bookingData.vehicleNumber) || userVehicles[0];
-      
+      const userVehicle =
+        userVehicles.find(
+          (v) => v.licensePlate === bookingData.vehicleNumber
+        ) || userVehicles[0];
+
       if (!userVehicle) {
-        setErrors(['No vehicle found. Please add a vehicle first.']);
+        setErrors(["No vehicle found. Please add a vehicle first."]);
         return;
       }
 
       // Find an available parking lot
       const availableLot = lots.find((lot: any) => lot.availableSpots > 0);
-      
       if (!availableLot) {
-        setErrors(['No available parking spots at the moment.']);
+        setErrors(["No available parking spots at the moment."]);
         return;
       }
 
@@ -122,25 +148,28 @@ const UserDashboard: React.FC = () => {
       setShowBookingForm(false);
       
       console.log('Booking created successfully:', created);
-      
     } catch (error) {
-      console.error('Error creating booking:', error);
-      setErrors(['An unexpected error occurred. Please try again.']);
+      console.error("Error creating booking:", error);
+      setErrors(["An unexpected error occurred. Please try again."]);
     }
   };
 
-  // const calculateBookingAmount = (startTime: string, endTime: string, spotType: string): number => {
+  // const calculateBookingAmount = (
+  //   startTime: string,
+  //   endTime: string,
+  //   spotType: string
+  // ): number => {
   //   const start = new Date(`2024-01-01T${startTime}:00`);
   //   const end = new Date(`2024-01-01T${endTime}:00`);
   //   const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    
+
   //   const rates = {
   //     regular: 2,
   //     premium: 3,
   //     covered: 4,
-  //     electric: 5
+  //     electric: 5,
   //   };
-    
+
   //   return hours * (rates[spotType as keyof typeof rates] || 2);
   // };
 
@@ -195,11 +224,80 @@ const UserDashboard: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Activity },
-    { id: 'bookings', label: 'My Bookings', icon: Calendar },
-    { id: 'vehicles', label: 'My Vehicles', icon: Car },
-    { id: 'profile', label: 'Profile', icon: User },
+    { id: "overview", label: "Overview", icon: Activity },
+    { id: "bookings", label: "My Bookings", icon: Calendar },
+    { id: "vehicles", label: "My Vehicles", icon: Car },
+    { id: "profile", label: "Profile", icon: User },
   ];
+
+  useEffect(() => {
+    let interval: any;
+    if (activeTab === "bookings") {
+      const fetchStatus = async () => {
+        try {
+          const [mRes, bRes, cRes, tRes] = await Promise.all([
+            fetch("http://localhost:4000/api/arduino/message"),
+            fetch("http://localhost:4000/api/arduino/balance"),
+            fetch("http://localhost:4000/api/arduino/cost"),
+            fetch("http://localhost:4000/api/arduino/time"),
+          ]);
+          const mJson = await mRes.json();
+          const bJson = await bRes.json();
+          const cJson = await cRes.json();
+          const tJson = await tRes.json();
+
+          // Only show payment success messages to users
+          const isPaymentSuccess =
+            mJson?.message && /Payment\s*successful/i.test(mJson.message);
+          setDeviceMessage(isPaymentSuccess ? mJson.message : null);
+          setDeviceBalance(
+            typeof bJson?.balance === "number" ? bJson.balance : null
+          );
+          setDeviceCost(typeof cJson?.cost === "number" ? cJson.cost : null);
+          setDeviceTime(typeof tJson?.time === "number" ? tJson.time : null);
+
+          // If payment succeeded and we have a cost, attach it to the latest booking
+          const paid = typeof cJson?.cost === "number" && isPaymentSuccess;
+          if (paid && user?.id) {
+            setBookings((prev) => {
+              const copy = [...prev];
+              const lastIdx = copy
+                .map((b, idx) => ({ b, idx }))
+                .filter(({ b }) => b.userId === user.id)
+                .map(({ idx }) => idx)
+                .pop();
+              if (lastIdx !== undefined) {
+                copy[lastIdx] = {
+                  ...copy[lastIdx],
+                  totalAmount: cJson.cost,
+                  status: "completed",
+                } as Booking;
+              }
+              return copy;
+            });
+          }
+        } catch (e) {
+          // ignore network errors
+        }
+      };
+      fetchStatus();
+      interval = setInterval(fetchStatus, 3000);
+    }
+    return () => interval && clearInterval(interval);
+  }, [activeTab, user?.id]);
+
+  // const getmessage = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:4000/api/arduino", {
+  //       method: "GET",
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+  //     const data = await res.json();
+  //     console.log("received Arduino:", data);
+  //   } catch (err) {
+  //     console.error("Error:", err);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -209,7 +307,9 @@ const UserDashboard: React.FC = () => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Car className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">SmartPark</span>
+              <span className="text-2xl font-bold text-gray-900">
+                SmartPark
+              </span>
             </div>
             <div className="h-8 w-px bg-gray-300"></div>
             <h1 className="text-xl font-semibold text-gray-900">
@@ -236,8 +336,8 @@ const UserDashboard: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center space-x-2 px-3 py-4 border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -250,46 +350,121 @@ const UserDashboard: React.FC = () => {
 
       {/* Content */}
       <main className="px-6 py-8">
-        {activeTab === 'overview' && (
+        {activeTab === "overview" && (
           <div className="space-y-8">
+            {/* Available Parking Slots */}
+            {availableSlots.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                  Available Parking Slots
+                </h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {availableSlots.map((lot) => (
+                    <div
+                      key={lot.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">
+                            {lot.name}
+                          </h4>
+                          <p className="text-sm text-gray-500">{lot.address}</p>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            lot.availableSpots > 5
+                              ? "bg-green-100 text-green-800"
+                              : lot.availableSpots > 0
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {lot.availableSpots} available
+                        </span>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Rate:</span>
+                          <span className="font-medium">
+                            FRW {lot.hourlyRate}/hr
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Occupancy:</span>
+                          <span className="font-medium">
+                            {lot.occupancyRate}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              lot.occupancyRate > 80
+                                ? "bg-red-500"
+                                : lot.occupancyRate > 60
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                            }`}
+                            style={{
+                              width: `${Math.min(lot.occupancyRate, 100)}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quick Stats */}
             <div className="grid md:grid-cols-4 gap-6">
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Total Bookings</p>
-                    <p className="text-3xl font-bold text-gray-900">{userBookings.length}</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {userBookings.length}
+                    </p>
                   </div>
                   <Calendar className="h-8 w-8 text-blue-600" />
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">My Vehicles</p>
-                    <p className="text-3xl font-bold text-gray-900">{userVehicles.length}</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {userVehicles.length}
+                    </p>
                   </div>
                   <Car className="h-8 w-8 text-green-600" />
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Total Sessions</p>
-                    <p className="text-3xl font-bold text-gray-900">{userSessions.length}</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {userSessions.length}
+                    </p>
                   </div>
                   <Clock className="h-8 w-8 text-purple-600" />
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-500 text-sm">Total Spent</p>
                     <p className="text-3xl font-bold text-gray-900">
-                      ${userSessions.filter(s => s.amount).reduce((sum, s) => sum + (s.amount || 0), 0).toFixed(2)}
+                      FRW
+                      {userSessions
+                        .filter((s) => s.amount)
+                        .reduce((sum, s) => sum + (s.amount || 0), 0)
+                        .toFixed(2)}
                     </p>
                   </div>
                   <CreditCard className="h-8 w-8 text-orange-600" />
@@ -299,18 +474,29 @@ const UserDashboard: React.FC = () => {
 
             {/* Recent Activity */}
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                Recent Activity
+              </h3>
               <div className="space-y-4">
                 {userSessions.slice(0, 3).map((session) => {
                   const lot = lots.find((l: any) => l.id === session.lotId);
                   return (
-                    <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div
+                      key={session.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    >
                       <div className="flex items-center space-x-4">
-                        <div className={`w-3 h-3 rounded-full ${
-                          session.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
-                        }`}></div>
+                        <div
+                          className={`w-3 h-3 rounded-full ${
+                            session.status === "active"
+                              ? "bg-green-500"
+                              : "bg-gray-400"
+                          }`}
+                        ></div>
                         <div>
-                          <p className="font-medium text-gray-900">{lot?.name}</p>
+                          <p className="font-medium text-gray-900">
+                            {lot?.name}
+                          </p>
                           <p className="text-sm text-gray-500">
                             {new Date(session.checkInTime).toLocaleDateString()}
                           </p>
@@ -318,10 +504,14 @@ const UserDashboard: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-gray-900">
-                          {session.amount ? `$${session.amount.toFixed(2)}` : 'Active'}
+                          {session.amount
+                            ? `FRW ${session.amount.toFixed(2)}`
+                            : "Active"}
                         </p>
                         <p className="text-sm text-gray-500">
-                          {session.duration ? formatDuration(session.duration) : 'In progress'}
+                          {session.duration
+                            ? formatDuration(session.duration)
+                            : "In progress"}
                         </p>
                       </div>
                     </div>
@@ -332,11 +522,11 @@ const UserDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'bookings' && (
+        {activeTab === "bookings" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">My Bookings</h2>
-              <button 
+              <button
                 className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 onClick={() => setShowBookingForm(true)}
               >
@@ -345,13 +535,138 @@ const UserDashboard: React.FC = () => {
               </button>
             </div>
 
+            {(deviceMessage ||
+              deviceBalance !== null ||
+              deviceCost !== null ||
+              deviceTime !== null) && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-lg">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-5 h-5 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Device Status
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Real-time parking information
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {deviceMessage && (
+                    <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">
+                          Message
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-800 font-medium leading-relaxed">
+                        {deviceMessage}
+                      </p>
+                    </div>
+                  )}
+
+                  {deviceBalance !== null && (
+                    <div className="bg-white rounded-lg p-4 border border-green-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-green-700 uppercase tracking-wide">
+                          Balance
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        FRW {deviceBalance}
+                      </p>
+                      <p className="text-xs text-gray-500">Remaining</p>
+                    </div>
+                  )}
+
+                  {deviceCost !== null && (
+                    <div className="bg-white rounded-lg p-4 border border-purple-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-purple-700 uppercase tracking-wide">
+                          Cost
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        FRW {deviceCost}
+                      </p>
+                      <p className="text-xs text-gray-500">Last Payment</p>
+                    </div>
+                  )}
+
+                  {deviceTime !== null && (
+                    <div className="bg-white rounded-lg p-4 border border-orange-100">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs font-medium text-orange-700 uppercase tracking-wide">
+                          Duration
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        {formatDuration(deviceTime)}
+                      </p>
+                      <p className="text-xs text-gray-500">Parking Time</p>
+                    </div>
+                  )}
+                </div>
+
+                {!deviceMessage &&
+                  !deviceBalance &&
+                  !deviceCost &&
+                  !deviceTime && (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg
+                          className="w-8 h-8 text-blue-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">
+                        Awaiting device message...
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Tap your card to see real-time updates
+                      </p>
+                    </div>
+                  )}
+              </div>
+            )}
+
             <div className="grid gap-6">
               {userBookings.map((booking) => {
                 const lot = lots.find((l: any) => l.id === booking.lotId);
                 const vehicle = vehicles.find((v: any) => v.id === booking.vehicleId);
-                
                 return (
-                  <div key={booking.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                  <div
+                    key={booking.id}
+                    className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
+                  >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-3">
@@ -363,22 +678,30 @@ const UserDashboard: React.FC = () => {
                           }`}>
                             {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                           </span>
-                          <h3 className="text-lg font-semibold text-gray-900">{lot?.name}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {lot?.name}
+                          </h3>
                         </div>
-                        
+
                         <div className="grid md:grid-cols-3 gap-4 text-sm">
                           <div className="flex items-center space-x-2">
                             <MapPin className="h-4 w-4 text-gray-400" />
-                            <span className="text-gray-600">{lot?.address}</span>
+                            <span className="text-gray-600">
+                              {lot?.address}
+                            </span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Car className="h-4 w-4 text-gray-400" />
-                            <span className="text-gray-600">{vehicle?.licensePlate} - {vehicle?.make} {vehicle?.model}</span>
+                            <span className="text-gray-600">
+                              {vehicle?.licensePlate} - {vehicle?.make}{" "}
+                              {vehicle?.model}
+                            </span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Clock className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-600">
-                              {new Date(booking.startTime).toLocaleDateString()} - {new Date(booking.endTime).toLocaleDateString()}
+                              {new Date(booking.startTime).toLocaleDateString()}{" "}
+                              - {new Date(booking.endTime).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
@@ -409,7 +732,7 @@ const UserDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'vehicles' && (
+        {activeTab === "vehicles" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">My Vehicles</h2>
@@ -425,7 +748,10 @@ const UserDashboard: React.FC = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
               {userVehicles.map((vehicle) => (
-                <div key={vehicle.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div
+                  key={vehicle.id}
+                  className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
+                >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -464,11 +790,13 @@ const UserDashboard: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-500">License Plate</span>
-                      <span className="font-medium">{vehicle.licensePlate}</span>
+                      <span className="font-medium">
+                        {vehicle.licensePlate}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">RFID Card</span>
@@ -495,17 +823,21 @@ const UserDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'profile' && (
+        {activeTab === "profile" && (
           <div className="max-w-2xl space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
-            
+            <h2 className="text-2xl font-bold text-gray-900">
+              Profile Settings
+            </h2>
+
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Personal Information</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                Personal Information
+              </h3>
+
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text sm font-medium text-gray-700 mb-2">
                       Full Name
                     </label>
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -513,9 +845,9 @@ const UserDashboard: React.FC = () => {
                       <span className="text-gray-900">{user?.name}</span>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text sm font-medium text-gray-700 mb-2">
                       Email Address
                     </label>
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -524,30 +856,32 @@ const UserDashboard: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text sm font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <Phone className="h-5 w-5 text-gray-400" />
-                    <span className="text-gray-900">{user?.phone || 'Not provided'}</span>
+                    <span className="text-gray-900">
+                      {user?.phone || "Not provided"}
+                    </span>
                   </div>
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text sm font-medium text-gray-700 mb-2">
                     Member Since
                   </label>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <Calendar className="h-5 w-5 text-gray-400" />
                     <span className="text-gray-900">
-                      {new Date(user?.createdAt || '').toLocaleDateString()}
+                      {new Date(user?.createdAt || "").toLocaleDateString()}
                     </span>
                   </div>
                 </div>
               </div>
-              
+
               <button className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                 Edit Profile
               </button>
@@ -558,7 +892,7 @@ const UserDashboard: React.FC = () => {
 
       {/* Booking Form Modal */}
       {showBookingForm && (
-        <BookingForm 
+        <BookingForm
           onClose={handleCloseBookingForm}
           onBook={handleBookingSubmit}
           lots={lots}
@@ -581,12 +915,22 @@ const UserDashboard: React.FC = () => {
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Booking Errors</h3>
+                <h3 className="text-sm font-medium text-red-800">
+                  Booking Errors
+                </h3>
                 <div className="mt-2 text-sm text-red-700">
                   <ul className="list-disc pl-5 space-y-1">
                     {errors.map((error, index) => (
@@ -611,5 +955,9 @@ const UserDashboard: React.FC = () => {
     </div>
   );
 };
+
+// Example usage
+//<button onClick={() => sendCommand("OPEN_GATE")}>Open Gate</button>
+//<button onClick={() => sendCommand("CLOSE_GATE")}>Close Gate</button>
 
 export default UserDashboard;

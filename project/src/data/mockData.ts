@@ -57,7 +57,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: '1',
     userId: '1',
-    licensePlate: 'ABC123',
+    licensePlate: 'RAC123',
     make: 'Toyota',
     model: 'Camry',
     year: 2020,
@@ -70,7 +70,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: '2',
     userId: '2',
-    licensePlate: 'XYZ789',
+    licensePlate: 'RAD789',
     make: 'Honda',
     model: 'Civic',
     year: 2019,
@@ -208,10 +208,10 @@ export const mockBookings: Booking[] = [
     startTime: '2024-01-15T10:00:00Z',
     endTime: '2024-01-15T12:00:00Z',
     status: 'completed',
-    totalAmount: 6.00,
-    paymentStatus: 'paid',
-    paymentMethod: 'credit_card',
-    createdAt: '2024-01-15T09:30:00Z'
+  totalAmount: 6.00,
+  paymentStatus: 'paid',
+  paymentMethod: 'credit_card',
+  createdAt: '2024-01-15T09:30:00Z'
   },
   {
     id: '2',
@@ -250,15 +250,15 @@ export const mockParkingSessions: ParkingSession[] = [
     vehicleId: '1',
     lotId: '1',
     spotId: '1',
-    bookingId: '1',
-    checkInTime: '2024-01-15T10:00:00Z',
-    checkOutTime: '2024-01-15T12:00:00Z',
-    duration: 120,
-    amount: 6.00,
-    status: 'completed',
-    checkInMethod: 'rfid',
-    checkOutMethod: 'rfid',
-    createdAt: '2024-01-15T10:00:00Z'
+  bookingId: '1',
+  checkInTime: '2024-01-15T10:00:00Z',
+  checkOutTime: '2024-01-15T12:00:00Z',
+  duration: 120,
+  amount: 6.00,
+  status: 'completed',
+  checkInMethod: 'rfid',
+  checkOutMethod: 'rfid',
+  createdAt: '2024-01-15T10:00:00Z'
   },
   {
     id: '2',
@@ -266,11 +266,11 @@ export const mockParkingSessions: ParkingSession[] = [
     vehicleId: '3',
     lotId: '2',
     spotId: '3',
-    bookingId: '3',
-    checkInTime: '2024-01-17T09:00:00Z',
-    status: 'active',
-    checkInMethod: 'mobile_app',
-    createdAt: '2024-01-17T09:00:00Z'
+  bookingId: '3',
+  checkInTime: '2024-01-17T09:00:00Z',
+  status: 'active',
+  checkInMethod: 'mobile_app',
+  createdAt: '2024-01-17T09:00:00Z'
   }
 ];
 

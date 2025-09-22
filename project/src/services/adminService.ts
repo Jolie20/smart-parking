@@ -10,10 +10,11 @@ import {
 } from '../types';
 
 export interface CreateManagerRequest {
-	userId: string;
-	employeeId: string;
-	department?: string;
-	permissions: string[];
+	Id: string;
+	email: string;
+	username: string;
+	password: string;
+	phone?: string;
 }
 
 export interface AssignManagerRequest {

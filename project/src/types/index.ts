@@ -150,9 +150,9 @@ export type CheckOutMethod = 'rfid' | 'qr_code' | 'mobile_app' | 'manual' | 'aut
 // Manager Management
 export interface Manager extends BaseEntity {
   userId: string;
-  employeeId: string;
+  employeeId?: string;
   department?: string;
-  permissions: ManagerPermission[];
+  permissions?: ManagerPermission[];
   isActive: boolean;
   user?: User; // Populated when needed
   managedLots?: ParkingLot[]; // Populated when needed
@@ -217,7 +217,7 @@ export interface PaginatedResponse<T> {
 // Form Types
 export interface CreateUserRequest {
   email: string;
-  name: string;
+  username: string;
   password: string;
   role: UserRole;
   phone?: string;
