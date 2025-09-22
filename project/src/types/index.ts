@@ -217,10 +217,9 @@ export interface PaginatedResponse<T> {
 // Form Types
 export interface CreateUserRequest {
   email: string;
-  username: string;
+  name: string;
   password: string;
-  role: UserRole;
-  phone?: string;
+  phone: string;
 }
 
 export interface UpdateUserRequest {

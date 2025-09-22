@@ -64,13 +64,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signup = async (email: string,phone: string,password: string, username: string): Promise<boolean> => {
+  const signup = async (email: string, phone: string, password: string, name: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const { user: newUser } = await authService.signupuser(email, username,phone, password);
+      const { user: newUser } = await authService.signupuser(email, name,phone, password);
       setUser({
         email: newUser.email,
-        username: newUser.username || newUser.email,
+        name: newUser.username || newUser.email,
         phone: newUser.phone || '',
         password: newUser.password,
         createdAt: (newUser as any).createdAt || new Date().toISOString(),
