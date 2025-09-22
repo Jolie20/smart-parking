@@ -27,7 +27,7 @@ export const authService = {
 		return data;
 	},
 	signupuser: async (email: string, name: string, password: string, phone?: string, role: string = 'user') => {
-		const { data } = await api.post<LoginResponse>('/api/users', { email, name, password, phone, role });
+		const { data } = await api.post<LoginResponse>('/users', { email, name, password, phone, role });
 		localStorage.setItem('auth_token', data.token);
 		return data;
 	},
