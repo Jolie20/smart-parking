@@ -45,6 +45,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     }
   };
+  const managerLogin = async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const { user } = await authService.managerLogin(email, password);
+      setUser({
+        id: String(user.id),
+        email: user.email,
+        name: (user as any).name || user.email,
+        role: 'manager',
+        createdAt: new Date().toISOString(),
+      });
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const signup = async (email: string, password: string, name: string, phone?: string): Promise<boolean> => {
     setIsLoading(true);
@@ -91,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, adminLogin, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, adminLogin, signup, logout,managerLogin, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

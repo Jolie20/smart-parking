@@ -20,7 +20,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
 // ...existing code...
   const [error, setError] = useState("");
 
-  const { login, adminLogin, signup, isLoading } = useAuth();
+  const { login, adminLogin, signup,managerLogin, isLoading } = useAuth();
 
   // keep backward compatibility with prop but ignore signup
   React.useEffect(() => {
@@ -32,8 +32,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setError("");
 
     try {
-      const sucess = who === 'manager' ? await login(email, password) : await login(email, password);
-      const success = who === 'admin' ? await adminLogin(email, password) : await login(email, password);
+      let success = false;
+      if (who === 'manager') {
+        const success = await managerLogin(email, password);  
+      }else if (who === 'admin') {
+        const success = await adminLogin(email, password);
+      } else {
+        const success = await login(email, password);
+      }
 
       if (success) {
         onClose();
