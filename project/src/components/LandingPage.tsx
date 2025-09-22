@@ -266,6 +266,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
           <p className="text-gray-500 text-sm">
             © 2025 SmartPark. All rights reserved.
           </p>
+          <p className="text-gray-500 text-sm text-align-right m-t-2">
+            Developed by !
+          </p>
         </div>
       </footer>
       <SignupPage isOpen={showSignup} onClose={() => setShowSignup(false)} />
