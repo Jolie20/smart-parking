@@ -32,6 +32,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setError("");
 
     try {
+      const sucess = who === 'manager' ? await login(email, password) : await login(email, password);
       const success = who === 'admin' ? await adminLogin(email, password) : await login(email, password);
 
       if (success) {

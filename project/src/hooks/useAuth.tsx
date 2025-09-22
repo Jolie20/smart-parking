@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
+    localStorage.setItem('role', 'user');
     try {
       const { user, token } = await authService.userLogin(email, password);
       setUser({
