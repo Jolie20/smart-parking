@@ -7,7 +7,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   adminLogin: (email: string, password: string) => Promise<boolean>;
   managerLogin: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, name: string, phone?: string) => Promise<boolean>;
+  signup: (email: string, password: string, name: string, phone: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
