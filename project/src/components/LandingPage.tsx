@@ -268,6 +268,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
           </p>
         </div>
       </footer>
+      <SignupPage isOpen={showSignup} onClose={() => setShowSignup(false)} />
     </div>
   );
 };
