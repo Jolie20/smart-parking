@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signup = async (email: string, phone: string, password: string, name: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const { user: newUser } = await authService.signupuser(email, name,phone, password);
+      const { user: newUser } = await authService.signupuser(email, name, phone, password);
       setUser({
         email: newUser.email,
         name: newUser.username || newUser.email,
