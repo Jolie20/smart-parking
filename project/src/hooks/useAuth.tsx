@@ -67,12 +67,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signup = async (email: string, password: string, name: string, phone?: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const { user: newUser } = await authService.signupuser(email, name, password, phone, 'user');
+      const { user: newUser } = await authService.signupuser(email, name, password, phone);
       setUser({
         id: String(newUser.id),
         email: newUser.email,
         name: (newUser as any).name || newUser.email,
-        role: newUser.role === 'ADMIN' ? 'admin' : newUser.role,
         createdAt: (newUser as any).createdAt || new Date().toISOString(),
       });
       return true;
