@@ -55,7 +55,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({ onClose, onSubmit, editingMan
       validationErrors.push('Password must be at least 6 characters long');
     }
     
-    if (!formData.phone.trim()) {
+    if (!formData.phone?.trim()) {
       validationErrors.push('Phone number is required');
     }
     
