@@ -18,7 +18,7 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String
-  role      Role
+  role      Role @default(user)
   phone     String?
   password  String
   cards   CardData[] @relation("CardToUser")
