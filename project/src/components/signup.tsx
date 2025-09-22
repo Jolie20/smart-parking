@@ -27,7 +27,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ isOpen, onClose }) => {
     }
 
     try {
-      const success = await signup(email, password, name, phone);
+      const success = await signup(email,name, password,  phone);
       if (success) {
         onClose();
         setEmail("");
