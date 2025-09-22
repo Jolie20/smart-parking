@@ -22,7 +22,7 @@ export const authService = {
 		return data;
 	},
 	managerLogin: async (email: string, password: string) => {
-		const { data } = await api.post<LoginResponse>('/managers/login', { email, password });
+		const { data } = await api.post<LoginResponse>('/manager/login', { email, password });
 		localStorage.setItem('auth_token', data.token);
 		return data;
 	},
