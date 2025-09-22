@@ -14,7 +14,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
   initialMode,
 }) => {
   // login-only flow
-  const [who, setWho] = useState<'user' | 'admin'>('user');
+  const [who, setWho] = useState<'user' | 'admin'| 'manager'>('user');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 // ...existing code...
@@ -93,6 +93,12 @@ const LoginPage: React.FC<LoginPageProps> = ({
               >
                 Admin
               </button>
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-lg text-sm ${who === 'manager' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                onClick={() => setWho('manager')}
+              >
+              Manager</button>
             </div>
           }
           {error && (

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { X, User, Briefcase, Shield } from "lucide-react";
-import { CreateUserRequest, UserRole, ManagerPermission } from "../../../types";
-import { CreateManagerRequest } from "../../../services/adminService";
+import { X, User, Briefcase } from "lucide-react";
+import { CreateUserRequest, ManagerPermission } from "../../../types";
+//import { CreateManagerRequest } from "../../../services/adminService";
 
 interface ManagerFormProps {
   onClose: () => void;
@@ -59,7 +59,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
       validationErrors.push("Password must be at least 6 characters long");
     }
     
-    if (!formData.phone.trim()) {
+    if (!formData.phone?.trim()) {
       validationErrors.push('Phone number is required');
     }
     
