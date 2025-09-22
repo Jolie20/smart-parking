@@ -53,6 +53,17 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await adminService.listUsers();
+        setUsers(data);
+      } catch (e) {
+        setErrors(['Failed to load users.']);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     return () => clearInterval(timer);
   }, []);
 
@@ -61,7 +72,7 @@ const AdminDashboard: React.FC = () => {
       try {
         setIsLoading(true);
         const [u, l, s, m, b] = await Promise.all([
-          userService.list(),
+          adminService.listUsers().catch(() => mockUsers),
           lotService.list(),
           sessionService.list(),
           adminService.getManagers().catch(() => []),
