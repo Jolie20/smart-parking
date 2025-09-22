@@ -79,7 +79,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ isOpen, onClose }) => {
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
+              username
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -88,7 +88,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ isOpen, onClose }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="Enter your name"
+                placeholder="Enter your username"
                 required
               />
             </div>
