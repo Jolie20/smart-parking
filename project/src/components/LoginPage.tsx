@@ -1,31 +1,23 @@
 import React, { useState } from "react";
-import { X, Car, Mail, Lock, Loader2 } from "lucide-react";
+import { X, Car, Mail, Lock, Loader2, User as UserIcon, Phone } from "lucide-react";
 import { useAuth } from "../hooks/useAuth.tsx";
 
-interface LoginPageProps {
+interface AuthPageProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode: "login" | "signup";
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({
-  isOpen,
-  onClose,
-  initialMode,
-}) => {
-  // login-only flow
-  const [who, setWho] = useState<'user' | 'admin'| 'manager'>('user');
+const AuthPage: React.FC<AuthPageProps> = ({ isOpen, onClose, initialMode }) => {
+  const [mode, setMode] = useState<"login" | "signup">(initialMode);
+  const [who, setWho] = useState<"user" | "admin" | "manager">("user");
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-// ...existing code...
   const [error, setError] = useState("");
 
-  const { login, adminLogin, signup,managerLogin, isLoading } = useAuth();
-
-  // keep backward compatibility with prop but ignore signup
-  React.useEffect(() => {
-    // no-op: always show login
-  }, [initialMode]); 
+  const { login, adminLogin, managerLogin, signup, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,32 +25,35 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
     try {
       let success = false;
-      if (who === 'manager') {
-        const success = await managerLogin(email, password);  
-      }else if (who === 'admin') {
-        const success = await adminLogin(email, password);
+
+      if (mode === "signup") {
+        success = await signup(email, password, name, phone || undefined);
       } else {
-        const success = await login(email, password);
+        if (who === "admin") {
+          success = await adminLogin(email, password);
+        } else if (who === "manager") {
+          success = await managerLogin(email, password);
+        } else {
+          success = await login(email, password);
+        }
       }
 
       if (success) {
         onClose();
         setEmail("");
         setPassword("");
+        setName("");
+        setPhone("");
       } else {
-        setError("Invalid email or password.");
+        setError("Invalid credentials or signup failed.");
       }
     } catch (err) {
-      const message = (err as any)?.response?.data?.error || 'An error occurred. Please try again.';
+      const message =
+        (err as any)?.response?.data?.error ||
+        "An error occurred. Please try again.";
       setError(message);
     }
   };
-
-  const roles = [
-    { value: "user", label: "User" },
-    { value: "manager", label: "Manager" },
-    { value: "admin", label: "Administrator" },
-  ];
 
   if (!isOpen) return null;
 
@@ -70,12 +65,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Car className="h-6 w-6 text-white" />
-              <h2 className="text-xl font-semibold text-white">Welcome Back</h2>
+              <h2 className="text-xl font-semibold text-white">
+                {mode === "login" ? "Welcome Back" : "Create Account"}
+              </h2>
             </div>
             <button
               onClick={onClose}
               className="text-white/80 hover:text-white transition-colors"
-              aria-label="Close login modal"
+              aria-label="Close modal"
             >
               <X className="h-6 w-6" />
             </button>
@@ -84,34 +81,66 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {
+          {mode === "login" && (
             <div className="flex justify-center gap-2">
-              <button
-                type="button"
-                className={`px-3 py-1 rounded-lg text-sm ${who === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                onClick={() => setWho('user')}
-              >
-                User
-              </button>
-              <button
-                type="button"
-                className={`px-3 py-1 rounded-lg text-sm ${who === 'admin' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                onClick={() => setWho('admin')}
-              >
-                Admin
-              </button>
-              <button
-                type="button"
-                className={`px-3 py-1 rounded-lg text-sm ${who === 'manager' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                onClick={() => setWho('manager')}
-              >
-              Manager</button>
+              {["user", "admin", "manager"].map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  className={`px-3 py-1 rounded-lg text-sm ${
+                    who === role
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                  onClick={() => setWho(role as any)}
+                >
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </button>
+              ))}
             </div>
-          }
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
+          )}
+
+          {mode === "signup" && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone (optional)
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+              </div>
+            </>
           )}
 
           <div>
@@ -159,13 +188,38 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 <span>Processing...</span>
               </>
             ) : (
-              <span>Sign In</span>
+              <span>{mode === "login" ? "Sign In" : "Sign Up"}</span>
             )}
           </button>
         </form>
+
+        {/* Footer Switch */}
+        <div className="px-6 py-4 text-center text-sm text-gray-600">
+          {mode === "login" ? (
+            <>
+              Don’t have an account?{" "}
+              <button
+                onClick={() => setMode("signup")}
+                className="text-blue-600 hover:underline"
+              >
+                Sign up
+              </button>
+            </>
+          ) : (
+            <>
+              Already have an account?{" "}
+              <button
+                onClick={() => setMode("login")}
+                className="text-blue-600 hover:underline"
+              >
+                Log in
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default AuthPage;
