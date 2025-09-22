@@ -8,6 +8,7 @@ interface AuthPageProps {
   initialMode: "login" | "signup";
 }
 
+
 const AuthPage: React.FC<AuthPageProps> = ({ isOpen, onClose, initialMode }) => {
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
   const [who, setWho] = useState<"user" | "admin" | "manager">("user");
