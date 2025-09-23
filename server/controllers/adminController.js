@@ -69,16 +69,16 @@ exports.createManager = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const manager = await prisma.manager.create({ data: { email, username, phone, password: passwordHash } });
      // Compose the email
-    // const subject = 'Welcome to Our Platform! Confirm Your Invitation';
-    // const html = `
-    //   <h1>Hello ${username},</h1>
-    //   <p>You have been invited as a manager. Please confirm your invitation by clicking the link below:</p>
-    //   <a href="http://localhost:5173/confirm-invitation?email=${encodeURIComponent(email)}">Confirm Invitation</a>
-    //   <p>If you did not expect this email, please ignore it.</p>
-    // `;
+    const subject = 'Welcome to Our Platform! Confirm Your Invitation';
+    const html = `
+      <h1>Hello ${username},</h1>
+      <p>You have been invited as a manager. Please confirm your invitation by clicking the link below:</p>
+      <a href="http://localhost:5173/confirm-invitation?email=${encodeURIComponent(email)}">Confirm Invitation</a>
+      <p>If you did not expect this email, please ignore it.</p>
+    `;
 
-    // // Send the email (assuming sendEmail is async)
-    // await sendEmail(email, subject, html);
+    // Send the email (assuming sendEmail is async)
+    await sendEmail(email, subject, html);
     res.status(201).json(manager);
   } catch (error) {
     res.status(500).json({ error: error.message });
