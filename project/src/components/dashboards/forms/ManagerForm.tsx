@@ -29,13 +29,6 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
   const [permissions, setPermissions] = useState<ManagerPermission[]>(
     editingManager?.permissions || ["view_sessions", "manage_lots"]
   );
-
-  const [employeeId, setEmployeeId] = useState(
-    editingManager?.employeeId || ""
-  );
-  const [department, setDepartment] = useState(
-    editingManager?.department || ""
-  );
   const [errors, setErrors] = useState<string[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
