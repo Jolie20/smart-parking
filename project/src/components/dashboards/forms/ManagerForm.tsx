@@ -59,6 +59,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
       setErrors(validationErrors);
       return;
     }
+    
 
     onSubmit({ userData: formData });
   };
