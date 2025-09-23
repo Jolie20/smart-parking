@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { lotService } from '../services/lotService';
 import SignupPage  from './signup';
 import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
-import { set } from 'mongoose';
 import { spotsService } from '../services/spotsService';
 
 interface LandingPageProps {
