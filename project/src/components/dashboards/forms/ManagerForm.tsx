@@ -60,7 +60,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
       return;
     }
 
-    onSubmit({ userData: formData, permissions });
+    onSubmit({ userData: formData });
   };
 
   const handleChange = (field: keyof CreateUserRequest, value: string) => {
