@@ -149,12 +149,10 @@ export type CheckOutMethod = 'rfid' | 'qr_code' | 'mobile_app' | 'manual' | 'aut
 
 // Manager Management
 export interface Manager extends BaseEntity {
-  userId: string;
-  employeeId?: string;
-  department?: string;
-  permissions?: ManagerPermission[];
-  isActive: boolean;
-  user?: User; // Populated when needed
+  Id: string;
+  email: string;
+  name: string;
+  phone?: string;
   managedLots?: ParkingLot[]; // Populated when needed
 }
 
