@@ -68,12 +68,14 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
         phone: formData.phone,
         password: formData.password
       });
+      return ('manager created' + JSON.stringify(created))
     }catch (error) {
       console.error("Error creating manager:", error);
       setErrors(["Failed to create manager. Please try again."]);
     }finally {
       setIsloading(false);
     }
+    
   };
 
   const handleChange = (field: keyof CreateUserRequest, value: string) => {
@@ -81,6 +83,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
     if (errors.length > 0) {
       setErrors([]);
     }
+  
   };
 
   return (
