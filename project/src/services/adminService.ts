@@ -13,8 +13,8 @@ export interface CreateManagerRequest {
 	Id: string;
 	email: string;
 	username: string;
-	password: string;
 	phone?: string;
+	password: string;
 }
 
 export interface AssignManagerRequest {
