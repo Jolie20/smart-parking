@@ -64,7 +64,6 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
     try {
       setIsloading(true);
       const created = await adminService.createManager({
-        Id: formData.Id,
         email: formData.email,
         username: formData.username,
         phone: formData.phone,
