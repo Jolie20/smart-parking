@@ -51,21 +51,6 @@ const AdminDashboard: React.FC = () => {
   const [managers, setManagers] = useState<Manager[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const data = await adminService.listUsers();
-        setUsers(data);
-      } catch (e) {
-        setErrors(['Failed to load users.']);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const load = async () => {
