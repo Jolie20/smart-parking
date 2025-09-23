@@ -7,7 +7,6 @@ interface ManagerFormProps {
   onClose: () => void;
   onSubmit: (managerData: {
     userData: CreateUserRequest;
-    permissions: ManagerPermission[];
   }) => void;
   editingManager?: any;
   isEditing?: boolean;
@@ -61,14 +60,6 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
     
     if (!formData.phone?.trim()) {
       validationErrors.push('Phone number is required');
-    }
-    
-    if (!employeeId.trim()) {
-      validationErrors.push('Employee ID is required');
-    }
-    
-    if (permissions.length === 0) {
-      validationErrors.push('At least one permission must be selected');
     }
 
     if (validationErrors.length > 0) {
