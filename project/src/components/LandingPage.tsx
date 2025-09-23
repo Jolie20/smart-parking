@@ -17,6 +17,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
     const load = async () => {
       try {
         const lots = await lotService.list();
+        const spots = await spotsService.getAllSpots();
         const totalLots = (lots || []).length;
         const totalSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.totalSpots || 0), 0);
         const availableSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.availableSpots || 0), 0);

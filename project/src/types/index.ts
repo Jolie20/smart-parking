@@ -213,6 +213,14 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+export interface sportRequest {
+   spotNumber: string,
+   isAvailable: boolean,
+   isReserved: boolean,
+   vehicleId?: string,
+   lotname: string
+
+}
 
 // Form Types
 export interface CreateUserRequest {
