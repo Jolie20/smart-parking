@@ -10,7 +10,6 @@ import {
 } from '../types';
 
 export interface CreateManagerRequest {
-	Id: string;
 	email: string;
 	username: string;
 	phone?: string;
