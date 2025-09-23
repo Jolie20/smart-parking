@@ -2,7 +2,7 @@ const { PrismaClient } = require('../generated/prisma');
 const prisma = new PrismaClient();
 const bcrypt = require('bcryptjs');
 const express = require('express');
-const { sendEmail } = require('../utilies/mail');
+const sendEmail = require('../utilies/mail');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -66,6 +66,8 @@ exports.createManager = async (req, res) => {
   console.log('recived body:', req.body);
   try {
     if (!password) return res.status(400).json({ error: 'Password is required' });
+    const existingManager = await prisma.manager.findUnique({ where: { email } });
+    if (existingManager) return res.status(400).json({ error: 'Manager with this email already exists' });
     const passwordHash = await bcrypt.hash(password, 10);
     const manager = await prisma.manager.create({ data: { email, username, phone, password: passwordHash } });
      // Compose the email
@@ -81,6 +83,7 @@ exports.createManager = async (req, res) => {
     await sendEmail(email, subject, html);
     res.status(201).json(manager);
   } catch (error) {
+    console.error('Error creating manager:', error);
     res.status(500).json({ error: error.message });
   }
 };
