@@ -82,9 +82,8 @@ exports.createManager = async (req, res) => {
     await sendEmail(email, subject, html);
     res.status(201).json(manager);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
-return res.status(500).json({ error: error.message })
 };
 
 //get all managers
