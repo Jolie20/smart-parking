@@ -3,6 +3,7 @@ import { lotService } from '../services/lotService';
 import SignupPage  from './signup';
 import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
 import { set } from 'mongoose';
+import { spotsService } from '../services/spotsService';
 
 interface LandingPageProps {
   onLoginClick: () => void;
@@ -19,7 +20,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
         const lots = await lotService.list();
         const spots = await spotsService.getAllSpots();
         const totalLots = (lots || []).length;
-        const totalSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.totalSpots || 0), 0);
+        const totalSpots = (spots || []).length;
         const availableSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.availableSpots || 0), 0);
         setLotsSummary({ totalLots, totalSpots, availableSpots });
       } catch (e) {
