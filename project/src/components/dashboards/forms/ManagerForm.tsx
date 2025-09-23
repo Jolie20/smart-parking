@@ -19,8 +19,9 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
   isEditing = false,
 }) => {
   const [formData, setFormData] = useState<CreateManagerRequest>({
+    Id: editingManager?.Id || "",
     email: editingManager?.user?.email || "",
-    name: editingManager?.user?.username || "",
+    username: editingManager?.user?.username || "",
     password: "",
     // or UserRole.Manager if you have an enum
     phone: editingManager?.user?.phone || "",
@@ -42,7 +43,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
       validationErrors.push("Please enter a valid email address");
     }
 
-    if (!formData.name.trim()) {
+    if (!formData.username.trim()) {
       validationErrors.push("Name is required");
     }
 
