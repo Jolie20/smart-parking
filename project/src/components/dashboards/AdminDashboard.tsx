@@ -183,10 +183,10 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const created = await adminService.createManager({
-        userId: 'temp', // This would be handled by the backend
-        employeeId: managerData.employeeId,
-        department: managerData.department,
-        permissions: managerData.permissions
+        username: managerData.name, // This would be handled by the backend
+        email: managerData.email,
+        phone: managerData.phone,
+        password: managerData.password
       });
       setManagers(prev => [...prev, created]);
       setShowManagerForm(false);
