@@ -19,7 +19,6 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
   isEditing = false,
 }) => {
   const [formData, setFormData] = useState<CreateManagerRequest>({
-    Id: editingManager?.Id || "",
     email: editingManager?.user?.email || "",
     username: editingManager?.user?.username || "",
     password: "",
