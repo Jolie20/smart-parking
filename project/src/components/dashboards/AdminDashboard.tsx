@@ -194,7 +194,7 @@ const AdminDashboard: React.FC = () => {
       setErrors([]);
     } catch (error) {
       console.error('Error saving manager:', error);
-      setErrors(['Failed to save manager. Please try again.']);
+      setErrors(['Faisave manager. Please try again.']);
     } finally {
       setIsLoading(false);
     }
