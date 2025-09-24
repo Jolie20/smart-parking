@@ -81,7 +81,7 @@ exports.createManager = async (req, res) => {
 
     // // Send the email (assuming sendEmail is async)
     // await sendEmail(email, subject, html);
-    res.status(201).json(manager);
+    res.status(201).json('manager created successfull',manager);
   } catch (error) {
     console.error('Error creating manager:', error);
     res.status(500).json({ error: error.message });
