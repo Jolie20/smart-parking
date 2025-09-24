@@ -183,7 +183,6 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const created = await adminService.createManager({
-        Id: managerData.Id,
         email: managerData.email,
         username: managerData.username,
         phone: managerData.phone,
