@@ -75,7 +75,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
     }finally {
       setIsloading(false);
     }
-    onSubmit({ Data: formData });
+    onSubmit({ fromData : formData });
     
   };
 
