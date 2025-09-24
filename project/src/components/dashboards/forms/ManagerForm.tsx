@@ -135,7 +135,7 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
                 <input
                   type="text"
                   value={formData.username}
-                  onChange={(e) => handleChange("name", e.target.value)}
+                  onChange={(e) => handleChange("username", e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="user name"
                 />
