@@ -30,9 +30,11 @@ const AppContent: React.FC = () => {
 
   if (!user) {
     return (
-      <Route>
+      <Routes>
+        {/* Public Routes */}
+        <Route>
         path= "/"
-        element={
+          element={
           <>
             <LandingPage
               onLoginClick={handleLoginClick}
@@ -44,22 +46,25 @@ const AppContent: React.FC = () => {
               initialMode={authMode}
             />
           </>
-        }
-      </Route>
+          }
+        </Route>
+        {/* Redirect any unknown routes to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     );
   }
 
-  // Render appropriate dashboard based on user role
-  switch (user.role) {
-    case 'user':
-      return <UserDashboard />;
-    case 'manager':
-      return <ManagerDashboard />;
-    case 'admin':
-      return <AdminDashboard />;
-    default:
-      return <UserDashboard />;
-  }
+//   // Render appropriate dashboard based on user role
+//   switch (user.role) {
+//     case 'user':
+//       return <UserDashboard />;
+//     case 'manager':
+//       return <ManagerDashboard />;
+//     case 'admin':
+//       return <AdminDashboard />;
+//     default:
+//       return <UserDashboard />;
+//   }
 };
 
 function App() {
