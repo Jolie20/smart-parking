@@ -31,7 +31,6 @@ const AppContent: React.FC = () => {
 
     return (
       <Routes>
-
         {/* Public Routes */}
         <Route>
         path= "/"
