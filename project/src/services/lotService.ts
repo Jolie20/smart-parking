@@ -22,14 +22,7 @@ export const lotService = {
 	remove: (id: string): Promise<ApiResponse<null>> => 
 		api.delete(`/lots/${id}`).then(r => r.data),
 	
-	getByManagerId: (managerId: string): Promise<ParkingLot[]> => 
-		api.get(`/lots/manager/${managerId}`).then(r => r.data),
-	
-	getAvailable: (): Promise<ParkingLot[]> => 
-		api.get('/lots/available').then(r => r.data),
-	
-	updateAvailability: (id: string, availableSpots: number): Promise<ParkingLot> => 
-		api.patch(`/lots/${id}/availability`, { availableSpots }).then(r => r.data),
+    // Not exposed by backend currently; keep placeholders commented for future
 };
 
 

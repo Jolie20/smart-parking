@@ -22,14 +22,7 @@ export const userService = {
 	remove: (id: string): Promise<ApiResponse<null>> => 
 		api.delete(`/users/${id}`).then(r => r.data),
 	
-	getByRole: (role: string): Promise<User[]> => 
-		api.get(`/users/role/${role}`).then(r => r.data),
-	
-	activate: (id: string): Promise<User> => 
-		api.post(`/users/${id}/activate`).then(r => r.data),
-	
-	deactivate: (id: string): Promise<User> => 
-		api.post(`/users/${id}/deactivate`).then(r => r.data),
+    // The following endpoints are not supported by backend routes; remove or implement when available
 };
 
 

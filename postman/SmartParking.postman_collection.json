@@ -1,0 +1,117 @@
+{
+  "info": {
+    "name": "Smart Parking API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "8b6d1a47-2d9a-4e53-bf7c-000000000001"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        { "name": "Create User", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api","users"] }, "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@example.com\",\n  \"name\": \"Test User\",\n  \"phone\": \"+1234567890\",\n  \"password\": \"secret\"\n}" } } },
+        { "name": "Login (User)", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/users/v1/login", "host": ["{{baseUrl}}"], "path": ["api","users","v1","login"] }, "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\"\n}" } } },
+        { "name": "List Users", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api","users"] } } },
+        { "name": "Get User by ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/users/:id", "host": ["{{baseUrl}}"], "path": ["api","users",":id"] } } },
+        { "name": "Update User", "request": { "method": "PUT", "header": [ {"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{userToken}}"} ], "url": { "raw": "{{baseUrl}}/api/users/:id", "host": ["{{baseUrl}}"], "path": ["api","users",":id"] }, "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Name\"\n}" } } },
+        { "name": "Delete User", "request": { "method": "DELETE", "header": [ {"key": "Authorization", "value": "Bearer {{userToken}}"} ], "url": { "raw": "{{baseUrl}}/api/users/:id", "host": ["{{baseUrl}}"], "path": ["api","users",":id"] } } }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "item": [
+        { "name": "Create Vehicle", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{userToken}}"} ], "url": { "raw": "{{baseUrl}}/api/vehicles", "host": ["{{baseUrl}}"], "path": ["api","vehicles"] }, "body": { "mode": "raw", "raw": "{\n  \"plate\": \"ABC-123\",\n  \"rfidCard\": \"12345678\"\n}" } } },
+        { "name": "List Vehicles", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/vehicles", "host": ["{{baseUrl}}"], "path": ["api","vehicles"] } } },
+        { "name": "Get Vehicle by ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/vehicles/:id", "host": ["{{baseUrl}}"], "path": ["api","vehicles",":id"] } } },
+        { "name": "Update Vehicle", "request": { "method": "PUT", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/vehicles/:id", "host": ["{{baseUrl}}"], "path": ["api","vehicles",":id"] }, "body": { "mode": "raw", "raw": "{\n  \"plate\": \"XYZ-987\"\n}" } } },
+        { "name": "Delete Vehicle", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/vehicles/:id", "host": ["{{baseUrl}}"], "path": ["api","vehicles",":id"] } } }
+      ]
+    },
+    {
+      "name": "Parking Lots",
+      "item": [
+        { "name": "Create Lot", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/lots", "host": ["{{baseUrl}}"], "path": ["api","lots"] }, "body": { "mode": "raw", "raw": "{\n  \"name\": \"Lot A\",\n  \"capacity\": 100,\n  \"hourlyRate\": 60\n}" } } },
+        { "name": "List Lots", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/lots", "host": ["{{baseUrl}}"], "path": ["api","lots"] } } },
+        { "name": "Get Lot by ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/lots/:id", "host": ["{{baseUrl}}"], "path": ["api","lots",":id"] } } },
+        { "name": "Update Lot", "request": { "method": "PUT", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/lots/:id", "host": ["{{baseUrl}}"], "path": ["api","lots",":id"] }, "body": { "mode": "raw", "raw": "{\n  \"name\": \"Lot A (Updated)\"\n}" } } },
+        { "name": "Delete Lot", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/lots/:id", "host": ["{{baseUrl}}"], "path": ["api","lots",":id"] } } }
+      ]
+    },
+    {
+      "name": "Parking Spots",
+      "item": [
+        { "name": "Create Spot", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/spots", "host": ["{{baseUrl}}"], "path": ["api","spots"] }, "body": { "mode": "raw", "raw": "{\n  \"lotId\": \"lot-id\",\n  \"label\": \"A-12\"\n}" } } },
+        { "name": "List Spots", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/spots", "host": ["{{baseUrl}}"], "path": ["api","spots"] } } },
+        { "name": "Get Spot by ID", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/spots/:id", "host": ["{{baseUrl}}"], "path": ["api","spots",":id"] } } },
+        { "name": "Update Spot", "request": { "method": "PUT", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/spots/:id", "host": ["{{baseUrl}}"], "path": ["api","spots",":id"] }, "body": { "mode": "raw", "raw": "{\n  \"label\": \"A-13\"\n}" } } },
+        { "name": "Delete Spot", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/spots/:id", "host": ["{{baseUrl}}"], "path": ["api","spots",":id"] } } }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        { "name": "Create Booking", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{userToken}}"} ], "url": { "raw": "{{baseUrl}}/api/bookings", "host": ["{{baseUrl}}"], "path": ["api","bookings"] }, "body": { "mode": "raw", "raw": "{\n  \"userId\": \"user-id\",\n  \"vehicleId\": \"vehicle-id\",\n  \"lotId\": \"lot-id\",\n  \"spotId\": \"spot-id\",\n  \"startTime\": \"2025-01-01T10:00:00Z\",\n  \"endTime\": \"2025-01-01T12:00:00Z\"\n}" } } },
+        { "name": "List Bookings", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/bookings", "host": ["{{baseUrl}}"], "path": ["api","bookings"] } } },
+        { "name": "Update Booking", "request": { "method": "PUT", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/bookings/:id", "host": ["{{baseUrl}}"], "path": ["api","bookings",":id"] }, "body": { "mode": "raw", "raw": "{\n  \"status\": \"confirmed\"\n}" } } },
+        { "name": "Delete Booking", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/bookings/:id", "host": ["{{baseUrl}}"], "path": ["api","bookings",":id"] } } }
+      ]
+    },
+    {
+      "name": "Parking Sessions",
+      "item": [
+        { "name": "Create Session", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/sessions", "host": ["{{baseUrl}}"], "path": ["api","sessions"] }, "body": { "mode": "raw", "raw": "{\n  \"userId\": \"user-id\",\n  \"vehicleId\": \"vehicle-id\",\n  \"lotId\": \"lot-id\",\n  \"spotId\": \"spot-id\"\n}" } } },
+        { "name": "List Sessions", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/sessions", "host": ["{{baseUrl}}"], "path": ["api","sessions"] } } },
+        { "name": "Update Session", "request": { "method": "PUT", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/sessions/:id", "host": ["{{baseUrl}}"], "path": ["api","sessions",":id"] }, "body": { "mode": "raw", "raw": "{\n  \"status\": \"completed\"\n}" } } },
+        { "name": "Delete Session", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/sessions/:id", "host": ["{{baseUrl}}"], "path": ["api","sessions",":id"] } } }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        { "name": "Create Payment", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/payments", "host": ["{{baseUrl}}"], "path": ["api","payments"] }, "body": { "mode": "raw", "raw": "{\n  \"sessionId\": \"session-id\",\n  \"amount\": 120\n}" } } },
+        { "name": "List Payments", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/payments", "host": ["{{baseUrl}}"], "path": ["api","payments"] } } }
+      ]
+    },
+    {
+      "name": "Cards",
+      "item": [
+        { "name": "Create Card", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/cards", "host": ["{{baseUrl}}"], "path": ["api","cards"] }, "body": { "mode": "raw", "raw": "{\n  \"rfidCard\": \"12345678\",\n  \"userId\": \"user-id\"\n}" } } },
+        { "name": "List Cards", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/cards", "host": ["{{baseUrl}}"], "path": ["api","cards"] } } }
+      ]
+    },
+    {
+      "name": "RFID",
+      "item": [
+        { "name": "Checkin by RFID", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/rfid/checkin", "host": ["{{baseUrl}}"], "path": ["api","rfid","checkin"] }, "body": { "mode": "raw", "raw": "{\n  \"rfidCard\": \"12345678\",\n  \"lotId\": \"lot-id\"\n}" } } },
+        { "name": "Checkout by RFID", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/rfid/checkout", "host": ["{{baseUrl}}"], "path": ["api","rfid","checkout"] }, "body": { "mode": "raw", "raw": "{\n  \"rfidCard\": \"12345678\"\n}" } } }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        { "name": "Admin Login", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/admin/login", "host": ["{{baseUrl}}"], "path": ["api","admin","login"] }, "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"secret\"\n}" } } },
+        { "name": "Seed Admin", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/admin/create", "host": ["{{baseUrl}}"], "path": ["api","admin","create"] } } },
+        { "name": "Get System Stats", "request": { "method": "GET", "header": [ {"key": "Authorization", "value": "Bearer {{adminToken}}"} ], "url": { "raw": "{{baseUrl}}/api/admin/stats", "host": ["{{baseUrl}}"], "path": ["api","admin","stats"] } } },
+        { "name": "List Users (Admin)", "request": { "method": "GET", "header": [ {"key": "Authorization", "value": "Bearer {{adminToken}}"} ], "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api","admin","users"] } } },
+        { "name": "Assign Manager to Lot", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{adminToken}}"} ], "url": { "raw": "{{baseUrl}}/api/admin/assign-manager", "host": ["{{baseUrl}}"], "path": ["api","admin","assign-manager"] }, "body": { "mode": "raw", "raw": "{\n  \"managerId\": \"manager-id\",\n  \"lotId\": \"lot-id\"\n}" } } },
+        { "name": "Create Manager", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"}, {"key": "Authorization", "value": "Bearer {{adminToken}}"} ], "url": { "raw": "{{baseUrl}}/api/admin/managers", "host": ["{{baseUrl}}"], "path": ["api","admin","managers"] }, "body": { "mode": "raw", "raw": "{\n  \"email\": \"manager@example.com\",\n  \"password\": \"secret\"\n}" } } },
+        { "name": "List Managers", "request": { "method": "GET", "header": [ {"key": "Authorization", "value": "Bearer {{adminToken}}"} ], "url": { "raw": "{{baseUrl}}/api/admin/managers", "host": ["{{baseUrl}}"], "path": ["api","admin","managers"] } } }
+      ]
+    },
+    {
+      "name": "Manager",
+      "item": [
+        { "name": "Manager Login", "request": { "method": "POST", "header": [ {"key": "Content-Type", "value": "application/json"} ], "url": { "raw": "{{baseUrl}}/api/manager/login", "host": ["{{baseUrl}}"], "path": ["api","manager","login"] }, "body": { "mode": "raw", "raw": "{\n  \"email\": \"manager@example.com\",\n  \"password\": \"secret\"\n}" } } },
+        { "name": "Managed Lots", "request": { "method": "GET", "header": [ {"key": "Authorization", "value": "Bearer {{managerToken}}"} ], "url": { "raw": "{{baseUrl}}/api/manager/lots", "host": ["{{baseUrl}}"], "path": ["api","manager","lots"] } } },
+        { "name": "Managed Sessions", "request": { "method": "GET", "header": [ {"key": "Authorization", "value": "Bearer {{managerToken}}"} ], "url": { "raw": "{{baseUrl}}/api/manager/sessions", "host": ["{{baseUrl}}"], "path": ["api","manager","sessions"] } } }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "userToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "managerToken", "value": "" }
+  ]
+}
+
+

@@ -274,17 +274,7 @@ export const mockParkingSessions: ParkingSession[] = [
   }
 ];
 
-export const mockManagers: Manager[] = [
-  {
-    id: '1',
-    userId: '2',
-    employeeId: 'EMP001',
-    department: 'Operations',
-    permissions: ['view_sessions', 'manage_lots', 'view_analytics', 'manage_spots', 'view_reports'],
-    isActive: true,
-    createdAt: '2025-01-01T00:00:00Z'
-  }
-];
+
 
 export const mockDashboardStats: DashboardStats = {
   totalUsers: 4,
