@@ -7,7 +7,7 @@ import UserDashboard from './components/dashboards/UserDashboard';
 import ManagerDashboard from './components/dashboards/ManagerDashboard';
 import AdminDashboard from './components/dashboards/AdminDashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
-const {user} = useAuth();
+//const {user} = useAuth();
 
 
 const AppContent: React.FC = () => {
@@ -63,7 +63,7 @@ const AppContent: React.FC = () => {
         </Route>
 
         {/* Admin dashboard */}
-        <Route element={<ProtectedRoute allowedRoles={[user?.role]} />}>
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Route>
 
