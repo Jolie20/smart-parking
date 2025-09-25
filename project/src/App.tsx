@@ -31,7 +31,7 @@ const AppContent: React.FC = () => {
   if (!user) {
     return (
       <Route
-        path="/home"
+        path="/"
         element={
           <>
             <LandingPage
