@@ -51,39 +51,37 @@ const AppContent: React.FC = () => {
             }
           />
         )}
-
-        {/* User dashboard */}
-        <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
-          <Route path="/user-dashboard" element={<UserDashboard />} />
-        </Route>
-
-        {/* Manager dashboard */}
-        <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
-          <Route path="/manager-dashboard" element={<ManagerDashboard />} />
-        </Route>
-
-        {/* Admin dashboard */}
-        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        </Route>
-
-        {/* Fallback */}
+        {/* Protected Routes */}
+        {user && (
+          <>
+            <Route element={<ProtectedRoute />}>  
+              <Route path="/user-dashboard" element={<UserDashboard />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={['manager']} />}>  
+              <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+            </Route>  
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            </Route>
+          </>
+        )}
+        {/* Redirect unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
 
 
-//   // Render appropriate dashboard based on user role
-//   switch (user.role) {
-//     case 'user':
-//       return <UserDashboard />;
-//     case 'manager':
-//       return <ManagerDashboard />;
-//     case 'admin':
-//       return <AdminDashboard />;
-//     default:
-//       return <UserDashboard />;
-//   }
+  // Render appropriate dashboard based on user role
+  // switch (user.role) {
+  //   case 'user':
+  //     return <UserDashboard />;
+  //   case 'manager':
+  //     return <ManagerDashboard />;
+  //   case 'admin':
+  //     return <AdminDashboard />;
+  //   default:
+  //     return <UserDashboard />;
+  // }
 };
 
 function App() {

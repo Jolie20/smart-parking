@@ -15,7 +15,7 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   if (!user) {
     // Not logged in → redirect to login
     return <Navigate to="/" replace />;
-  }
+  }   
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Logged in but unauthorized → redirect or show error
