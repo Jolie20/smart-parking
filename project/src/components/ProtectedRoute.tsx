@@ -14,14 +14,13 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
   if (!user) {
     // Not logged in → redirect to login
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Logged in but unauthorized → redirect or show error
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/" replace />;
   }
 
-  // ✅ If authorized → show child routes
   return <Outlet />;
 };
