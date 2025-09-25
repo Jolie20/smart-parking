@@ -27,7 +27,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ isOpen, onClose }) => {
     }
 
     try {
-      const success = await signup(email,name, password,  phone);
+      const success = await signup(email, name, password, phone);
       if (success) {
         onClose();
         setEmail("");
@@ -56,7 +56,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Car className="h-6 w-6 text-white" />
-              <h2 className="text-xl font-semibold text-white">Create Account</h2>
+              <h2 className="text-xl font-semibold text-white">
+                Create Account
+              </h2>
             </div>
             <button
               onClick={onClose}

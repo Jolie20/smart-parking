@@ -42,6 +42,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
+  const [successes, setSuccesses] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { latest } = useArduinoStream();
   const [showUserForm, setShowUserForm] = useState(false);
@@ -145,9 +146,11 @@ const AdminDashboard: React.FC = () => {
         setUsers((prev) =>
           prev.map((u) => (u.id === editingUser.id ? updated : u))
         );
+        setSuccesses(["User updated successfully."]);
       } else {
         const created = await userService.create(userData);
         setUsers((prev) => [...prev, created]);
+        setSuccesses(["User created successfully."]);
       }
       setShowUserForm(false);
       setEditingUser(null);
@@ -168,9 +171,11 @@ const AdminDashboard: React.FC = () => {
         setLots((prev) =>
           prev.map((l) => (l.id === editingLot.id ? updated : l))
         );
+        setSuccesses(["Parking lot updated successfully."]);
       } else {
         const created = await lotService.create(lotData);
         setLots((prev) => [...prev, created]);
+        setSuccesses(["Parking lot created successfully."]);
       }
       setShowLotForm(false);
       setEditingLot(null);
@@ -193,6 +198,7 @@ const AdminDashboard: React.FC = () => {
         password: managerData.password,
       });
       setManagers((prev) => [...prev, created]);
+      setSuccesses(["Manager created successfully."]);
       setShowManagerForm(false);
       setEditingManager(null);
       setErrors([]);
@@ -244,7 +250,7 @@ const AdminDashboard: React.FC = () => {
 
   const tabs = [
     { id: "overview", label: "Overview", icon: BarChart3 },
-    { id: "users", label: "User Management", icon: Users },
+    { id: "managers", label: "Manager Management", icon: Users },
     { id: "lots", label: "Parking Lots", icon: MapPin },
     { id: "sessions", label: "Live Sessions", icon: Activity },
     { id: "gate", label: "Gate Control", icon: Shield },
@@ -528,21 +534,13 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === "users" && (
+        {activeTab === "managers" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">
-                User Management
+                Manager Management
               </h2>
               <div className="flex space-x-3">
-                <button
-                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-                  onClick={() => setShowUserForm(true)}
-                  disabled={isLoading}
-                  aria-label="Add new user"
-                >
-                  {isLoading ? "Adding..." : "Add New User"}
-                </button>
                 <button
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                   onClick={() => setShowManagerForm(true)}
@@ -560,86 +558,37 @@ const AdminDashboard: React.FC = () => {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                        User
+                        Manager
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                        Role
+                        Email
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
                         Phone
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                        Vehicles
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                        Sessions
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                        Actions
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {users.map((u) => {
-                      const userSessions = sessions.filter(
-                        (s: ParkingSession) => s.userId === u.id
-                      );
-
-                      return (
-                        <tr key={u.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {u.name || u.email}
-                              </p>
-                              <p className="text-sm text-gray-500">{u.email}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                u.role === "admin"
-                                  ? "bg-purple-100 text-purple-800"
-                                  : u.role === "manager"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-blue-100 text-blue-800"
-                              }`}
-                            >
-                              {(u.role || "")
-                                .toString()
-                                .toLowerCase()
-                                .replace(/^[a-z]/, (c) => c.toUpperCase())}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {u.phone || "N/A"}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">-</td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {userSessions.length}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex space-x-2">
-                              <button
-                                className="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                                onClick={() => handleEditUser(u)}
-                                aria-label={`Edit ${u.name || u.email}`}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="text-red-600 hover:text-red-900 text-sm font-medium"
-                                onClick={() => handleDeleteUser(u.id)}
-                                disabled={isLoading}
-                                aria-label={`Delete ${u.name || u.email}`}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {managers.map((m) => (
+                      <tr
+                        key={(m as any).id || (m as any).Id}
+                        className="hover:bg-gray-50"
+                      >
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {(m as any).name || m.email}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {m.email}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {(m as any).phone || "N/A"}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -1243,6 +1192,47 @@ const AdminDashboard: React.FC = () => {
                     type="button"
                     className="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
                     onClick={clearErrors}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Success Display */}
+      {successes.length > 0 && (
+        <div className="fixed top-4 right-4 z-50 max-w-md mt-20">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-green-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414L9 13.414l4.707-4.707z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">Success</h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {successes.map((msg, index) => (
+                      <li key={index}>{msg}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    className="bg-green-50 px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600"
+                    onClick={() => setSuccesses([])}
                   >
                     Dismiss
                   </button>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, MapPin, Car, Settings } from 'lucide-react';
-import { SpotType } from '../../../types';
+import React, { useState } from "react";
+import { X, MapPin, Car, Settings } from "lucide-react";
+import { SpotType } from "../../../types";
 
 interface SpotFormProps {
   onClose: () => void;
@@ -10,22 +10,29 @@ interface SpotFormProps {
   lotId: string;
 }
 
-const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isEditing = false, lotId }) => {
+const SpotForm: React.FC<SpotFormProps> = ({
+  onClose,
+  onSubmit,
+  editingSpot,
+  isEditing = false,
+  lotId,
+}) => {
   const [formData, setFormData] = useState({
-    spotNumber: editingSpot?.spotNumber || '',
-    spotType: editingSpot?.spotType || 'regular',
-    rfidReaderId: editingSpot?.rfidReaderId || '',
-    isMaintenance: editingSpot?.isMaintenance || false
+    spotNumber: editingSpot?.spotNumber || "",
+    isAvailable: true,
+    isReserved: false,
+    vehicleId: "",
+    lotname: "",
   });
   const [errors, setErrors] = useState<string[]>([]);
 
   const spotTypes: { value: SpotType; label: string }[] = [
-    { value: 'regular', label: 'Regular' },
-    { value: 'premium', label: 'Premium' },
-    { value: 'covered', label: 'Covered' },
-    { value: 'electric', label: 'Electric' },
-    { value: 'oversized', label: 'Oversized' },
-    { value: 'disabled', label: 'Disabled Access' }
+    { value: "regular", label: "Regular" },
+    { value: "premium", label: "Premium" },
+    { value: "covered", label: "Covered" },
+    { value: "electric", label: "Electric" },
+    { value: "oversized", label: "Oversized" },
+    { value: "disabled", label: "Disabled Access" },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,12 +40,10 @@ const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isE
     const validationErrors: string[] = [];
 
     if (!formData.spotNumber.trim()) {
-      validationErrors.push('Spot number is required');
+      validationErrors.push("Spot number is required");
     }
-    
-    if (!formData.rfidReaderId.trim()) {
-      validationErrors.push('RFID Reader ID is required');
-    }
+
+    // RFID reader not required by backend final routes
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
@@ -46,15 +51,16 @@ const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isE
     }
 
     onSubmit({
-      ...formData,
-      lotId,
+      spotNumber: formData.spotNumber,
       isAvailable: true,
-      isReserved: false
+      isReserved: false,
+      vehicleId: formData.vehicleId || undefined,
+      lotname: formData.lotname,
     });
   };
 
   const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors.length > 0) {
       setErrors([]);
     }
@@ -69,7 +75,7 @@ const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isE
               <Car className="h-5 w-5 text-orange-600" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">
-              {isEditing ? 'Edit Parking Spot' : 'Add New Parking Spot'}
+              {isEditing ? "Edit Parking Spot" : "Add New Parking Spot"}
             </h2>
           </div>
           <button
@@ -103,7 +109,7 @@ const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isE
               <input
                 type="text"
                 value={formData.spotNumber}
-                onChange={(e) => handleChange('spotNumber', e.target.value)}
+                onChange={(e) => handleChange("spotNumber", e.target.value)}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 placeholder="A1"
               />
@@ -112,35 +118,14 @@ const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isE
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Spot Type *
-            </label>
-            <div className="relative">
-              <Settings className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <select
-                value={formData.spotType}
-                onChange={(e) => handleChange('spotType', e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none"
-                title="Select spot type"
-              >
-                {spotTypes.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              RFID Reader ID *
+              Lot Name *
             </label>
             <input
               type="text"
-              value={formData.rfidReaderId}
-              onChange={(e) => handleChange('rfidReaderId', e.target.value)}
+              value={formData.lotname}
+              onChange={(e) => handleChange("lotname", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="READER001"
+              placeholder="Downtown Plaza"
             />
           </div>
 
@@ -149,7 +134,7 @@ const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isE
               type="checkbox"
               id="maintenance"
               checked={formData.isMaintenance}
-              onChange={(e) => handleChange('isMaintenance', e.target.checked)}
+              onChange={(e) => handleChange("isMaintenance", e.target.checked)}
               className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
             />
             <label htmlFor="maintenance" className="text-sm text-gray-700">
@@ -169,7 +154,7 @@ const SpotForm: React.FC<SpotFormProps> = ({ onClose, onSubmit, editingSpot, isE
               type="submit"
               className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
             >
-              {isEditing ? 'Update Spot' : 'Add Spot'}
+              {isEditing ? "Update Spot" : "Add Spot"}
             </button>
           </div>
         </form>

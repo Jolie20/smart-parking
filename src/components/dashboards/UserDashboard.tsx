@@ -1,17 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { Car, MapPin, Clock, CreditCard, Plus, Calendar, Activity, User, Phone, Mail, Edit, Trash2 } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth.tsx';
-import { vehicleService } from '../../services/vehicleService';
-import { bookingService } from '../../services/bookingService';
-import { sessionService } from '../../services/sessionService';
-import { lotService } from '../../services/lotService';
-import { Vehicle, Booking, ParkingSession, ParkingLot, CreateVehicleRequest } from '../../types';
-import BookingForm from './forms/BookingForm.tsx';
-import VehicleForm from './VehicleForm.tsx';
+import React, { useState, useEffect } from "react";
+import {
+  Car,
+  MapPin,
+  Clock,
+  CreditCard,
+  Plus,
+  Calendar,
+  Activity,
+  User,
+  Phone,
+  Mail,
+  Edit,
+  Trash2,
+} from "lucide-react";
+import { useAuth } from "../../hooks/useAuth.tsx";
+import { vehicleService } from "../../services/vehicleService";
+import { bookingService } from "../../services/bookingService";
+import { sessionService } from "../../services/sessionService";
+import { lotService } from "../../services/lotService";
+import {
+  Vehicle,
+  Booking,
+  ParkingSession,
+  ParkingLot,
+  CreateVehicleRequest,
+} from "../../types";
+import BookingForm from "./forms/BookingForm.tsx";
+import VehicleForm from "./VehicleForm.tsx";
 
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   const [, setCurrentTime] = useState(new Date());
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -56,9 +75,9 @@ const UserDashboard: React.FC = () => {
       try {
         setIsLoading(true);
         const [b, v, s, l] = await Promise.all([
-          bookingService.getByUserId(user?.id || ''),
-          vehicleService.getByUserId(user?.id || ''),
-          sessionService.getByUserId(user?.id || ''),
+          bookingService.list(),
+          vehicleService.list(),
+          sessionService.list(),
           lotService.list(),
         ]);
         setBookings(b || []);
@@ -66,7 +85,7 @@ const UserDashboard: React.FC = () => {
         setSessions(s || []);
         setLots(l || []);
       } catch (e) {
-        setErrors(['Failed to load your data.']);
+        setErrors(["Failed to load your data."]);
       } finally {
         setIsLoading(false);
       }
@@ -78,7 +97,9 @@ const UserDashboard: React.FC = () => {
 
   const userVehicles = vehicles.filter((v: Vehicle) => v.userId === user?.id);
   const userBookings = bookings.filter((b: Booking) => b.userId === user?.id);
-  const userSessions = sessions.filter((s: ParkingSession) => s.userId === user?.id);
+  const userSessions = sessions.filter(
+    (s: ParkingSession) => s.userId === user?.id
+  );
   // const activeSession = userSessions.find((s) => s.status === "active");
 
   const formatDuration = (minutes: number) => {
@@ -93,10 +114,6 @@ const UserDashboard: React.FC = () => {
     try {
       // Validate booking data
       const validationErrors: string[] = [];
-
-      if (!bookingData.vehicleNumber) {
-        validationErrors.push("Vehicle number is required");
-      }
 
       if (!bookingData.startTime || !bookingData.endTime) {
         validationErrors.push("Start and end times are required");
@@ -116,38 +133,40 @@ const UserDashboard: React.FC = () => {
         return;
       }
 
-      // Find a vehicle for the user
-      const userVehicle =
-        userVehicles.find(
-          (v) => v.licensePlate === bookingData.vehicleNumber
-        ) || userVehicles[0];
+      // Build body the way backend expects
+      const lotName =
+        bookingData.lotName ||
+        lots.find((l: any) => l.id === bookingData.lotId)?.name;
+      const vehiclePlate =
+        bookingData.vehiclePlate || userVehicles[0]?.licensePlate;
+      const spotNumber = bookingData.spotNumber || "A1";
+      // Estimate amount based on lot hourlyRate and duration
+      const start = new Date(`2024-01-01T${bookingData.startTime}:00Z`);
+      const end = new Date(`2024-01-01T${bookingData.endTime}:00Z`);
+      const hours = Math.max(
+        1,
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+      );
+      const lotForRate: any = lots.find((l: any) => l.name === lotName);
+      const totalAmount = lotForRate
+        ? lotForRate.hourlyRate * hours
+        : undefined;
 
-      if (!userVehicle) {
-        setErrors(["No vehicle found. Please add a vehicle first."]);
-        return;
-      }
-
-      // Find an available parking lot
-      const availableLot = lots.find((lot: any) => lot.availableSpots > 0);
-      if (!availableLot) {
-        setErrors(["No available parking spots at the moment."]);
-        return;
-      }
-
-      // Create new booking
       const created = await bookingService.create({
-        lotId: availableLot.id,
-        vehicleId: userVehicle.id,
+        lotName: String(lotName || ""),
+        spotNumber: String(spotNumber),
+        vehiclePlate: String(vehiclePlate || ""),
         startTime: `2024-01-01T${bookingData.startTime}:00Z`,
         endTime: `2024-01-01T${bookingData.endTime}:00Z`,
-      });
-      setBookings(prev => [...prev, created]);
-      
+        totalAmount,
+      } as any);
+      setBookings((prev) => [...prev, created]);
+
       // Clear errors and close form
       setErrors([]);
       setShowBookingForm(false);
-      
-      console.log('Booking created successfully:', created);
+
+      console.log("Booking created successfully:", created);
     } catch (error) {
       console.error("Error creating booking:", error);
       setErrors(["An unexpected error occurred. Please try again."]);
@@ -182,12 +201,12 @@ const UserDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const created = await vehicleService.create(vehicleData);
-      setVehicles(prev => [...prev, created]);
+      setVehicles((prev) => [...prev, created]);
       setShowVehicleForm(false);
       setErrors([]);
     } catch (error) {
-      console.error('Error creating vehicle:', error);
-      setErrors(['Failed to add vehicle. Please try again.']);
+      console.error("Error creating vehicle:", error);
+      setErrors(["Failed to add vehicle. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -197,11 +216,11 @@ const UserDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       await vehicleService.remove(vehicleId);
-      setVehicles(prev => prev.filter(v => v.id !== vehicleId));
+      setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
       setErrors([]);
     } catch (error) {
-      console.error('Error deleting vehicle:', error);
-      setErrors(['Failed to delete vehicle. Please try again.']);
+      console.error("Error deleting vehicle:", error);
+      setErrors(["Failed to delete vehicle. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -211,13 +230,15 @@ const UserDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       await bookingService.cancel(bookingId);
-      setBookings(prev => prev.map(b => 
-        b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
-      ));
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === bookingId ? { ...b, status: "cancelled" as const } : b
+        )
+      );
       setErrors([]);
     } catch (error) {
-      console.error('Error cancelling booking:', error);
-      setErrors(['Failed to cancel booking. Please try again.']);
+      console.error("Error cancelling booking:", error);
+      setErrors(["Failed to cancel booking. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -661,7 +682,9 @@ const UserDashboard: React.FC = () => {
             <div className="grid gap-6">
               {userBookings.map((booking) => {
                 const lot = lots.find((l: any) => l.id === booking.lotId);
-                const vehicle = vehicles.find((v: any) => v.id === booking.vehicleId);
+                const vehicle = vehicles.find(
+                  (v: any) => v.id === booking.vehicleId
+                );
                 return (
                   <div
                     key={booking.id}
@@ -670,13 +693,19 @@ const UserDashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-3">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            booking.status === 'active' ? 'bg-green-100 text-green-800' :
-                            booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                            booking.status === 'completed' ? 'bg-gray-100 text-gray-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              booking.status === "active"
+                                ? "bg-green-100 text-green-800"
+                                : booking.status === "confirmed"
+                                ? "bg-blue-100 text-blue-800"
+                                : booking.status === "completed"
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {booking.status.charAt(0).toUpperCase() +
+                              booking.status.slice(1)}
                           </span>
                           <h3 className="text-lg font-semibold text-gray-900">
                             {lot?.name}
@@ -706,16 +735,18 @@ const UserDashboard: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="text-right">
                         {booking.totalAmount && (
                           <>
-                            <p className="text-2xl font-bold text-gray-900">${booking.totalAmount.toFixed(2)}</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                              ${booking.totalAmount.toFixed(2)}
+                            </p>
                             <p className="text-sm text-gray-500">Total Cost</p>
                           </>
                         )}
-                        {booking.status === 'confirmed' && (
-                          <button 
+                        {booking.status === "confirmed" && (
+                          <button
                             className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition-colors"
                             onClick={() => handleCancelBooking(booking.id)}
                             disabled={isLoading}
@@ -736,7 +767,7 @@ const UserDashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">My Vehicles</h2>
-              <button 
+              <button
                 className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                 onClick={() => setShowVehicleForm(true)}
                 disabled={isLoading}
@@ -761,26 +792,35 @@ const UserDashboard: React.FC = () => {
                         <h3 className="text-lg font-semibold text-gray-900">
                           {vehicle.make} {vehicle.model}
                         </h3>
-                        <p className="text-sm text-gray-500">{vehicle.color} • {vehicle.year}</p>
-                        <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
-                          vehicle.vehicleType === 'car' ? 'bg-blue-100 text-blue-800' :
-                          vehicle.vehicleType === 'suv' ? 'bg-green-100 text-green-800' :
-                          vehicle.vehicleType === 'truck' ? 'bg-orange-100 text-orange-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <p className="text-sm text-gray-500">
+                          {vehicle.color} • {vehicle.year}
+                        </p>
+                        <span
+                          className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                            vehicle.vehicleType === "car"
+                              ? "bg-blue-100 text-blue-800"
+                              : vehicle.vehicleType === "suv"
+                              ? "bg-green-100 text-green-800"
+                              : vehicle.vehicleType === "truck"
+                              ? "bg-orange-100 text-orange-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
                           {vehicle.vehicleType.toUpperCase()}
                         </span>
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      <button 
+                      <button
                         className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                        onClick={() => {/* Edit vehicle */}}
+                        onClick={() => {
+                          /* Edit vehicle */
+                        }}
                         title="Edit vehicle"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
-                      <button 
+                      <button
                         className="p-2 text-gray-400 hover:text-red-600 transition-colors"
                         onClick={() => handleDeleteVehicle(vehicle.id)}
                         disabled={isLoading}
@@ -804,8 +844,12 @@ const UserDashboard: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Status</span>
-                      <span className={`font-medium ${vehicle.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                        {vehicle.isActive ? 'Active' : 'Inactive'}
+                      <span
+                        className={`font-medium ${
+                          vehicle.isActive ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {vehicle.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </div>
@@ -816,8 +860,12 @@ const UserDashboard: React.FC = () => {
             {userVehicles.length === 0 && (
               <div className="text-center py-12">
                 <Car className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-500">No Vehicles Added</h3>
-                <p className="text-gray-400">Add your first vehicle to start making bookings</p>
+                <h3 className="text-lg font-medium text-gray-500">
+                  No Vehicles Added
+                </h3>
+                <p className="text-gray-400">
+                  Add your first vehicle to start making bookings
+                </p>
               </div>
             )}
           </div>
@@ -903,7 +951,7 @@ const UserDashboard: React.FC = () => {
 
       {/* Vehicle Form Modal */}
       {showVehicleForm && (
-        <VehicleForm 
+        <VehicleForm
           onClose={() => setShowVehicleForm(false)}
           onSubmit={handleVehicleSubmit}
         />
