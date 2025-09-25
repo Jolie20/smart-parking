@@ -3,9 +3,11 @@ const prisma = new PrismaClient();
 const bcrypt = require('bcryptjs');
 // Create User
 exports.createUser = async (req, res) => {
+  const { email, name, phone, password } = req.body;
+  console.log("recieved body",req.body);
   try {
     
-    const { email, name, phone, password } = req.body;
+    
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before storing
     const user = await prisma.user.create({
       data: { email, name, phone, password:hashedPassword }

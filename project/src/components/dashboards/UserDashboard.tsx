@@ -39,6 +39,7 @@ const UserDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<ParkingSession[]>([]);
   const [lots, setLots] = useState<ParkingLot[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [successes, setSuccesses] = useState<string[]>([]);
   const [deviceMessage, setDeviceMessage] = useState<string | null>(null);
   const [deviceBalance, setDeviceBalance] = useState<number | null>(null);
   const [deviceCost, setDeviceCost] = useState<number | null>(null);
@@ -51,24 +52,23 @@ const UserDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch available slots on component mount and every 30 seconds
+  // Derive available slots from lots state
   useEffect(() => {
-    const fetchAvailableSlots = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:4000/api/lots/available"
-        );
-        const data = await response.json();
-        setAvailableSlots(data);
-      } catch (error) {
-        console.error("Error fetching available slots:", error);
-      }
-    };
-
-    fetchAvailableSlots();
-    const interval = setInterval(fetchAvailableSlots, 30000); // Update every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+    const mapped = (lots || []).map((lot: any) => ({
+      id: lot.id,
+      name: lot.name,
+      address: lot.address,
+      availableSpots: lot.availableSpots,
+      hourlyRate: lot.hourlyRate,
+      occupancyRate:
+        lot.totalSpots > 0
+          ? Math.round(
+              ((lot.totalSpots - lot.availableSpots) / lot.totalSpots) * 100
+            )
+          : 0,
+    }));
+    setAvailableSlots(mapped);
+  }, [lots]);
 
   useEffect(() => {
     const load = async () => {
@@ -161,6 +161,7 @@ const UserDashboard: React.FC = () => {
         totalAmount,
       } as any);
       setBookings((prev) => [...prev, created]);
+      setSuccesses(["Booking created successfully."]);
 
       // Clear errors and close form
       setErrors([]);
@@ -201,9 +202,17 @@ const UserDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const created = await vehicleService.create(vehicleData);
-      setVehicles((prev) => [...prev, created]);
+      const createdWithUser = {
+        ...created,
+        // Ensure it appears under "My Vehicles" even if API omits userId
+        userId: (created as any)?.userId ?? user?.id,
+      } as Vehicle;
+      setVehicles((prev) => [...prev, createdWithUser]);
       setShowVehicleForm(false);
       setErrors([]);
+      setSuccesses(["Vehicle added successfully. See it under My Vehicles."]);
+      // Jump user to Vehicles tab so the new item is visible immediately
+      setActiveTab("vehicles");
     } catch (error) {
       console.error("Error creating vehicle:", error);
       setErrors(["Failed to add vehicle. Please try again."]);
@@ -991,6 +1000,47 @@ const UserDashboard: React.FC = () => {
                     type="button"
                     className="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
                     onClick={() => setErrors([])}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Success Display */}
+      {successes.length > 0 && (
+        <div className="fixed top-4 right-4 z-50 max-w-md mt-20">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-green-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414L9 13.414l4.707-4.707z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">Success</h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {successes.map((msg, index) => (
+                      <li key={index}>{msg}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    className="bg-green-50 px-2 py-1.5 rounded-md text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600"
+                    onClick={() => setSuccesses([])}
                   >
                     Dismiss
                   </button>
