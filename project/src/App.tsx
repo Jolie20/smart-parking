@@ -40,10 +40,6 @@ const AppContent: React.FC = () => {
           initialMode={authMode}
         />
         {/* manager dashboard */}
-        <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
-          <Route path="/manager-dashboard" Element={<ManagerDashboard />} />
-        </Route>
-
 
       </>
     );
