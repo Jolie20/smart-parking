@@ -29,19 +29,22 @@ const AppContent: React.FC = () => {
 
   if (!user) {
     return (
-      <>
-        <LandingPage 
-          onLoginClick={handleLoginClick}
-          onSignupClick={handleSignupClick}
-        />
-        <LoginPage 
-          isOpen={showAuthModal}
-          onClose={handleCloseModal}
-          initialMode={authMode}
-        />
-        {/* manager dashboard */}
-
-      </>
+      <Route
+        path="/"
+        element={
+          <>
+            <LandingPage
+              onLoginClick={handleLoginClick}
+              onSignupClick={handleSignupClick}
+            />
+            <LoginPage
+              isOpen={showAuthModal}
+              onClose={handleCloseModal}
+              initialMode={authMode}
+            />
+          </>
+        }
+      />
     );
   }
 
