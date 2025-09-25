@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from './hooks/useAuth.tsx';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
@@ -6,7 +7,7 @@ import UserDashboard from './components/dashboards/UserDashboard';
 import ManagerDashboard from './components/dashboards/ManagerDashboard';
 import AdminDashboard from './components/dashboards/AdminDashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Route } from 'lucide-react';
+
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
@@ -30,7 +31,7 @@ const AppContent: React.FC = () => {
   if (!user) {
     return (
       <Route
-        path="/"
+        path="/home"
         element={
           <>
             <LandingPage
