@@ -30,8 +30,8 @@ const AppContent: React.FC = () => {
 
   if (!user) {
     return (
-      <Route
-        path="/"
+      <Route>
+        path= "/"
         element={
           <>
             <LandingPage
@@ -45,7 +45,7 @@ const AppContent: React.FC = () => {
             />
           </>
         }
-      />
+      </Route>
     );
   }
 
