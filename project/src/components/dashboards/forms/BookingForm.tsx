@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar, Clock, Car, MapPin, CreditCard } from 'lucide-react';
-import { CreateBookingRequest, ParkingLot, Vehicle } from '../../../types';
+import React, { useState, useEffect } from "react";
+import { X, Calendar, Clock, Car, MapPin, CreditCard } from "lucide-react";
+import { CreateBookingRequest, ParkingLot, Vehicle } from "../../../types";
 
 interface BookingFormProps {
   onClose: () => void;
@@ -10,32 +10,45 @@ interface BookingFormProps {
   userVehicles: Vehicle[];
 }
 
-const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicles, userVehicles }) => {
-  const [formData, setFormData] = useState<CreateBookingRequest>({
-    lotId: '',
-    vehicleId: '',
-    startTime: '',
-    endTime: '',
-    specialRequests: ''
+const BookingForm: React.FC<BookingFormProps> = ({
+  onClose,
+  onBook,
+  lots,
+  vehicles,
+  userVehicles,
+}) => {
+  const [formData, setFormData] = useState<any>({
+    lotId: "",
+    lotName: "",
+    spotNumber: "",
+    vehicleId: "",
+    vehiclePlate: "",
+    startTime: "",
+    endTime: "",
+    specialRequests: "",
   });
   const [errors, setErrors] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
-  const availableLots = lots.filter(lot => lot.availableSpots > 0);
+  const availableLots = lots.filter((lot) => lot.availableSpots > 0);
 
   useEffect(() => {
     // Set default start time to current time + 1 hour
     const now = new Date();
     now.setHours(now.getHours() + 1);
     const startTime = now.toTimeString().slice(0, 5);
-    
+
     // Set default end time to start time + 2 hours
-    const endTime = new Date(now.getTime() + 2 * 60 * 60 * 1000).toTimeString().slice(0, 5);
-    
-    setFormData(prev => ({
+    const endTime = new Date(now.getTime() + 2 * 60 * 60 * 1000)
+      .toTimeString()
+      .slice(0, 5);
+
+    setFormData((prev) => ({
       ...prev,
       startTime,
-      endTime
+      endTime,
     }));
   }, []);
 
@@ -44,27 +57,27 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
     const validationErrors: string[] = [];
 
     if (!formData.lotId) {
-      validationErrors.push('Please select a parking lot');
+      validationErrors.push("Please select a parking lot");
     }
-    
+
     if (!formData.vehicleId) {
-      validationErrors.push('Please select a vehicle');
+      validationErrors.push("Please select a vehicle");
     }
-    
+
     if (!formData.startTime) {
-      validationErrors.push('Start time is required');
+      validationErrors.push("Start time is required");
     }
-    
+
     if (!formData.endTime) {
-      validationErrors.push('End time is required');
+      validationErrors.push("End time is required");
     }
-    
+
     if (formData.startTime && formData.endTime) {
       const start = new Date(`2024-01-01T${formData.startTime}:00`);
       const end = new Date(`2024-01-01T${formData.endTime}:00`);
-      
+
       if (end <= start) {
-        validationErrors.push('End time must be after start time');
+        validationErrors.push("End time must be after start time");
       }
     }
 
@@ -77,15 +90,20 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
     const startDateTime = `${selectedDate}T${formData.startTime}:00Z`;
     const endDateTime = `${selectedDate}T${formData.endTime}:00Z`;
 
+    const lot = lots.find((l) => l.id === formData.lotId);
+    const veh = userVehicles.find((v) => v.id === formData.vehicleId);
+
     onBook({
-      ...formData,
+      lotName: lot?.name,
+      spotNumber: formData.spotNumber || "A1",
+      vehiclePlate: veh?.licensePlate,
       startTime: startDateTime,
-      endTime: endDateTime
-    });
+      endTime: endDateTime,
+    } as any);
   };
 
   const handleChange = (field: keyof CreateBookingRequest, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors.length > 0) {
       setErrors([]);
     }
@@ -93,19 +111,19 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
 
   const calculateEstimatedCost = () => {
     if (!formData.lotId || !formData.startTime || !formData.endTime) return 0;
-    
-    const lot = lots.find(l => l.id === formData.lotId);
+
+    const lot = lots.find((l) => l.id === formData.lotId);
     if (!lot) return 0;
-    
+
     const start = new Date(`2024-01-01T${formData.startTime}:00`);
     const end = new Date(`2024-01-01T${formData.endTime}:00`);
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    
+
     return hours * lot.hourlyRate;
   };
 
-  const selectedLot = lots.find(l => l.id === formData.lotId);
-  const selectedVehicle = vehicles.find(v => v.id === formData.vehicleId);
+  const selectedLot = lots.find((l) => l.id === formData.lotId);
+  const selectedVehicle = vehicles.find((v) => v.id === formData.vehicleId);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -115,7 +133,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Calendar className="h-5 w-5 text-blue-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Book Parking Spot</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Book Parking Spot
+            </h2>
           </div>
           <button
             onClick={onClose}
@@ -147,7 +167,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               title="Select booking date"
             />
@@ -161,18 +181,34 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <select
                 value={formData.lotId}
-                onChange={(e) => handleChange('lotId', e.target.value)}
+                onChange={(e) => handleChange("lotId", e.target.value)}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                 title="Select parking lot"
               >
                 <option value="">Select a parking lot</option>
                 {availableLots.map((lot) => (
                   <option key={lot.id} value={lot.id}>
-                    {lot.name} - {lot.availableSpots} spots available (${lot.hourlyRate}/hr)
+                    {lot.name} - {lot.availableSpots} spots available ($
+                    {lot.hourlyRate}/hr)
                   </option>
                 ))}
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Spot Number
+            </label>
+            <input
+              type="text"
+              value={formData.spotNumber}
+              onChange={(e) =>
+                setFormData((p: any) => ({ ...p, spotNumber: e.target.value }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="A1"
+            />
           </div>
 
           <div>
@@ -183,7 +219,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
               <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <select
                 value={formData.vehicleId}
-                onChange={(e) => handleChange('vehicleId', e.target.value)}
+                onChange={(e) => handleChange("vehicleId", e.target.value)}
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                 title="Select vehicle"
               >
@@ -207,13 +243,13 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
                 <input
                   type="time"
                   value={formData.startTime}
-                  onChange={(e) => handleChange('startTime', e.target.value)}
+                  onChange={(e) => handleChange("startTime", e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   title="Select start time"
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 End Time *
@@ -223,7 +259,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
                 <input
                   type="time"
                   value={formData.endTime}
-                  onChange={(e) => handleChange('endTime', e.target.value)}
+                  onChange={(e) => handleChange("endTime", e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   title="Select end time"
                 />
@@ -237,7 +273,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
             </label>
             <textarea
               value={formData.specialRequests}
-              onChange={(e) => handleChange('specialRequests', e.target.value)}
+              onChange={(e) => handleChange("specialRequests", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={3}
               placeholder="Any special requirements or notes..."
@@ -249,12 +285,16 @@ const BookingForm: React.FC<BookingFormProps> = ({ onClose, onBook, lots, vehicl
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <CreditCard className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Cost Estimation</span>
+                <span className="text-sm font-medium text-blue-800">
+                  Cost Estimation
+                </span>
               </div>
               <div className="text-sm text-blue-700">
                 <p>Parking Lot: {selectedLot.name}</p>
                 <p>Rate: ${selectedLot.hourlyRate}/hour</p>
-                <p className="font-semibold">Estimated Total: ${calculateEstimatedCost().toFixed(2)}</p>
+                <p className="font-semibold">
+                  Estimated Total: ${calculateEstimatedCost().toFixed(2)}
+                </p>
               </div>
             </div>
           )}

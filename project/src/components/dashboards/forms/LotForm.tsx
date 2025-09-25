@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
-import { X, MapPin, DollarSign, Clock, Settings } from 'lucide-react';
-import { CreateLotRequest, UpdateLotRequest, ParkingFeature, User } from '../../../types';
+import React, { useState } from "react";
+import { X, MapPin, DollarSign, Clock, Settings } from "lucide-react";
+import {
+  CreateLotRequest,
+  UpdateLotRequest,
+  ParkingFeature,
+  User,
+} from "../../../types";
 
 interface LotFormProps {
   onClose: () => void;
@@ -10,71 +15,62 @@ interface LotFormProps {
   managers: User[];
 }
 
-const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEditing = false, managers }) => {
-  const [formData, setFormData] = useState<CreateLotRequest>({
-    name: editingLot?.name || '',
-    description: editingLot?.description || '',
-    address: editingLot?.address || '',
-    city: editingLot?.city || '',
-    state: editingLot?.state || '',
-    zipCode: editingLot?.zipCode || '',
-    coordinates: editingLot?.coordinates || undefined,
+const LotForm: React.FC<LotFormProps> = ({
+  onClose,
+  onSubmit,
+  editingLot,
+  isEditing = false,
+  managers,
+}) => {
+  const [formData, setFormData] = useState<any>({
+    name: editingLot?.name || "",
+    address: editingLot?.address || "",
     totalSpots: editingLot?.totalSpots || 0,
+    availableSpots: editingLot?.availableSpots || 0,
     hourlyRate: editingLot?.hourlyRate || 0,
-    dailyRate: editingLot?.dailyRate || 0,
-    monthlyRate: editingLot?.monthlyRate || 0,
-    managerId: editingLot?.managerId || '',
-    features: editingLot?.features || [],
-    operatingHours: editingLot?.operatingHours || {
-      monday: { isOpen: true, openTime: '06:00', closeTime: '22:00' },
-      tuesday: { isOpen: true, openTime: '06:00', closeTime: '22:00' },
-      wednesday: { isOpen: true, openTime: '06:00', closeTime: '22:00' },
-      thursday: { isOpen: true, openTime: '06:00', closeTime: '22:00' },
-      friday: { isOpen: true, openTime: '06:00', closeTime: '22:00' },
-      saturday: { isOpen: true, openTime: '07:00', closeTime: '23:00' },
-      sunday: { isOpen: true, openTime: '08:00', closeTime: '21:00' }
-    }
+    managerName: "",
+    managerEmail: "",
   });
   const [errors, setErrors] = useState<string[]>([]);
 
   const features: { value: ParkingFeature; label: string }[] = [
-    { value: 'covered', label: 'Covered Parking' },
-    { value: 'electric_charging', label: 'Electric Vehicle Charging' },
-    { value: 'security_cameras', label: 'Security Cameras' },
-    { value: 'valet_service', label: 'Valet Service' },
-    { value: 'disabled_access', label: 'Disabled Access' },
-    { value: 'oversized_vehicles', label: 'Oversized Vehicles' }
+    { value: "covered", label: "Covered Parking" },
+    { value: "electric_charging", label: "Electric Vehicle Charging" },
+    { value: "security_cameras", label: "Security Cameras" },
+    { value: "valet_service", label: "Valet Service" },
+    { value: "disabled_access", label: "Disabled Access" },
+    { value: "oversized_vehicles", label: "Oversized Vehicles" },
   ];
 
-  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+  const days = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ] as const;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors: string[] = [];
 
     if (!formData.name.trim()) {
-      validationErrors.push('Parking lot name is required');
+      validationErrors.push("Parking lot name is required");
     }
     if (!formData.address.trim()) {
-      validationErrors.push('Address is required');
+      validationErrors.push("Address is required");
     }
-    if (!formData.city.trim()) {
-      validationErrors.push('City is required');
-    }
-    if (!formData.state.trim()) {
-      validationErrors.push('State is required');
-    }
-    if (!formData.zipCode.trim()) {
-      validationErrors.push('ZIP code is required');
-    }
+    // Backend does not require city/state/zip in final routes
     if (formData.totalSpots <= 0) {
-      validationErrors.push('Total spots must be greater than 0');
+      validationErrors.push("Total spots must be greater than 0");
     }
     if (formData.hourlyRate <= 0) {
-      validationErrors.push('Hourly rate must be greater than 0');
+      validationErrors.push("Hourly rate must be greater than 0");
     }
-    if (!formData.managerId) {
-      validationErrors.push('Manager is required');
+    if (!formData.managerName || !formData.managerEmail) {
+      validationErrors.push("Manager name and email are required");
     }
 
     if (validationErrors.length > 0) {
@@ -86,7 +82,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
   };
 
   const handleChange = (field: keyof CreateLotRequest, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors.length > 0) {
       setErrors([]);
     }
@@ -94,20 +90,24 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
 
   const handleFeatureToggle = (feature: ParkingFeature) => {
     const newFeatures = formData.features.includes(feature)
-      ? formData.features.filter(f => f !== feature)
+      ? formData.features.filter((f) => f !== feature)
       : [...formData.features, feature];
-    handleChange('features', newFeatures);
+    handleChange("features", newFeatures);
   };
 
-  const handleOperatingHoursChange = (day: typeof days[number], field: 'isOpen' | 'openTime' | 'closeTime', value: any) => {
+  const handleOperatingHoursChange = (
+    day: (typeof days)[number],
+    field: "isOpen" | "openTime" | "closeTime",
+    value: any
+  ) => {
     const newOperatingHours = {
       ...formData.operatingHours,
       [day]: {
         ...formData.operatingHours[day],
-        [field]: value
-      }
+        [field]: value,
+      },
     };
-    handleChange('operatingHours', newOperatingHours);
+    handleChange("operatingHours", newOperatingHours);
   };
 
   return (
@@ -119,7 +119,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
               <MapPin className="h-5 w-5 text-green-600" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">
-              {isEditing ? 'Edit Parking Lot' : 'Add New Parking Lot'}
+              {isEditing ? "Edit Parking Lot" : "Add New Parking Lot"}
             </h2>
           </div>
           <button
@@ -146,8 +146,10 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
 
           {/* Basic Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
-            
+            <h3 className="text-lg font-medium text-gray-900">
+              Basic Information
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -156,29 +158,35 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
+                  onChange={(e) => handleChange("name", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Downtown Plaza"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Manager *
+                  Manager Name *
                 </label>
-                <select
-                  value={formData.managerId}
-                  onChange={(e) => handleChange('managerId', e.target.value)}
+                <input
+                  type="text"
+                  value={formData.managerName}
+                  onChange={(e) => handleChange("managerName", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  title="Select manager"
-                >
-                  <option value="">Select a manager</option>
-                  {managers.map((manager) => (
-                    <option key={manager.id} value={manager.id}>
-                      {manager.name}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="John Manager"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Manager Email *
+                </label>
+                <input
+                  type="email"
+                  value={formData.managerEmail}
+                  onChange={(e) => handleChange("managerEmail", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="manager@example.com"
+                />
               </div>
             </div>
 
@@ -188,7 +196,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
               </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
+                onChange={(e) => handleChange("description", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 rows={3}
                 placeholder="Brief description of the parking lot"
@@ -198,8 +206,10 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
 
           {/* Location Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Location Information</h3>
-            
+            <h3 className="text-lg font-medium text-gray-900">
+              Location Information
+            </h3>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Address *
@@ -207,7 +217,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
               <input
                 type="text"
                 value={formData.address}
-                onChange={(e) => handleChange('address', e.target.value)}
+                onChange={(e) => handleChange("address", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="123 Main Street"
                 title="Enter parking lot address"
@@ -222,13 +232,13 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                 <input
                   type="text"
                   value={formData.city}
-                  onChange={(e) => handleChange('city', e.target.value)}
+                  onChange={(e) => handleChange("city", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="New York"
                   title="Enter city name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   State *
@@ -236,12 +246,12 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                 <input
                   type="text"
                   value={formData.state}
-                  onChange={(e) => handleChange('state', e.target.value)}
+                  onChange={(e) => handleChange("state", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="NY"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   ZIP Code *
@@ -249,7 +259,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                 <input
                   type="text"
                   value={formData.zipCode}
-                  onChange={(e) => handleChange('zipCode', e.target.value)}
+                  onChange={(e) => handleChange("zipCode", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="10001"
                   title="Enter ZIP code"
@@ -260,8 +270,10 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
 
           {/* Pricing Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Pricing Information</h3>
-            
+            <h3 className="text-lg font-medium text-gray-900">
+              Pricing Information
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -271,12 +283,14 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                   type="number"
                   title="Enter total spots"
                   value={formData.totalSpots}
-                  onChange={(e) => handleChange('totalSpots', parseInt(e.target.value) || 0)}
+                  onChange={(e) =>
+                    handleChange("totalSpots", parseInt(e.target.value) || 0)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   min="1"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Hourly Rate ($) *
@@ -286,12 +300,14 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                   title="Enter hourly rate"
                   step="0.01"
                   value={formData.hourlyRate}
-                  onChange={(e) => handleChange('hourlyRate', parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    handleChange("hourlyRate", parseFloat(e.target.value) || 0)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   min="0"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Daily Rate ($)
@@ -301,7 +317,9 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
                   title="Enter daily rate"
                   step="0.01"
                   value={formData.dailyRate}
-                  onChange={(e) => handleChange('dailyRate', parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    handleChange("dailyRate", parseFloat(e.target.value) || 0)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   min="0"
                 />
@@ -314,7 +332,10 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
             <h3 className="text-lg font-medium text-gray-900">Features</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {features.map((feature) => (
-                <label key={feature.value} className="flex items-center space-x-2">
+                <label
+                  key={feature.value}
+                  className="flex items-center space-x-2"
+                >
                   <input
                     type="checkbox"
                     checked={formData.features.includes(feature.value)}
@@ -339,7 +360,7 @@ const LotForm: React.FC<LotFormProps> = ({ onClose, onSubmit, editingLot, isEdit
               type="submit"
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
-              {isEditing ? 'Update Lot' : 'Create Lot'}
+              {isEditing ? "Update Lot" : "Create Lot"}
             </button>
           </div>
         </form>
