@@ -65,7 +65,9 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />  
+      <BrowserRouter>
+        <AppContent />  
+      </BrowserRouter>
     </AuthProvider>
   );
 }
