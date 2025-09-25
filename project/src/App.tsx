@@ -52,10 +52,7 @@ const AppContent: React.FC = () => {
   // Render appropriate dashboard based on user role
   switch (user.role) {
     case 'user':
-      return 
-      <Route element={<ProtectedRoute allowedRoles={['user']}>;
-      <Route path="/userdashboard" element={<UserDashboard />} />;
-      </Route>;
+      return <UserDashboard />;
     case 'manager':
       return <ManagerDashboard />;
     case 'admin':
