@@ -48,8 +48,25 @@ const AppContent: React.FC = () => {
           </>
           }
         </Route>
-        {/* Redirect any unknown routes to home */}
+        
+        {/* User dashboard */}
+        <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+          <Route path="/user-dashboard" element={<UserDashboard />} />
+        </Route>
+
+        {/* Manager dashboard */}
+        <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
+          <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+        </Route>
+
+        {/* Admin dashboard */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        </Route>
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
+       
       </Routes>
     );
   }
