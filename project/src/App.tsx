@@ -7,6 +7,7 @@ import UserDashboard from './components/dashboards/UserDashboard';
 import ManagerDashboard from './components/dashboards/ManagerDashboard';
 import AdminDashboard from './components/dashboards/AdminDashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
+const {user} = useAuth();
 
 
 const AppContent: React.FC = () => {
@@ -32,22 +33,24 @@ const AppContent: React.FC = () => {
     return (
       <Routes>
         {/* Public Routes */}
-        <Route>
-        path= "/"
-          element={
-          <>
-            <LandingPage
-              onLoginClick={handleLoginClick}
-              onSignupClick={handleSignupClick}
-            />
-            <LoginPage
-              isOpen={showAuthModal}
-              onClose={handleCloseModal}
-              initialMode={authMode}
-            />
-          </>
-          }
-        </Route>
+        {!user && (
+          <Route
+            path="/"
+            element={
+              <>
+                <LandingPage
+                  onLoginClick={handleLoginClick}
+                  onSignupClick={handleSignupClick}
+                />
+                <LoginPage
+                  isOpen={showAuthModal}
+                  onClose={handleCloseModal}
+                  initialMode={authMode}
+                />
+              </>
+            }
+          />
+        )}
 
         {/* User dashboard */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
@@ -60,13 +63,12 @@ const AppContent: React.FC = () => {
         </Route>
 
         {/* Admin dashboard */}
-        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+        <Route element={<ProtectedRoute allowedRoles={[user?.role]} />}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
-       
       </Routes>
     );
 
