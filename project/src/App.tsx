@@ -28,10 +28,10 @@ const AppContent: React.FC = () => {
     setShowAuthModal(false);
   };
 
-  if (!user) {
+
     return (
       <Routes>
-        
+
         {/* Public Routes */}
         <Route>
         path= "/"
@@ -70,7 +70,7 @@ const AppContent: React.FC = () => {
        
       </Routes>
     );
-  }
+
 
 //   // Render appropriate dashboard based on user role
 //   switch (user.role) {
