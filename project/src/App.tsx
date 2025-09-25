@@ -5,6 +5,7 @@ import LoginPage from './components/LoginPage';
 import UserDashboard from './components/dashboards/UserDashboard';
 import ManagerDashboard from './components/dashboards/ManagerDashboard';
 import AdminDashboard from './components/dashboards/AdminDashboard';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { Route } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -38,13 +39,11 @@ const AppContent: React.FC = () => {
           onClose={handleCloseModal}
           initialMode={authMode}
         />
-        <Route  
-          path="*"
-          element={<LandingPage 
-            onLoginClick={handleLoginClick}
-            onSignupClick={handleSignupClick}
-          />}
-        />
+        {/* manager dashboard */}
+        <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
+          <Route path="/manager-dashboard" Element={<ManagerDashboard />} />
+        </Route>
+
 
       </>
     );
@@ -53,7 +52,10 @@ const AppContent: React.FC = () => {
   // Render appropriate dashboard based on user role
   switch (user.role) {
     case 'user':
-      return <UserDashboard />;
+      return 
+      <Route element={<ProtectedRoute allowedRoles={['user']}>;
+      <Route path="/userdashboard" element={<UserDashboard />} />;
+      </Route>;
     case 'manager':
       return <ManagerDashboard />;
     case 'admin':
