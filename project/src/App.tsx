@@ -7,7 +7,7 @@ import UserDashboard from './components/dashboards/UserDashboard';
 import ManagerDashboard from './components/dashboards/ManagerDashboard';
 import AdminDashboard from './components/dashboards/AdminDashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
-//const {user} = useAuth();
+
 
 
 const AppContent: React.FC = () => {
