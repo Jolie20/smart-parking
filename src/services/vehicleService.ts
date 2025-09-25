@@ -7,8 +7,8 @@ import {
 } from '../types';
 
 export const vehicleService = {
-	list: (): Promise<Vehicle[]> => 
-		api.get('api/vehicles').then(r => r.data),
+    list: (): Promise<Vehicle[]> => 
+        api.get('/vehicles').then(r => r.data),
 	
 	getById: (id: string): Promise<Vehicle> => 
 		api.get(`/vehicles/${id}`).then(r => r.data),
@@ -23,7 +23,7 @@ export const vehicleService = {
 		api.delete(`/vehicles/${id}`).then(r => r.data),
 	
 	getByUserId: (userId: string): Promise<Vehicle[]> => 
-		api.get(`/vehicles/user/${userId}`).then(r => r.data),
+        api.get(`/vehicles/user/${userId}`).then(r => r.data),
 	
 	getByLicensePlate: (licensePlate: string): Promise<Vehicle> => 
 		api.get(`/vehicles/license/${licensePlate}`).then(r => r.data),

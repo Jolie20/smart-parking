@@ -149,12 +149,10 @@ export type CheckOutMethod = 'rfid' | 'qr_code' | 'mobile_app' | 'manual' | 'aut
 
 // Manager Management
 export interface Manager extends BaseEntity {
-  userId: string;
-  employeeId: string;
-  department?: string;
-  permissions: ManagerPermission[];
-  isActive: boolean;
-  user?: User; // Populated when needed
+  Id: string;
+  email: string;
+  name: string;
+  phone?: string;
   managedLots?: ParkingLot[]; // Populated when needed
 }
 
@@ -213,14 +211,21 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+export interface sportRequest {
+   spotNumber: string,
+   isAvailable: boolean,
+   isReserved: boolean,
+   vehicleId?: string,
+   lotname: string
+
+}
 
 // Form Types
 export interface CreateUserRequest {
   email: string;
   name: string;
   password: string;
-  role: UserRole;
-  phone?: string;
+  phone: string;
 }
 
 export interface UpdateUserRequest {

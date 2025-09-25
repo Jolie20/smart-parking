@@ -22,7 +22,12 @@ export const authService = {
 		return data;
 	},
 	managerLogin: async (email: string, password: string) => {
-		const { data } = await api.post<LoginResponse>('/managers/login', { email, password });
+		const { data } = await api.post<LoginResponse>('/manager/login', { email, password });
+		localStorage.setItem('auth_token', data.token);
+		return data;
+	},
+	signupuser: async (email: string, name: string, password: string, phone?: string, role: string = 'user') => {
+		const { data } = await api.post<LoginResponse>('/users', { email, name, password, phone, role });
 		localStorage.setItem('auth_token', data.token);
 		return data;
 	},

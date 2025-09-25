@@ -12,42 +12,30 @@ import {
   Activity,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.tsx";
-<<<<<<< HEAD
-import {
-  mockUsers,
-  mockParkingLots,
-  mockParkingSessions,
-  mockVehicles,
-  mockBookings,
-} from "../../data/mockData";
+import { adminService } from "../../services/adminService";
+import { userService } from "../../services/userService";
+import { lotService } from "../../services/lotService";
+import { sessionService } from "../../services/sessionService";
+import { bookingService } from "../../services/bookingService";
 import {
   User,
   ParkingLot,
   ParkingSession,
   Vehicle,
   Booking,
-} from "../../types";
-=======
-import { adminService } from '../../services/adminService';
-import { userService } from '../../services/userService';
-import { lotService } from '../../services/lotService';
-import { sessionService } from '../../services/sessionService';
-import { bookingService } from '../../services/bookingService';
-import { 
-  User, 
-  ParkingLot, 
-  ParkingSession, 
-  Vehicle, 
-  Booking, 
-  Manager, 
+  Manager,
   Analytics,
-  DashboardStats 
+  DashboardStats,
 } from "../../types";
-import { mockParkingSessions, mockUsers, mockVehicles, mockParkingLots } from '../../data/mockData';
-import UserForm from './forms/UserForm';
-import LotForm from './forms/LotForm';
-import ManagerForm from './forms/ManagerForm';
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
+import {
+  mockParkingSessions,
+  mockUsers,
+  mockVehicles,
+  mockParkingLots,
+} from "../../data/mockData";
+import UserForm from "./forms/UserForm";
+import LotForm from "./forms/LotForm";
+import ManagerForm from "./forms/ManagerForm";
 
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -55,9 +43,7 @@ const AdminDashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-<<<<<<< HEAD
   const { latest } = useArduinoStream();
-=======
   const [showUserForm, setShowUserForm] = useState(false);
   const [showLotForm, setShowLotForm] = useState(false);
   const [showManagerForm, setShowManagerForm] = useState(false);
@@ -69,21 +55,15 @@ const AdminDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<ParkingSession[]>([]);
   const [managers, setManagers] = useState<Manager[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const load = async () => {
       try {
         setIsLoading(true);
         const [u, l, s, m, b] = await Promise.all([
-          userService.list(),
-          lotService.list(),
-          sessionService.list(),
+          adminService.listUsers().catch(() => mockUsers),
+          lotService.list().catch(() => []),
+          sessionService.list().catch(() => []),
           adminService.getManagers().catch(() => []),
           bookingService.list().catch(() => []),
         ]);
@@ -105,19 +85,15 @@ const AdminDashboard: React.FC = () => {
   const totalUsers = users.length;
   const totalVehicles = mockVehicles.length; // Using mock data for now
   const totalParkingLots = lots.length;
-  const activeSessions = sessions.filter((s: ParkingSession) => s.status === 'active');
+  const activeSessions = sessions.filter(
+    (s: ParkingSession) => s.status === "active"
+  );
   const totalRevenue = sessions
     .filter((s: ParkingSession) => s.amount)
     .reduce((sum: number, s: ParkingSession) => sum + (s.amount || 0), 0);
 
-  const totalSpots = lots.reduce(
-    (sum, lot) => sum + lot.totalSpots,
-    0
-  );
-  const availableSpots = lots.reduce(
-    (sum, lot) => sum + lot.availableSpots,
-    0
-  );
+  const totalSpots = lots.reduce((sum, lot) => sum + lot.totalSpots, 0);
+  const availableSpots = lots.reduce((sum, lot) => sum + lot.availableSpots, 0);
   const occupancyRate =
     totalSpots > 0 ? ((totalSpots - availableSpots) / totalSpots) * 100 : 0;
 
@@ -165,18 +141,20 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       if (editingUser) {
-        const updated = await adminService.updateUser(editingUser.id, userData);
-        setUsers(prev => prev.map(u => u.id === editingUser.id ? updated : u));
+        const updated = await userService.update(editingUser.id, userData);
+        setUsers((prev) =>
+          prev.map((u) => (u.id === editingUser.id ? updated : u))
+        );
       } else {
-        const created = await adminService.createUser(userData);
-        setUsers(prev => [...prev, created]);
+        const created = await userService.create(userData);
+        setUsers((prev) => [...prev, created]);
       }
       setShowUserForm(false);
       setEditingUser(null);
       setErrors([]);
     } catch (error) {
-      console.error('Error saving user:', error);
-      setErrors(['Failed to save user. Please try again.']);
+      console.error("Error saving user:", error);
+      setErrors(["Failed to save user. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -187,17 +165,19 @@ const AdminDashboard: React.FC = () => {
       setIsLoading(true);
       if (editingLot) {
         const updated = await lotService.update(editingLot.id, lotData);
-        setLots(prev => prev.map(l => l.id === editingLot.id ? updated : l));
+        setLots((prev) =>
+          prev.map((l) => (l.id === editingLot.id ? updated : l))
+        );
       } else {
         const created = await lotService.create(lotData);
-        setLots(prev => [...prev, created]);
+        setLots((prev) => [...prev, created]);
       }
       setShowLotForm(false);
       setEditingLot(null);
       setErrors([]);
     } catch (error) {
-      console.error('Error saving lot:', error);
-      setErrors(['Failed to save parking lot. Please try again.']);
+      console.error("Error saving lot:", error);
+      setErrors(["Failed to save parking lot. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -207,18 +187,18 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const created = await adminService.createManager({
-        userId: 'temp', // This would be handled by the backend
-        employeeId: managerData.employeeId,
-        department: managerData.department,
-        permissions: managerData.permissions
+        email: managerData.email,
+        username: managerData.username,
+        phone: managerData.phone,
+        password: managerData.password,
       });
-      setManagers(prev => [...prev, created]);
+      setManagers((prev) => [...prev, created]);
       setShowManagerForm(false);
       setEditingManager(null);
       setErrors([]);
     } catch (error) {
-      console.error('Error saving manager:', error);
-      setErrors(['Failed to save manager. Please try again.']);
+      console.error("Error saving manager:", error);
+      setErrors(["Faisave manager. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -237,12 +217,12 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteUser = async (userId: string) => {
     try {
       setIsLoading(true);
-      await adminService.deleteUser(userId);
-      setUsers(prev => prev.filter(u => u.id !== userId));
+      await userService.remove(userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
       setErrors([]);
     } catch (error) {
-      console.error('Error deleting user:', error);
-      setErrors(['Failed to delete user. Please try again.']);
+      console.error("Error deleting user:", error);
+      setErrors(["Failed to delete user. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -252,11 +232,11 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       await lotService.remove(lotId);
-      setLots(prev => prev.filter(l => l.id !== lotId));
+      setLots((prev) => prev.filter((l) => l.id !== lotId));
       setErrors([]);
     } catch (error) {
-      console.error('Error deleting lot:', error);
-      setErrors(['Failed to delete parking lot. Please try again.']);
+      console.error("Error deleting lot:", error);
+      setErrors(["Failed to delete parking lot. Please try again."]);
     } finally {
       setIsLoading(false);
     }
@@ -465,16 +445,13 @@ const AdminDashboard: React.FC = () => {
                 </h3>
                 <div className="space-y-4">
                   {["user", "manager", "admin"].map((role) => {
-<<<<<<< HEAD
-                    const roleUsers = mockUsers.filter((u) => u.role === role);
+                    const roleUsers = users.filter(
+                      (u) => u.role === role || u.role === role.toUpperCase()
+                    );
                     const percentage =
                       totalUsers > 0
                         ? (roleUsers.length / totalUsers) * 100
                         : 0;
-=======
-                    const roleUsers = users.filter((u) => u.role === role || u.role === role.toUpperCase());
-                    const percentage = totalUsers > 0 ? (roleUsers.length / totalUsers) * 100 : 0;
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
                     return (
                       <div
@@ -557,35 +534,24 @@ const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 User Management
               </h2>
-<<<<<<< HEAD
-              <button
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-                onClick={() => handleAction("add user")}
-                disabled={isLoading}
-                aria-label="Add new user"
-              >
-                {isLoading ? "Adding..." : "Add New User"}
-              </button>
-=======
               <div className="flex space-x-3">
-                <button 
+                <button
                   className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
                   onClick={() => setShowUserForm(true)}
                   disabled={isLoading}
                   aria-label="Add new user"
                 >
-                  {isLoading ? 'Adding...' : 'Add New User'}
+                  {isLoading ? "Adding..." : "Add New User"}
                 </button>
-                <button 
+                <button
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                   onClick={() => setShowManagerForm(true)}
                   disabled={isLoading}
                   aria-label="Add new manager"
                 >
-                  {isLoading ? 'Adding...' : 'Add Manager'}
+                  {isLoading ? "Adding..." : "Add Manager"}
                 </button>
               </div>
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
             </div>
 
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
@@ -626,9 +592,7 @@ const AdminDashboard: React.FC = () => {
                               <p className="font-medium text-gray-900">
                                 {u.name || u.email}
                               </p>
-                              <p className="text-sm text-gray-500">
-                                {u.email}
-                              </p>
+                              <p className="text-sm text-gray-500">{u.email}</p>
                             </div>
                           </td>
                           <td className="px-6 py-4">
@@ -641,39 +605,29 @@ const AdminDashboard: React.FC = () => {
                                   : "bg-blue-100 text-blue-800"
                               }`}
                             >
-                              {(u.role || '').toString().toLowerCase().replace(/^[a-z]/, c => c.toUpperCase())}
+                              {(u.role || "")
+                                .toString()
+                                .toLowerCase()
+                                .replace(/^[a-z]/, (c) => c.toUpperCase())}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
                             {u.phone || "N/A"}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            -
-                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">-</td>
                           <td className="px-6 py-4 text-sm text-gray-500">
                             {userSessions.length}
                           </td>
                           <td className="px-6 py-4">
-<<<<<<< HEAD
-                            <button
-                              className="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                              onClick={() =>
-                                handleAction("view user details", user.id)
-                              }
-                              aria-label={`View details for ${user.name}`}
-                            >
-                              View Details
-                            </button>
-=======
                             <div className="flex space-x-2">
-                              <button 
+                              <button
                                 className="text-purple-600 hover:text-purple-900 text-sm font-medium"
                                 onClick={() => handleEditUser(u)}
                                 aria-label={`Edit ${u.name || u.email}`}
                               >
                                 Edit
                               </button>
-                              <button 
+                              <button
                                 className="text-red-600 hover:text-red-900 text-sm font-medium"
                                 onClick={() => handleDeleteUser(u.id)}
                                 disabled={isLoading}
@@ -682,7 +636,6 @@ const AdminDashboard: React.FC = () => {
                                 Delete
                               </button>
                             </div>
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                           </td>
                         </tr>
                       );
@@ -702,11 +655,7 @@ const AdminDashboard: React.FC = () => {
               </h2>
               <button
                 className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-<<<<<<< HEAD
-                onClick={() => handleAction("add parking lot")}
-=======
                 onClick={() => setShowLotForm(true)}
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                 disabled={isLoading}
                 aria-label="Add new parking lot"
               >
@@ -791,29 +740,16 @@ const AdminDashboard: React.FC = () => {
                     <div className="mt-6 flex justify-end space-x-3">
                       <button
                         className="px-4 py-2 text-purple-600 hover:text-purple-800 transition-colors"
-<<<<<<< HEAD
-                        onClick={() => handleAction("edit parking lot", lot.id)}
-=======
                         onClick={() => handleEditLot(lot)}
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                         aria-label={`Edit ${lot.name}`}
                       >
                         Edit
                       </button>
-<<<<<<< HEAD
                       <button
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                        onClick={() =>
-                          handleAction("view parking lot details", lot.id)
-                        }
-                        aria-label={`View details for ${lot.name}`}
-=======
-                      <button 
                         className="px-4 py-2 text-red-600 hover:text-red-800 transition-colors"
                         onClick={() => handleDeleteLot(lot.id)}
                         disabled={isLoading}
                         aria-label={`Delete ${lot.name}`}
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
                       >
                         Delete
                       </button>
@@ -981,17 +917,10 @@ const AdminDashboard: React.FC = () => {
                       const lotSessions = sessions.filter(
                         (s: ParkingSession) => s.lotId === lot.id
                       );
-<<<<<<< HEAD
                       const percentage =
-                        mockParkingSessions.length > 0
-                          ? (lotSessions.length / mockParkingSessions.length) *
-                            100
+                        sessions.length > 0
+                          ? (lotSessions.length / sessions.length) * 100
                           : 0;
-=======
-                      const percentage = sessions.length > 0
-                        ? (lotSessions.length / sessions.length) * 100
-                        : 0;
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
 
                       return (
                         <div
@@ -1030,7 +959,12 @@ const AdminDashboard: React.FC = () => {
                         Active Users
                       </span>
                       <span className="text-sm font-medium">
-                        {users.filter((u) => (u.role || '').toString().toLowerCase() === "user").length}
+                        {
+                          users.filter(
+                            (u) =>
+                              (u.role || "").toString().toLowerCase() === "user"
+                          ).length
+                        }
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1239,7 +1173,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Form Modals */}
       {showUserForm && (
-        <UserForm 
+        <UserForm
           onClose={() => {
             setShowUserForm(false);
             setEditingUser(null);
@@ -1251,7 +1185,7 @@ const AdminDashboard: React.FC = () => {
       )}
 
       {showLotForm && (
-        <LotForm 
+        <LotForm
           onClose={() => {
             setShowLotForm(false);
             setEditingLot(null);
@@ -1259,12 +1193,12 @@ const AdminDashboard: React.FC = () => {
           onSubmit={handleLotSubmit}
           editingLot={editingLot}
           isEditing={!!editingLot}
-          managers={users.filter(u => u.role === 'manager')}
+          managers={users.filter((u) => u.role === "manager")}
         />
       )}
 
       {showManagerForm && (
-        <ManagerForm 
+        <ManagerForm
           onClose={() => {
             setShowManagerForm(false);
             setEditingManager(null);

@@ -22,17 +22,7 @@ export const bookingService = {
 	cancel: (id: string): Promise<ApiResponse<null>> => 
 		api.delete(`/bookings/${id}`).then(r => r.data),
 	
-	getByUserId: (userId: string): Promise<Booking[]> => 
-		api.get(`/bookings/user/${userId}`).then(r => r.data),
-	
-	getByLotId: (lotId: string): Promise<Booking[]> => 
-		api.get(`/bookings/lot/${lotId}`).then(r => r.data),
-	
-	getByStatus: (status: string): Promise<Booking[]> => 
-		api.get(`/bookings/status/${status}`).then(r => r.data),
-	
-	confirm: (id: string): Promise<Booking> => 
-		api.post(`/bookings/${id}/confirm`).then(r => r.data),
+    // Additional filters not supported by backend in final routes
 };
 
 

@@ -1,42 +1,25 @@
-<<<<<<< HEAD
-import React from "react";
-import {
-  Car,
-  Shield,
-  Clock,
-  Smartphone,
-  ArrowRight,
-  MapPin,
-  Users,
-  BarChart3,
-} from "lucide-react";
-=======
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lotService } from '../services/lotService';
+import SignupPage  from './signup';
 import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
+import { spotsService } from '../services/spotsService';
 
 interface LandingPageProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
 }
 
-<<<<<<< HEAD
-const LandingPage: React.FC<LandingPageProps> = ({
-  onLoginClick,
-  onSignupClick,
-}) => {
-=======
 const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }) => {
   const [lotsSummary, setLotsSummary] = useState<{ totalLots: number; totalSpots: number; availableSpots: number } | null>(null);
+  const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
         const lots = await lotService.list();
+        const spots = await spotsService.getAllSpots();
         const totalLots = (lots || []).length;
-        const totalSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.totalSpots || 0), 0);
+        const totalSpots = (spots || []).length;
         const availableSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.availableSpots || 0), 0);
         setLotsSummary({ totalLots, totalSpots, availableSpots });
       } catch (e) {
@@ -45,7 +28,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
     };
     load();
   }, []);
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
@@ -81,7 +63,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
               Login
             </button>
             <button
-              onClick={onSignupClick}
+              onClick={()=>setShowSignup(true)}
               className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
             >
               Sign Up
@@ -100,15 +82,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
               Made Simple
             </span>
           </h1>
-<<<<<<< HEAD
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Book parking spots ahead of time, check in with RFID cards, and
-            enjoy seamless parking experiences with real-time availability and
-            automated billing.
-=======
           <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed">
             Book parking spots ahead of time, check in with RFID cards, and enjoy seamless parking experiences with real-time availability and automated billing.
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
           </p>
           {lotsSummary && (
             <div className="mb-8 text-gray-700">
@@ -122,7 +97,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
           )}
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
-              onClick={onSignupClick}
+              onClick={()=>setShowSignup(true)}
               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
             >
               <span>Get Started</span>
@@ -292,8 +267,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
           <p className="text-gray-500 text-sm">
             © 2025 SmartPark. All rights reserved.
           </p>
+          <p className="text-gray-500 text-sm text-align-right m-t-2">
+            Developed by !
+          </p>
         </div>
       </footer>
+      <SignupPage isOpen={showSignup} onClose={() => setShowSignup(false)} />
     </div>
   );
 };

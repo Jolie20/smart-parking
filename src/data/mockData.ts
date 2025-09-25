@@ -99,9 +99,6 @@ export const mockParkingLots: ParkingLot[] = [
   {
     id: '1',
     name: 'Downtown Plaza',
-<<<<<<< HEAD
-    address: 'KN4 Ave',
-=======
     description: 'Premium parking in the heart of downtown',
     address: '123 Main St',
     city: 'Downtown',
@@ -111,7 +108,6 @@ export const mockParkingLots: ParkingLot[] = [
       latitude: 34.0522,
       longitude: -118.2437
     },
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
     totalSpots: 50,
     availableSpots: 23,
     hourlyRate: 3.00,
@@ -133,10 +129,6 @@ export const mockParkingLots: ParkingLot[] = [
   },
   {
     id: '2',
-<<<<<<< HEAD
-    name: 'Chic Mall ',
-    address: 'KN4 Ave',
-=======
     name: 'Mall Parking',
     description: 'Convenient parking at the shopping mall',
     address: '456 Shopping Ave',
@@ -147,7 +139,6 @@ export const mockParkingLots: ParkingLot[] = [
       latitude: 34.0523,
       longitude: -118.2438
     },
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
     totalSpots: 100,
     availableSpots: 67,
     hourlyRate: 2.50,
@@ -217,14 +208,10 @@ export const mockBookings: Booking[] = [
     startTime: '2024-01-15T10:00:00Z',
     endTime: '2024-01-15T12:00:00Z',
     status: 'completed',
-<<<<<<< HEAD
-    totalAmount: 400.00
-=======
-    totalAmount: 6.00,
-    paymentStatus: 'paid',
-    paymentMethod: 'credit_card',
-    createdAt: '2024-01-15T09:30:00Z'
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
+  totalAmount: 6.00,
+  paymentStatus: 'paid',
+  paymentMethod: 'credit_card',
+  createdAt: '2024-01-15T09:30:00Z'
   },
   {
     id: '2',
@@ -232,11 +219,6 @@ export const mockBookings: Booking[] = [
     lotId: '1',
     spotId: '2',
     vehicleId: '1',
-<<<<<<< HEAD
-    startTime: '2025-09-16T14:00:00Z',
-    endTime: '2025-09-16T16:00:00Z',
-    status: 'booked'
-=======
     startTime: '2024-01-16T14:00:00Z',
     endTime: '2024-01-16T16:00:00Z',
     status: 'confirmed',
@@ -258,7 +240,6 @@ export const mockBookings: Booking[] = [
     paymentMethod: 'apple_pay',
     specialRequests: 'Electric vehicle charging needed',
     createdAt: '2024-01-17T08:30:00Z'
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
   }
 ];
 
@@ -269,23 +250,15 @@ export const mockParkingSessions: ParkingSession[] = [
     vehicleId: '1',
     lotId: '1',
     spotId: '1',
-<<<<<<< HEAD
-    checkInTime: '2025-09-15T10:00:00Z',
-    checkOutTime: '2025-09-15T12:00:00Z',
-    duration: 120,
-    amount: 400.00,
-    status: 'completed'
-=======
-    bookingId: '1',
-    checkInTime: '2024-01-15T10:00:00Z',
-    checkOutTime: '2024-01-15T12:00:00Z',
-    duration: 120,
-    amount: 6.00,
-    status: 'completed',
-    checkInMethod: 'rfid',
-    checkOutMethod: 'rfid',
-    createdAt: '2024-01-15T10:00:00Z'
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
+  bookingId: '1',
+  checkInTime: '2024-01-15T10:00:00Z',
+  checkOutTime: '2024-01-15T12:00:00Z',
+  duration: 120,
+  amount: 6.00,
+  status: 'completed',
+  checkInMethod: 'rfid',
+  checkOutMethod: 'rfid',
+  createdAt: '2024-01-15T10:00:00Z'
   },
   {
     id: '2',
@@ -293,30 +266,15 @@ export const mockParkingSessions: ParkingSession[] = [
     vehicleId: '3',
     lotId: '2',
     spotId: '3',
-<<<<<<< HEAD
-    checkInTime: '2025-09-16T09:00:00Z',
-    status: 'active'
-=======
-    bookingId: '3',
-    checkInTime: '2024-01-17T09:00:00Z',
-    status: 'active',
-    checkInMethod: 'mobile_app',
-    createdAt: '2024-01-17T09:00:00Z'
->>>>>>> 286d2779cbcd9224bc3c4a387af14aac7de1f27f
+  bookingId: '3',
+  checkInTime: '2024-01-17T09:00:00Z',
+  status: 'active',
+  checkInMethod: 'mobile_app',
+  createdAt: '2024-01-17T09:00:00Z'
   }
 ];
 
-export const mockManagers: Manager[] = [
-  {
-    id: '1',
-    userId: '2',
-    employeeId: 'EMP001',
-    department: 'Operations',
-    permissions: ['view_sessions', 'manage_lots', 'view_analytics', 'manage_spots', 'view_reports'],
-    isActive: true,
-    createdAt: '2025-01-01T00:00:00Z'
-  }
-];
+
 
 export const mockDashboardStats: DashboardStats = {
   totalUsers: 4,
