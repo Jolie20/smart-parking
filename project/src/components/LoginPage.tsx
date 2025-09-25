@@ -36,14 +36,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
     try {
       let success = false;
       if (who === 'manager') {
-        const success = await managerLogin(email, password);  
-        navigate("/manager-dashboard");
+        success = await managerLogin(email, password);  
+        if(success)navigate("/manager-dashboard");
       }else if (who === 'admin') {
-        const success = await adminLogin(email, password);
-        navigate("/admin-dashboard");
+        success = await adminLogin(email, password);
+        if(success)navigate("/admin-dashboard");
       } else {
-        const success = await login(email, password);
-        navigate("/user-dashboard");
+        success = await login(email, password);
+        if(success)navigate("/user-dashboard");
       }
 
       if (success) {
