@@ -1,35 +1,27 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 interface ProtectedRouteProps {
-  children: ReactNode;
-  requiredUserType?: 'admin' | 'manager' | 'user';
-  redirectTo?: string;
+  allowedRoles?: string[]; // e.g. ["admin", "manager"]
 }
 
-export const ProtectedRoute = ({ 
-  children, 
-  requiredUserType, 
-  redirectTo = '/login' 
-}: ProtectedRouteProps) => {
-  const { user, isAuthenticated, loading } = useAuth();
+export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+  const { user, isLoading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+  if (!user) {
+    // Not logged in → redirect to login
+    return <Navigate to="/login" replace />;
   }
 
-  if (requiredUserType && user?.userType !== requiredUserType) {
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // Logged in but unauthorized → redirect or show error
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <>{children}</>;
-}; 
+  // ✅ If authorized → show child routes
+  return <Outlet />;
+};
