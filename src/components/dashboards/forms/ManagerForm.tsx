@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import { X, User, Briefcase } from "lucide-react";
 import { CreateUserRequest, ManagerPermission } from "../../../types";
 //import { CreateManagerRequest } from "../../../services/adminService";
-import { adminService, CreateManagerRequest } from "../../../services/adminService";
+import { CreateManagerRequest } from "../../../services/adminService";
 interface ManagerFormProps {
   onClose: () => void;
-  onSubmit: (managerData: {
-    userData: CreateUserRequest;
-  }) => void;
+  onSubmit: (managerData: { userData: CreateUserRequest }) => void;
   editingManager?: any;
   isEditing?: boolean;
 }
@@ -51,32 +49,16 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
     } else if (formData.password && formData.password.length < 6) {
       validationErrors.push("Password must be at least 6 characters long");
     }
-    
+
     if (!formData.phone?.trim()) {
-      validationErrors.push('Phone number is required');
+      validationErrors.push("Phone number is required");
     }
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
       return;
     }
-    try {
-      setIsloading(true);
-      const created = await adminService.createManager({
-        email: formData.email,
-        username: formData.username,
-        phone: formData.phone,
-        password: formData.password
-      });
-      return ('manager created' + JSON.stringify(created))
-    }catch (error) {
-      console.error("Error creating manager:", error);
-      setErrors(["Failed to create manager. Please try again."]);
-    }finally {
-      setIsloading(false);
-    }
     onSubmit({ userData: formData });
-    
   };
 
   const handleChange = (field: keyof CreateUserRequest, value: string) => {
@@ -84,7 +66,6 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
     if (errors.length > 0) {
       setErrors([]);
     }
-  
   };
 
   return (
