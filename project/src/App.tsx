@@ -31,6 +31,7 @@ const AppContent: React.FC = () => {
   if (!user) {
     return (
       <Routes>
+        
         {/* Public Routes */}
         <Route>
         path= "/"
@@ -48,7 +49,7 @@ const AppContent: React.FC = () => {
           </>
           }
         </Route>
-        
+
         {/* User dashboard */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/user-dashboard" element={<UserDashboard />} />
