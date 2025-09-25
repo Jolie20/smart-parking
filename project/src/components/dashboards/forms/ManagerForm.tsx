@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X, User, Briefcase } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { CreateUserRequest, ManagerPermission } from "../../../types";
 //import { CreateManagerRequest } from "../../../services/adminService";
 import {
@@ -69,14 +70,13 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
         phone: formData.phone,
         password: formData.password,
       });
-      return "manager created" + JSON.stringify(created);
+      
     } catch (error) {
       console.error("Error creating manager:", error);
       setErrors(["Failed to create manager. Please try again."]);
     } finally {
       setIsloading(false);
     }
-    onSubmit({ userData: formData });
   };
 
   const handleChange = (field: keyof CreateUserRequest, value: string) => {

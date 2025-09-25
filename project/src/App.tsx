@@ -5,6 +5,7 @@ import LoginPage from './components/LoginPage';
 import UserDashboard from './components/dashboards/UserDashboard';
 import ManagerDashboard from './components/dashboards/ManagerDashboard';
 import AdminDashboard from './components/dashboards/AdminDashboard';
+import { Route } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
@@ -37,6 +38,14 @@ const AppContent: React.FC = () => {
           onClose={handleCloseModal}
           initialMode={authMode}
         />
+        <Route  
+          path="*"
+          element={<LandingPage 
+            onLoginClick={handleLoginClick}
+            onSignupClick={handleSignupClick}
+          />}
+        />
+
       </>
     );
   }
