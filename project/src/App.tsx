@@ -54,13 +54,13 @@ const AppContent: React.FC = () => {
         {/* Protected Routes */}
         {user && (
           <>
-            <Route element={<ProtectedRoute />}>  
+            <Route element={<ProtectedRoute allowedRoles={[user.role='user']} />}>  
               <Route path="/user-dashboard" element={<UserDashboard />} />
             </Route>
-            <Route element={<ProtectedRoute allowedRoles={['manager']} />}>  
+            <Route element={<ProtectedRoute allowedRoles={[user.role='manager']} />}>  
               <Route path="/manager-dashboard" element={<ManagerDashboard />} />
             </Route>  
-            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route element={<ProtectedRoute allowedRoles={[user.role='admin']} />}>
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
             </Route>
           </>
