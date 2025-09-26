@@ -27,6 +27,7 @@ import {
 } from "../../types";
 import BookingForm from "./forms/BookingForm.tsx";
 import VehicleForm from "./VehicleForm.tsx";
+import { userService } from "../../services/userService.ts";
 
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -54,6 +55,20 @@ const UserDashboard: React.FC = () => {
 
   // Derive available slots from lots state
   useEffect(() => {
+    setIsLoading(true);
+    const load = async() =>{
+      try{
+      const [u, l, s, m] = await Promise.all([
+        userService.userVehicls(),
+        lotService.list(),
+        sessionService.list(),
+        bookingService.list(),
+      ]);
+      }
+      catch(e){
+        setErrors(["Failed to load parking lots."]);
+      }finally{ setIsLoading(false);}
+    } 
     const mapped = (lots || []).map((lot: any) => ({
       id: lot.id,
       name: lot.name,

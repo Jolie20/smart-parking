@@ -54,7 +54,7 @@ exports.deleteVehicle = async (req, res) => {
 };
 
 exports.uservehicles = async (req, res) => {
-  console.log("userbody",req.user);
+  //console.log("userbody",req.user);
   const userId = req.user.id;
   console.log("User ID:", userId);
   try {
