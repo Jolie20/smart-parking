@@ -59,9 +59,9 @@ exports.getVehiclesByUserId = async (req, res) => {
     console.log("User ID:", userId); // Debugging line
     if (!userId) return res.status(400).json({ error: 'userId is required' });
     const vehicles = await prisma.vehicle.findMany({ where: { userId } });
-    res.json(vehicles);
+    return res.status(200).json(vehicles);
   } catch (err) {
     console.log(err.message)
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
