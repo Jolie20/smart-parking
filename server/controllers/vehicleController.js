@@ -9,7 +9,6 @@ exports.createVehicle = async (req, res) => {
     const vehicle = await prisma.vehicle.create({ data: { user: { connect : { id : userId}}, licensePlate, make, model, color, rfidCard: req.user.rfidno } });
     res.status(201).json(vehicle);
   } catch (err) {
-    console.log(err.message);
     res.status(500).json({ error: err.message });
   }
 };

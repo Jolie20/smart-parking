@@ -1,16 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { lotService } from '../services/lotService';
-import SignupPage  from './signup';
-import { Car, Shield, Clock, Smartphone, ArrowRight, MapPin, Users, BarChart3 } from 'lucide-react';
-import { spotsService } from '../services/spotsService';
+import React, { useEffect, useState } from "react";
+import { lotService } from "../services/lotService";
+import SignupPage from "./signup";
+import {
+  Car,
+  Shield,
+  Clock,
+  Smartphone,
+  ArrowRight,
+  MapPin,
+  Users,
+  BarChart3,
+} from "lucide-react";
+import { spotsService } from "../services/spotsService";
 
 interface LandingPageProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }) => {
-  const [lotsSummary, setLotsSummary] = useState<{ totalLots: number; totalSpots: number; availableSpots: number } | null>(null);
+const LandingPage: React.FC<LandingPageProps> = ({
+  onLoginClick,
+  onSignupClick,
+}) => {
+  const [lotsSummary, setLotsSummary] = useState<{
+    totalLots: number;
+    totalSpots: number;
+    availableSpots: number;
+  } | null>(null);
   const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
@@ -20,7 +36,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
         const spots = await spotsService.getAllSpots();
         const totalLots = (lots || []).length;
         const totalSpots = (spots || []).length;
-        const availableSpots = (lots || []).reduce((sum: number, l: any) => sum + (l.availableSpots || 0), 0);
+        const availableSpots = (lots || []).reduce(
+          (sum: number, l: any) => sum + (l.availableSpots || 0),
+          0
+        );
         setLotsSummary({ totalLots, totalSpots, availableSpots });
       } catch (e) {
         setLotsSummary(null);
@@ -63,7 +82,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
               Login
             </button>
             <button
-              onClick={()=>setShowSignup(true)}
+              onClick={() => setShowSignup(true)}
               className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
             >
               Sign Up
@@ -83,21 +102,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick }
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed">
-            Book parking spots ahead of time, check in with RFID cards, and enjoy seamless parking experiences with real-time availability and automated billing.
+            Book parking spots ahead of time, check in with RFID cards, and
+            enjoy seamless parking experiences with real-time availability and
+            automated billing.
           </p>
           {lotsSummary && (
             <div className="mb-8 text-gray-700">
               <span className="inline-flex items-center space-x-2 bg-white/70 border border-gray-200 rounded-lg px-4 py-2">
                 <MapPin className="h-5 w-5 text-blue-600" />
                 <span>
-                  {lotsSummary.availableSpots} available spots across {lotsSummary.totalLots} lots
+                  {lotsSummary.availableSpots} available spots across{" "}
+                  {lotsSummary.totalLots} lots
                 </span>
               </span>
             </div>
           )}
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
-              onClick={()=>setShowSignup(true)}
+              onClick={() => setShowSignup(true)}
               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
             >
               <span>Get Started</span>

@@ -18,6 +18,7 @@ import { vehicleService } from "../../services/vehicleService";
 import { bookingService } from "../../services/bookingService";
 import { sessionService } from "../../services/sessionService";
 import { lotService } from "../../services/lotService";
+import { userService } from "../../services/userService";
 import {
   Vehicle,
   Booking,
@@ -52,6 +53,25 @@ const UserDashboard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Auto-dismiss alerts after 5 seconds
+  useEffect(() => {
+    if (successes.length > 0) {
+      const timer = setTimeout(() => {
+        setSuccesses([]);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successes]);
+
+  useEffect(() => {
+    if (errors.length > 0) {
+      const timer = setTimeout(() => {
+        setErrors([]);
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [errors]);
+
   // Derive available slots from lots state
   useEffect(() => {
     const mapped = (lots || []).map((lot: any) => ({
@@ -74,18 +94,52 @@ const UserDashboard: React.FC = () => {
     const load = async () => {
       try {
         setIsLoading(true);
+        setErrors([]);
+        setSuccesses([]);
+
         const [b, v, s, l] = await Promise.all([
-          bookingService.list(),
-          vehicleService.list(),
-          sessionService.list(),
-          lotService.list(),
+          bookingService.list().catch(() => []),
+          user?.id
+            ? userService.userVehicls().catch(async (error) => {
+                console.error(
+                  "Error loading user vehicles via userService:",
+                  error
+                );
+                // Fallback to vehicleService.getByUserId
+                try {
+                  console.log(
+                    "Trying fallback with vehicleService.getByUserId"
+                  );
+                  return await vehicleService.getByUserId(user.id);
+                } catch (fallbackError) {
+                  console.error("Fallback also failed:", fallbackError);
+                  return [];
+                }
+              })
+            : Promise.resolve([] as Vehicle[]),
+          sessionService.list().catch(() => []),
+          lotService.list().catch(() => []),
         ]);
+
+        console.log("Loaded vehicles:", v);
+        console.log("User ID:", user?.id);
+
         setBookings(b || []);
         setVehicles(v || []);
         setSessions(s || []);
         setLots(l || []);
-      } catch (e) {
-        setErrors(["Failed to load your data."]);
+
+        // Show success message if data loaded successfully
+        if (user?.id) {
+          setSuccesses(["Dashboard data loaded successfully!"]);
+        }
+      } catch (e: any) {
+        console.error("Error loading dashboard data:", e);
+        const errorMessage =
+          e?.response?.data?.error ||
+          e?.message ||
+          "Failed to load your data. Please refresh the page.";
+        setErrors([errorMessage]);
       } finally {
         setIsLoading(false);
       }
@@ -95,7 +149,15 @@ const UserDashboard: React.FC = () => {
     }
   }, [user?.id]);
 
-  const userVehicles = vehicles.filter((v: Vehicle) => v.userId === user?.id);
+  // Since we're using userService.userVehicls() which returns only user's vehicles,
+  // we can use the vehicles array directly
+  const userVehicles = vehicles;
+
+  // Debug: Log vehicles changes
+  useEffect(() => {
+    console.log("Vehicles state changed:", vehicles);
+    console.log("User vehicles:", userVehicles);
+  }, [vehicles, userVehicles]);
   const userBookings = bookings.filter((b: Booking) => b.userId === user?.id);
   const userSessions = sessions.filter(
     (s: ParkingSession) => s.userId === user?.id
@@ -112,6 +174,10 @@ const UserDashboard: React.FC = () => {
 
   const handleBookingSubmit = async (bookingData: any) => {
     try {
+      setIsLoading(true);
+      setErrors([]);
+      setSuccesses([]);
+
       // Validate booking data
       const validationErrors: string[] = [];
 
@@ -160,17 +226,23 @@ const UserDashboard: React.FC = () => {
         endTime: `2024-01-01T${bookingData.endTime}:00Z`,
         totalAmount,
       } as any);
-      setBookings((prev) => [...prev, created]);
-      setSuccesses(["Booking created successfully."]);
 
-      // Clear errors and close form
-      setErrors([]);
+      setBookings((prev) => [...prev, created]);
+      setSuccesses([
+        "Booking created successfully! Your parking spot has been reserved.",
+      ]);
       setShowBookingForm(false);
 
       console.log("Booking created successfully:", created);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating booking:", error);
-      setErrors(["An unexpected error occurred. Please try again."]);
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to create booking. Please try again.";
+      setErrors([errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -201,21 +273,51 @@ const UserDashboard: React.FC = () => {
   const handleVehicleSubmit = async (vehicleData: CreateVehicleRequest) => {
     try {
       setIsLoading(true);
+      setErrors([]);
+      setSuccesses([]);
+
       const created = await vehicleService.create(vehicleData);
+      console.log("Created vehicle:", created);
+
       const createdWithUser = {
         ...created,
         // Ensure it appears under "My Vehicles" even if API omits userId
         userId: (created as any)?.userId ?? user?.id,
       } as Vehicle;
-      setVehicles((prev) => [...prev, createdWithUser]);
+
+      console.log("Created vehicle with user:", createdWithUser);
+
+      // Add the new vehicle to the list immediately
+      setVehicles((prev) => {
+        const newVehicles = [...prev, createdWithUser];
+        console.log("Updated vehicles list:", newVehicles);
+        return newVehicles;
+      });
       setShowVehicleForm(false);
-      setErrors([]);
-      setSuccesses(["Vehicle added successfully. See it under My Vehicles."]);
+      setSuccesses([
+        `Vehicle "${created.make} ${created.model}" added successfully! You can now use it for bookings.`,
+      ]);
+
       // Jump user to Vehicles tab so the new item is visible immediately
       setActiveTab("vehicles");
-    } catch (error) {
+
+      // Refresh the vehicles list to ensure we have the latest data
+      if (user?.id) {
+        try {
+          const refreshedVehicles = await userService.userVehicls();
+          setVehicles(refreshedVehicles || []);
+        } catch (refreshError) {
+          console.warn("Failed to refresh vehicles list:", refreshError);
+          // Don't show error to user as the vehicle was already added successfully
+        }
+      }
+    } catch (error: any) {
       console.error("Error creating vehicle:", error);
-      setErrors(["Failed to add vehicle. Please try again."]);
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to add vehicle. Please try again.";
+      setErrors([errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -224,12 +326,22 @@ const UserDashboard: React.FC = () => {
   const handleDeleteVehicle = async (vehicleId: string) => {
     try {
       setIsLoading(true);
+      setErrors([]);
+      setSuccesses([]);
+
+      const vehicleToDelete = vehicles.find((v) => v.id === vehicleId);
       await vehicleService.remove(vehicleId);
       setVehicles((prev) => prev.filter((v) => v.id !== vehicleId));
-      setErrors([]);
-    } catch (error) {
+      setSuccesses([
+        `Vehicle "${vehicleToDelete?.make} ${vehicleToDelete?.model}" deleted successfully.`,
+      ]);
+    } catch (error: any) {
       console.error("Error deleting vehicle:", error);
-      setErrors(["Failed to delete vehicle. Please try again."]);
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to delete vehicle. Please try again.";
+      setErrors([errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -238,16 +350,25 @@ const UserDashboard: React.FC = () => {
   const handleCancelBooking = async (bookingId: string) => {
     try {
       setIsLoading(true);
+      setErrors([]);
+      setSuccesses([]);
+
       await bookingService.cancel(bookingId);
       setBookings((prev) =>
         prev.map((b) =>
           b.id === bookingId ? { ...b, status: "cancelled" as const } : b
         )
       );
-      setErrors([]);
-    } catch (error) {
+      setSuccesses([
+        `Booking cancelled successfully. Your reservation has been removed.`,
+      ]);
+    } catch (error: any) {
       console.error("Error cancelling booking:", error);
-      setErrors(["Failed to cancel booking. Please try again."]);
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to cancel booking. Please try again.";
+      setErrors([errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -332,46 +453,72 @@ const UserDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4">
+      <header className="bg-gradient-to-r from-white via-blue-50/30 to-indigo-50/30 backdrop-blur-lg border-b border-gray-200/60 px-6 py-6 shadow-sm">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Car className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">
-                SmartPark
-              </span>
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Car className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <span className="text-2xl font-bold text-gray-900">
+                  SmartPark
+                </span>
+                <p className="text-sm text-gray-500 -mt-1">User Portal</p>
+              </div>
             </div>
-            <div className="h-8 w-px bg-gray-300"></div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Welcome back, {user?.name}!
-            </h1>
+            <div className="h-12 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent"></div>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center">
+                <User className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">
+                  Welcome back, {user?.name}!
+                </h1>
+                <p className="text-sm text-gray-500">Ready to park smart?</p>
+              </div>
+            </div>
           </div>
-          <button
-            onClick={logout}
-            className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Logout
-          </button>
+          <div className="flex items-center space-x-4">
+            <div className="text-right text-sm text-gray-500">
+              <p>{new Date().toLocaleDateString()}</p>
+              <p className="font-medium">{new Date().toLocaleTimeString()}</p>
+            </div>
+            <button
+              onClick={logout}
+              className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white/60 backdrop-blur-sm border-b border-gray-200/50 px-6">
-        <div className="flex space-x-8">
+      <nav className="bg-white/70 backdrop-blur-lg border-b border-gray-200/60 px-6 shadow-sm">
+        <div className="flex space-x-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-3 py-4 border-b-2 transition-colors ${
+                className={`group flex items-center space-x-3 px-6 py-4 rounded-t-xl transition-all duration-300 ${
                   activeTab === tab.id
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform -translate-y-1"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:shadow-md"
                 }`}
               >
-                <Icon className="h-5 w-5" />
-                <span className="font-medium">{tab.label}</span>
+                <Icon
+                  className={`h-5 w-5 transition-transform duration-300 ${
+                    activeTab === tab.id ? "scale-110" : "group-hover:scale-105"
+                  }`}
+                />
+                <span className="font-semibold text-sm">{tab.label}</span>
+                {activeTab === tab.id && (
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                )}
               </button>
             );
           })}
@@ -776,94 +923,159 @@ const UserDashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">My Vehicles</h2>
-              <button
-                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                onClick={() => setShowVehicleForm(true)}
-                disabled={isLoading}
-              >
-                <Plus className="h-5 w-5" />
-                <span>Add Vehicle</span>
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  onClick={async () => {
+                    if (user?.id) {
+                      try {
+                        setIsLoading(true);
+                        let refreshedVehicles;
+                        try {
+                          refreshedVehicles = await userService.userVehicls();
+                        } catch (userServiceError) {
+                          console.error(
+                            "Error with userService, trying vehicleService fallback:",
+                            userServiceError
+                          );
+                          refreshedVehicles = await vehicleService.getByUserId(
+                            user.id
+                          );
+                        }
+                        console.log("Refreshed vehicles:", refreshedVehicles);
+                        setVehicles(refreshedVehicles || []);
+                        setSuccesses(["Vehicles list refreshed successfully!"]);
+                      } catch (error: any) {
+                        console.error("Error refreshing vehicles:", error);
+                        const errorMessage =
+                          error?.response?.data?.error ||
+                          error?.message ||
+                          "Failed to refresh vehicles list. Please try again.";
+                        setErrors([errorMessage]);
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    }
+                  }}
+                  disabled={isLoading}
+                >
+                  <Activity className="h-5 w-5" />
+                  <span>Refresh</span>
+                </button>
+                <button
+                  className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  onClick={() => setShowVehicleForm(true)}
+                  disabled={isLoading}
+                >
+                  <Plus className="h-5 w-5" />
+                  <span>{isLoading ? "Adding..." : "Add Vehicle"}</span>
+                </button>
+              </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {userVehicles.map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Car className="h-6 w-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {vehicle.make} {vehicle.model}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {vehicle.color} • {vehicle.year}
-                        </p>
-                        <span
-                          className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
-                            vehicle.vehicleType === "car"
-                              ? "bg-blue-100 text-blue-800"
-                              : vehicle.vehicleType === "suv"
-                              ? "bg-green-100 text-green-800"
-                              : vehicle.vehicleType === "truck"
-                              ? "bg-orange-100 text-orange-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {vehicle.vehicleType.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                        onClick={() => {
-                          /* Edit vehicle */
-                        }}
-                        title="Edit vehicle"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                        onClick={() => handleDeleteVehicle(vehicle.id)}
-                        disabled={isLoading}
-                        title="Delete vehicle"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">License Plate</span>
-                      <span className="font-medium">
-                        {vehicle.licensePlate}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">RFID Card</span>
-                      <span className="font-medium">{vehicle.rfidCard}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Status</span>
-                      <span
-                        className={`font-medium ${
-                          vehicle.isActive ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
-                        {vehicle.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                        Vehicle
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                        License Plate
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                        Type
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                        RFID Card
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {userVehicles.map((vehicle) => (
+                      <tr key={vehicle.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <Car className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {vehicle.make} {vehicle.model}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {vehicle.color} • {vehicle.year}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                          {vehicle.licensePlate}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-block px-2 py-1 text-xs rounded-full font-medium ${
+                              vehicle.vehicleType === "car"
+                                ? "bg-blue-100 text-blue-800"
+                                : vehicle.vehicleType === "suv"
+                                ? "bg-green-100 text-green-800"
+                                : vehicle.vehicleType === "truck"
+                                ? "bg-orange-100 text-orange-800"
+                                : vehicle.vehicleType === "motorcycle"
+                                ? "bg-purple-100 text-purple-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {vehicle.vehicleType?.toUpperCase() || "N/A"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {vehicle.rfidCard || "N/A"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-block px-2 py-1 text-xs rounded-full font-medium ${
+                              vehicle.isActive
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {vehicle.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex space-x-2">
+                            <button
+                              className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                              onClick={() => {
+                                /* Edit vehicle - implement later */
+                              }}
+                              title="Edit vehicle"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                              onClick={() => handleDeleteVehicle(vehicle.id)}
+                              disabled={isLoading}
+                              title="Delete vehicle"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {userVehicles.length === 0 && (
@@ -998,7 +1210,7 @@ const UserDashboard: React.FC = () => {
       {/* Error Display */}
       {errors.length > 0 && (
         <div className="fixed top-4 right-4 z-50 max-w-md">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg animate-in slide-in-from-right duration-300">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -1013,9 +1225,9 @@ const UserDashboard: React.FC = () => {
                   />
                 </svg>
               </div>
-              <div className="ml-3">
+              <div className="ml-3 flex-1">
                 <h3 className="text-sm font-medium text-red-800">
-                  Booking Errors
+                  Action Failed
                 </h3>
                 <div className="mt-2 text-sm text-red-700">
                   <ul className="list-disc pl-5 space-y-1">
@@ -1041,7 +1253,7 @@ const UserDashboard: React.FC = () => {
       {/* Success Display */}
       {successes.length > 0 && (
         <div className="fixed top-4 right-4 z-50 max-w-md mt-20">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg animate-in slide-in-from-right duration-300">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -1056,8 +1268,8 @@ const UserDashboard: React.FC = () => {
                   />
                 </svg>
               </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800">Success</h3>
+              <div className="ml-3 flex-1">
+                <h3 className="text-sm font-medium text-green-800">Success!</h3>
                 <div className="mt-2 text-sm text-green-700">
                   <ul className="list-disc pl-5 space-y-1">
                     {successes.map((msg, index) => (
