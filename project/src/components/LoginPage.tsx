@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { X, Car, Mail, Lock, Loader2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth.tsx";
-import { useNavigate } from "react-router-dom";
 
 interface LoginPageProps {
   isOpen: boolean;
@@ -15,7 +14,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
   initialMode,
 }) => {
   // login-only flow
-  const navigate = useNavigate();
   const [who, setWho] = useState<'user' | 'admin'| 'manager'>('user');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,14 +34,11 @@ const LoginPage: React.FC<LoginPageProps> = ({
     try {
       let success = false;
       if (who === 'manager') {
-        success = await managerLogin(email, password);  
-        if(success)navigate("/manager-dashboard");
+        const success = await managerLogin(email, password);  
       }else if (who === 'admin') {
-        success = await adminLogin(email, password);
-        if(success)navigate("/admin-dashboard");
+        const success = await adminLogin(email, password);
       } else {
-        success = await login(email, password);
-        if(success)navigate("/user-dashboard");
+        const success = await login(email, password);
       }
 
       if (success) {
@@ -95,7 +90,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 type="button"
                 className={`px-3 py-1 rounded-lg text-sm ${who === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
                 onClick={() => setWho('user')}
-            
               >
                 User
               </button>
