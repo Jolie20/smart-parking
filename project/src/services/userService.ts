@@ -21,6 +21,8 @@ export const userService = {
 	
 	remove: (id: string): Promise<ApiResponse<null>> => 
 		api.delete(`/users/${id}`).then(r => r.data),
+	userVehicls: (): Promise<any> => 
+		api.get('/users/myvehicle').then(r => r.data),
 	
     // The following endpoints are not supported by backend routes; remove or implement when available
 };

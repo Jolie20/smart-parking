@@ -52,15 +52,18 @@ exports.deleteVehicle = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-//get vehicles by user id
-exports.getVehiclesByUserId = async (req, res) => {
+
+exports.uservehicles = async (req, res) => {
+  //console.log("userbody",req.user);
+  const userId = req.user.id;
+  console.log("User ID:", userId);
   try {
-    const userId = req.user.id;
+     // Debugging line
     if (!userId) return res.status(400).json({ error: 'userId is required' });
     const vehicles = await prisma.vehicle.findMany({ where: { userId } });
-    res.json(vehicles);
+    return res.status(200).json(vehicles);
   } catch (err) {
     console.log(err.message)
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
