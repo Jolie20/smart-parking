@@ -1,6 +1,6 @@
 const express = require('express');
-const{authenticate}=require('../middleware/auth');
 const router = express.Router();
+const{authenticate}=require('../middleware/auth');
 const vehicleController = require('../controllers/vehicleController');
 
 router.post('/',authenticate, vehicleController.createVehicle);
