@@ -54,9 +54,10 @@ exports.deleteVehicle = async (req, res) => {
 };
 //get vehicles by user id
 exports.getVehiclesByUserId = async (req, res) => {
+  const userId = req.user.id;
+  console.log("User ID:", userId);
   try {
-    const userId = req.user.id;
-    console.log("User ID:", userId); // Debugging line
+     // Debugging line
     if (!userId) return res.status(400).json({ error: 'userId is required' });
     const vehicles = await prisma.vehicle.findMany({ where: { userId } });
     return res.status(200).json(vehicles);
