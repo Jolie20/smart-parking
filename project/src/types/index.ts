@@ -238,18 +238,14 @@ export interface CreateVehicleRequest {
   licensePlate: string;
   make: string;
   model: string;
-  year?: number;
   color: string;
-  vehicleType: VehicleType;
 }
 
 export interface UpdateVehicleRequest {
   licensePlate?: string;
   make?: string;
   model?: string;
-  year?: number;
   color?: string;
-  vehicleType?: VehicleType;
   isActive?: boolean;
 }
 

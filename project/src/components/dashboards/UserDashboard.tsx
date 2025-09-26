@@ -960,10 +960,39 @@ const UserDashboard: React.FC = () => {
 
       {/* Vehicle Form Modal */}
       {showVehicleForm && (
-        <VehicleForm
-          onClose={() => setShowVehicleForm(false)}
-          onSubmit={handleVehicleSubmit}
-        />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm"
+          onClick={() => setShowVehicleForm(false)}
+        >
+          <div
+            className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+              onClick={() => setShowVehicleForm(false)}
+              aria-label="Close"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <VehicleForm
+              onClose={() => setShowVehicleForm(false)}
+              onSubmit={handleVehicleSubmit}
+            />
+          </div>
+        </div>
       )}
 
       {/* Error Display */}
