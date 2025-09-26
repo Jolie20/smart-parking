@@ -29,14 +29,16 @@ const SignupPage: React.FC<SignupPageProps> = ({ isOpen, onClose }) => {
     try {
       const success = await signup(email, name, phone, password);
       if (success) {
+        window.alert("Account created successfully!");
         onClose();
         setEmail("");
         setName("");
         setPhone("");
         setPassword("");
         setConfirmPassword("");
+        setError("");
       } else {
-        setError("Signup failed. Please try again.");
+        setError("Failed to create account. Please try again.");
       }
     } catch (err) {
       const message =
