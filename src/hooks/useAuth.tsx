@@ -92,7 +92,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       await authService.signupuser(email, name, password, phone);
-      const loginOk = await login(email, password);
+      //const loginOk = await login(email, password);
+      //redirect to login page
+      const loginOk = true;
       return !!loginOk;
     } catch (e) {
       return false;
