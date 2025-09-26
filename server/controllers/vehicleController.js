@@ -52,8 +52,9 @@ exports.deleteVehicle = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-//get vehicles by user id
-exports.getVehiclesByUserId = async (req, res) => {
+
+exports.uservehicles = async (req, res) => {
+  console.log("userbody",req.user);
   const userId = req.user.id;
   console.log("User ID:", userId);
   try {
