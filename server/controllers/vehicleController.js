@@ -9,6 +9,7 @@ exports.createVehicle = async (req, res) => {
     const vehicle = await prisma.vehicle.create({ data: { user: { connect : { id : userId}}, licensePlate, make, model, color, rfidCard: req.user.rfidno } });
     res.status(201).json(vehicle);
   } catch (err) {
+    console.log(err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -48,6 +49,18 @@ exports.deleteVehicle = async (req, res) => {
     await prisma.vehicle.delete({ where: { id } });
     res.status(204).send();
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+//get vehicles by user id
+exports.getVehiclesByUserId = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    if (!userId) return res.status(400).json({ error: 'userId is required' });
+    const vehicles = await prisma.vehicle.findMany({ where: { userId } });
+    res.json(vehicles);
+  } catch (err) {
+    console.log(err.message)
     res.status(500).json({ error: err.message });
   }
 };

@@ -10,8 +10,8 @@ interface AuthContextType {
   signup: (
     email: string,
     name: string,
-    password: string,
-    phone: string
+    phone: string,
+    password: string
   ) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
@@ -45,6 +45,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: (loggedInUser as any).name || loggedInUser.email,
         role: loggedInUser.role === "ADMIN" ? "admin" : loggedInUser.role,
         createdAt: (loggedInUser as any).createdAt || new Date().toISOString(),
+        isActive: (loggedInUser as any).isActive ?? true,
+        phone: (loggedInUser as any).phone ?? "",
+        lastLoginAt: (loggedInUser as any).lastLoginAt ?? undefined,
+        profileImage: (loggedInUser as any).profileImage ?? undefined,
       });
       return true;
     } catch (e) {
@@ -66,6 +70,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: (user as any).name || user.email,
         role: "manager",
         createdAt: new Date().toISOString(),
+        isActive: (user as any).isActive ?? true,
+        phone: (user as any).phone ?? "",
+        lastLoginAt: (user as any).lastLoginAt ?? undefined,
+        profileImage: (user as any).profileImage ?? undefined,
       });
       return true;
     } catch (e) {
@@ -106,6 +114,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: (user as any).name || user.email,
         role: "admin",
         createdAt: new Date().toISOString(),
+        isActive: (user as any).isActive ?? true,
+        phone: (user as any).phone ?? "",
+        lastLoginAt: (user as any).lastLoginAt ?? undefined,
+        profileImage: (user as any).profileImage ?? undefined,
       });
       return true;
     } catch (e) {

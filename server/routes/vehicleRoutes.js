@@ -8,5 +8,7 @@ router.get('/', vehicleController.getVehicles);
 router.get('/:id', vehicleController.getVehicleById);
 router.put('/:id', vehicleController.updateVehicle);
 router.delete('/:id', vehicleController.deleteVehicle);
+//get vicles by user id
+router.get('/myvehicle',authenticate, vehicleController.getVehiclesByUserId);
 
 module.exports = router;
