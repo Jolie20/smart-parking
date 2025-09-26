@@ -28,6 +28,7 @@ import {
 import BookingForm from "./forms/BookingForm.tsx";
 import VehicleForm from "./VehicleForm.tsx";
 import { userService } from "../../services/userService.ts";
+import { set } from "mongoose";
 
 const UserDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -64,6 +65,10 @@ const UserDashboard: React.FC = () => {
         sessionService.list(),
         bookingService.list(),
       ]);
+      setVehicles(u || []);
+      setLots(l || []);
+      setSessions(s || []);
+      setBookings(m || []);
       }
       catch(e){
         setErrors(["Failed to load parking lots."]);
