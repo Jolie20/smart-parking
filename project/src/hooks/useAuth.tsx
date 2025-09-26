@@ -10,8 +10,8 @@ interface AuthContextType {
   signup: (
     email: string,
     name: string,
-    password: string,
-    phone: string
+    phone: string,
+    password: string
   ) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
