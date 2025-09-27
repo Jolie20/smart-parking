@@ -47,7 +47,7 @@ model Vehicle {
   bookings     Booking[]
   sessions     ParkingSession[]
 
-  @@map("vehicles")//ADD
+  @@map("vehicles") //ADD
 }
 
 enum VehicleType {
@@ -92,6 +92,7 @@ model Booking {
   lotId         String
   spotId        String
   vehicleId     String
+  DateTime      String
   startTime     DateTime
   endTime       DateTime
   status        BookingStatus
