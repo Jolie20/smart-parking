@@ -1,11 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useArduinoStream } from "../../hooks/useArduinoStream";
-import { Car, Activity, MapPin, Clock, TrendingUp, Eye, Settings } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth.tsx';
-import { managerService } from '../../services/managerService';
-import { ParkingLot, ParkingSession, ParkingSpot } from '../../types';
-import { mockParkingSessions, mockUsers, mockParkingSpots } from '../../data/mockData';
-import SpotForm from './forms/SpotForm';
+import {
+  Car,
+  Activity,
+  MapPin,
+  Clock,
+  TrendingUp,
+  Eye,
+  Settings,
+} from "lucide-react";
+import { useAuth } from "../../hooks/useAuth.tsx";
+import { managerService } from "../../services/managerService";
+import { ParkingLot, ParkingSession, ParkingSpot, Booking } from "../../types";
+import {
+  mockParkingSessions,
+  mockUsers,
+  mockParkingSpots,
+} from "../../data/mockData";
+import SpotForm from "./forms/SpotForm";
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -22,24 +34,37 @@ const ManagerDashboard: React.FC = () => {
   const [activeSessions, setActiveSessions] = useState<ParkingSession[]>([]);
   const [todaySessions, setTodaySessions] = useState<ParkingSession[]>([]);
   const [spots, setSpots] = useState<ParkingSpot[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookingStats, setBookingStats] = useState<any>(null);
   const [, setIsLoading] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
   const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
-  const [selectedLotId, setSelectedLotId] = useState<string>('');
+  const [selectedLotId, setSelectedLotId] = useState<string>("");
 
   useEffect(() => {
     const load = async () => {
       try {
         setIsLoading(true);
-        const [lots, sessions] = await Promise.all([
+        const [lots, sessions, bookingsData, stats] = await Promise.all([
           managerService.getLots(),
           managerService.getSessions(),
+          managerService.getBookings(),
+          managerService.getBookingStats(),
         ]);
         setManagedLots(lots || []);
-        const active = (sessions || []).filter((s: ParkingSession) => s.status === 'active');
+        const active = (sessions || []).filter(
+          (s: ParkingSession) => s.status === "active"
+        );
         setActiveSessions(active);
         const today = new Date().toDateString();
-        setTodaySessions((sessions || []).filter((s: ParkingSession) => new Date(s.checkInTime).toDateString() === today));
+        setTodaySessions(
+          (sessions || []).filter(
+            (s: ParkingSession) =>
+              new Date(s.checkInTime).toDateString() === today
+          )
+        );
+        setBookings(bookingsData || []);
+        setBookingStats(stats || null);
         setSpots(mockParkingSpots); // Using mock data for now
       } catch (e) {
         setManagedLots([]);
@@ -52,10 +77,12 @@ const ManagerDashboard: React.FC = () => {
     load();
   }, []);
 
-  const managedLotIds = managedLots.map(lot => lot.id);
+  const managedLotIds = managedLots.map((lot) => lot.id);
 
   const totalRevenue = activeSessions
-    .filter(session => session.amount && managedLotIds.includes(session.lotId))
+    .filter(
+      (session) => session.amount && managedLotIds.includes(session.lotId)
+    )
     .reduce((sum, session) => sum + (session.amount || 0), 0);
 
   const getOccupancyRate = (lotId: string) => {
@@ -80,12 +107,12 @@ const ManagerDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       // Here you would call the API to create/update spot
-      console.log('Spot data:', spotData);
-      setSpots(prev => [...prev, { ...spotData, id: Date.now().toString() }]);
+      console.log("Spot data:", spotData);
+      setSpots((prev) => [...prev, { ...spotData, id: Date.now().toString() }]);
       setShowSpotForm(false);
       setEditingSpot(null);
     } catch (error) {
-      console.error('Error saving spot:', error);
+      console.error("Error saving spot:", error);
     } finally {
       setIsLoading(false);
     }
@@ -104,11 +131,12 @@ const ManagerDashboard: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Activity },
-    { id: 'live', label: 'Live Sessions', icon: Eye },
-    { id: 'lots', label: 'Parking Lots', icon: MapPin },
-    { id: 'spots', label: 'Spot Management', icon: Car },
-    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+    { id: "overview", label: "Overview", icon: Activity },
+    { id: "bookings", label: "Bookings", icon: Clock },
+    { id: "live", label: "Live Sessions", icon: Eye },
+    { id: "lots", label: "Parking Lots", icon: MapPin },
+    { id: "spots", label: "Spot Management", icon: Car },
+    { id: "analytics", label: "Analytics", icon: TrendingUp },
   ];
 
   return (
@@ -283,6 +311,159 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
 
+        {activeTab === "bookings" && (
+          <div className="space-y-8">
+            {/* Booking Statistics */}
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Total Bookings</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {bookingStats?.totalBookings || 0}
+                    </p>
+                  </div>
+                  <Clock className="h-8 w-8 text-blue-600" />
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Today's Bookings</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {bookingStats?.todayBookings || 0}
+                    </p>
+                  </div>
+                  <Activity className="h-8 w-8 text-green-600" />
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Active Bookings</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {bookingStats?.activeBookings || 0}
+                    </p>
+                  </div>
+                  <Eye className="h-8 w-8 text-orange-600" />
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Completed</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {bookingStats?.completedBookings || 0}
+                    </p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-purple-600" />
+                </div>
+              </div>
+            </div>
+
+            {/* Bookings Table */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Recent Bookings
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        User
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vehicle
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Lot
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Spot
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {bookings.slice(0, 10).map((booking) => (
+                      <tr key={booking.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {booking.user?.name || "Unknown User"}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {booking.user?.email || ""}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {booking.vehicle?.licensePlate || "N/A"}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {booking.vehicle?.make} {booking.vehicle?.model}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {booking.lot?.name || "Unknown Lot"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {booking.spot?.spotNumber || "N/A"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {new Date(booking.startTime).toLocaleDateString()}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {new Date(booking.startTime).toLocaleTimeString()} -{" "}
+                            {new Date(booking.endTime).toLocaleTimeString()}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              booking.status === "active"
+                                ? "bg-green-100 text-green-800"
+                                : booking.status === "completed"
+                                ? "bg-blue-100 text-blue-800"
+                                : booking.status === "cancelled"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {booking.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {bookings.length === 0 && (
+                  <div className="text-center py-8">
+                    <Clock className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">
+                      No bookings
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      No bookings have been made for your managed lots yet.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === "gate" && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Gate Control</h2>
@@ -333,7 +514,7 @@ const ManagerDashboard: React.FC = () => {
 
             <div className="grid gap-6">
               {activeSessions.map((session) => {
-                const lot = managedLots.find(l => l.id === session.lotId);
+                const lot = managedLots.find((l) => l.id === session.lotId);
                 const vehicle = session.vehicle;
                 const customer = session.user;
                 const duration = getSessionDuration(session);
@@ -484,50 +665,68 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'spots' && (
+        {activeTab === "spots" && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Spot Management</h2>
-            
+            <h2 className="text-2xl font-bold text-gray-900">
+              Spot Management
+            </h2>
+
             <div className="grid gap-6">
               {managedLots.map((lot) => {
-                const lotSpots = spots.filter(spot => spot.lotId === lot.id);
-                
+                const lotSpots = spots.filter((spot) => spot.lotId === lot.id);
+
                 return (
-                  <div key={lot.id} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+                  <div
+                    key={lot.id}
+                    className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
+                  >
                     <div className="flex justify-between items-start mb-6">
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-900">{lot.name}</h3>
+                        <h3 className="text-xl font-semibold text-gray-900">
+                          {lot.name}
+                        </h3>
                         <p className="text-gray-500">{lot.address}</p>
                         <p className="text-sm text-gray-400 mt-1">
                           {lotSpots.length} spots configured
                         </p>
                       </div>
-                      <button 
+                      <button
                         className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                         onClick={() => handleAddSpot(lot.id)}
                       >
                         Add Spot
                       </button>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {lotSpots.map((spot) => (
-                        <div key={spot.id} className="border border-gray-200 rounded-lg p-4">
+                        <div
+                          key={spot.id}
+                          className="border border-gray-200 rounded-lg p-4"
+                        >
                           <div className="flex justify-between items-start mb-3">
                             <div>
-                              <h4 className="font-medium text-gray-900">{spot.spotNumber}</h4>
-                              <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
-                                spot.spotType === 'regular' ? 'bg-blue-100 text-blue-800' :
-                                spot.spotType === 'premium' ? 'bg-purple-100 text-purple-800' :
-                                spot.spotType === 'electric' ? 'bg-green-100 text-green-800' :
-                                spot.spotType === 'covered' ? 'bg-gray-100 text-gray-800' :
-                                'bg-orange-100 text-orange-800'
-                              }`}>
+                              <h4 className="font-medium text-gray-900">
+                                {spot.spotNumber}
+                              </h4>
+                              <span
+                                className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                                  spot.spotType === "regular"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : spot.spotType === "premium"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : spot.spotType === "electric"
+                                    ? "bg-green-100 text-green-800"
+                                    : spot.spotType === "covered"
+                                    ? "bg-gray-100 text-gray-800"
+                                    : "bg-orange-100 text-orange-800"
+                                }`}
+                              >
                                 {spot.spotType.toUpperCase()}
                               </span>
                             </div>
                             <div className="flex space-x-1">
-                              <button 
+                              <button
                                 className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
                                 onClick={() => handleEditSpot(spot)}
                                 title="Edit spot"
@@ -536,36 +735,48 @@ const ManagerDashboard: React.FC = () => {
                               </button>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-500">Status</span>
-                              <span className={`font-medium ${
-                                spot.isAvailable ? 'text-green-600' : 'text-red-600'
-                              }`}>
-                                {spot.isAvailable ? 'Available' : 'Occupied'}
+                              <span
+                                className={`font-medium ${
+                                  spot.isAvailable
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {spot.isAvailable ? "Available" : "Occupied"}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-500">RFID Reader</span>
-                              <span className="font-medium">{spot.rfidReaderId}</span>
+                              <span className="font-medium">
+                                {spot.rfidReaderId}
+                              </span>
                             </div>
                             {spot.isMaintenance && (
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Maintenance</span>
-                                <span className="font-medium text-orange-600">Yes</span>
+                                <span className="text-gray-500">
+                                  Maintenance
+                                </span>
+                                <span className="font-medium text-orange-600">
+                                  Yes
+                                </span>
                               </div>
                             )}
                           </div>
                         </div>
                       ))}
                     </div>
-                    
+
                     {lotSpots.length === 0 && (
                       <div className="text-center py-8">
                         <Car className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500">No spots configured for this lot</p>
-                        <button 
+                        <p className="text-gray-500">
+                          No spots configured for this lot
+                        </p>
+                        <button
                           className="mt-3 text-green-600 hover:text-green-700 text-sm font-medium"
                           onClick={() => handleAddSpot(lot.id)}
                         >
@@ -580,7 +791,7 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'analytics' && (
+        {activeTab === "analytics" && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">
               Analytics & Reports
@@ -671,7 +882,7 @@ const ManagerDashboard: React.FC = () => {
 
       {/* Spot Form Modal */}
       {showSpotForm && (
-        <SpotForm 
+        <SpotForm
           onClose={() => {
             setShowSpotForm(false);
             setEditingSpot(null);

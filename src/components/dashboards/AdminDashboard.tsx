@@ -8,7 +8,6 @@ import {
   Settings,
   Shield,
   TrendingUp,
-  AlertTriangle,
   Activity,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.tsx";
@@ -21,18 +20,10 @@ import {
   User,
   ParkingLot,
   ParkingSession,
-  Vehicle,
   Booking,
   Manager,
-  Analytics,
-  DashboardStats,
 } from "../../types";
-import {
-  mockParkingSessions,
-  mockUsers,
-  mockVehicles,
-  mockParkingLots,
-} from "../../data/mockData";
+import { mockUsers, mockVehicles, mockParkingLots } from "../../data/mockData";
 import UserForm from "./forms/UserForm";
 import LotForm from "./forms/LotForm";
 import ManagerForm from "./forms/ManagerForm";
@@ -40,7 +31,7 @@ import ManagerForm from "./forms/ManagerForm";
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime] = useState(new Date());
   const [errors, setErrors] = useState<string[]>([]);
   const [successes, setSuccesses] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,16 +164,32 @@ const AdminDashboard: React.FC = () => {
         );
         setSuccesses(["Parking lot updated successfully."]);
       } else {
-        const created = await lotService.create(lotData);
+        // Format data for the API - using any type to bypass strict typing
+        const formattedData: any = {
+          name: lotData.name,
+          address: lotData.address,
+          totalSpots: parseInt(lotData.totalSpots),
+          availableSpots: parseInt(
+            lotData.availableSpots || lotData.totalSpots
+          ),
+          hourlyRate: parseFloat(lotData.hourlyRate),
+          managerName: lotData.managerName,
+          managerEmail: lotData.managerEmail,
+        };
+
+        const created = await lotService.create(formattedData);
         setLots((prev) => [...prev, created]);
         setSuccesses(["Parking lot created successfully."]);
       }
       setShowLotForm(false);
       setEditingLot(null);
       setErrors([]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving lot:", error);
-      setErrors(["Failed to save parking lot. Please try again."]);
+      const errorMessage =
+        error?.response?.data?.error ||
+        "Failed to save parking lot. Please try again.";
+      setErrors([errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -211,28 +218,9 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setShowUserForm(true);
-  };
-
   const handleEditLot = (lot: ParkingLot) => {
     setEditingLot(lot);
     setShowLotForm(true);
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      setIsLoading(true);
-      await userService.remove(userId);
-      setUsers((prev) => prev.filter((u) => u.id !== userId));
-      setErrors([]);
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      setErrors(["Failed to delete user. Please try again."]);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleDeleteLot = async (lotId: string) => {
@@ -1143,7 +1131,7 @@ const AdminDashboard: React.FC = () => {
           onSubmit={handleLotSubmit}
           editingLot={editingLot}
           isEditing={!!editingLot}
-          managers={users.filter((u) => u.role === "manager")}
+          managers={managers}
         />
       )}
 

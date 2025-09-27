@@ -14,7 +14,7 @@ interface BookingFormProps {
   lots: ParkingLot[];
   vehicles: Vehicle[];
   userVehicles: Vehicle[];
-  spots: spotRequest[];
+  spots?: spotRequest[];
 }
 
 const BookingForm: React.FC<BookingFormProps> = ({
@@ -35,6 +35,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
     specialRequests: "",
   });
   const [availableSpots, setAvailableSpots] = useState<any[]>([]);
+  const [loadingSpots, setLoadingSpots] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -65,18 +66,56 @@ const BookingForm: React.FC<BookingFormProps> = ({
   useEffect(() => {
     async function fetchSpots() {
       if (formData.lotId) {
+        setLoadingSpots(true);
         try {
-          const spots = await spotsService.getSpotsByLot(formData.lotId);
-          setAvailableSpots(spots.filter((s: any) => s.isAvailable));
+          const spots = await spotsService.getAvailableSpotsByLot(
+            formData.lotId
+          );
+          setAvailableSpots(spots);
         } catch (err) {
+          console.error("Error fetching available spots:", err);
           setAvailableSpots([]);
+        } finally {
+          setLoadingSpots(false);
         }
       } else {
         setAvailableSpots([]);
+        setLoadingSpots(false);
       }
     }
     fetchSpots();
   }, [formData.lotId]);
+
+  // Re-fetch available spots when time changes (for future time-based availability)
+  useEffect(() => {
+    async function fetchSpotsWithTime() {
+      if (formData.lotId && formData.startTime && formData.endTime) {
+        setLoadingSpots(true);
+        try {
+          const spots = await spotsService.getAvailableSpotsByLotAndTime(
+            formData.lotId,
+            formData.startTime,
+            formData.endTime
+          );
+          setAvailableSpots(spots);
+        } catch (err) {
+          console.error("Error fetching available spots with time:", err);
+          // Fallback to basic availability check
+          try {
+            const spots = await spotsService.getAvailableSpotsByLot(
+              formData.lotId
+            );
+            setAvailableSpots(spots);
+          } catch (fallbackErr) {
+            setAvailableSpots([]);
+          }
+        } finally {
+          setLoadingSpots(false);
+        }
+      }
+    }
+    fetchSpotsWithTime();
+  }, [formData.lotId, formData.startTime, formData.endTime]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +123,10 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
     if (!formData.lotId) {
       validationErrors.push("Please select a parking lot");
+    }
+
+    if (!formData.spotNumber) {
+      validationErrors.push("Please select a parking spot");
     }
 
     if (!formData.vehicleId) {
@@ -113,18 +156,29 @@ const BookingForm: React.FC<BookingFormProps> = ({
     }
 
     // Convert to full datetime strings
-    const startDateTime = `${selectedDate}T${formData.startTime}:00Z`;
-    const endDateTime = `${selectedDate}T${formData.endTime}:00Z`;
+    const startDateTime = new Date(
+      `${selectedDate}T${formData.startTime}:00Z`
+    ).toISOString();
+    const endDateTime = new Date(
+      `${selectedDate}T${formData.endTime}:00Z`
+    ).toISOString();
 
     const lot = lots.find((l) => l.id === formData.lotId);
     const veh = userVehicles.find((v) => v.id === formData.vehicleId);
+    const selectedSpot = availableSpots.find(
+      (s) => s.spotNumber === formData.spotNumber
+    );
 
     onBook({
+      lotId: formData.lotId,
+      spotId: selectedSpot?.spotId || selectedSpot?.id,
+      vehicleId: formData.vehicleId,
       lotName: lot?.name,
-      spotNumber: formData.spotNumber || "A1",
+      spotNumber: formData.spotNumber,
       vehiclePlate: veh?.licensePlate,
       startTime: startDateTime,
       endTime: endDateTime,
+      specialRequests: formData.specialRequests,
     } as any);
   };
 
@@ -233,16 +287,42 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                 title="Select spot number"
                 required
-                disabled={!formData.lotId}
+                disabled={!formData.lotId || loadingSpots}
               >
-                <option value="">Select a spot</option>
+                <option value="">
+                  {!formData.lotId
+                    ? "Select a parking lot first"
+                    : loadingSpots
+                    ? "Loading spots..."
+                    : availableSpots.length === 0
+                    ? "No available spots"
+                    : "Select a spot"}
+                </option>
                 {availableSpots.map((spot: any) => (
-                  <option key={spot.spotId} value={spot.spotNumber}>
-                    {spot.spotNumber}
+                  <option key={spot.spotId || spot.id} value={spot.spotNumber}>
+                    Spot {spot.spotNumber}{" "}
+                    {spot.spotType ? `(${spot.spotType})` : ""}
                   </option>
                 ))}
               </select>
             </div>
+            {formData.lotId && loadingSpots && (
+              <p className="text-sm text-blue-600 mt-1">
+                Loading available spots...
+              </p>
+            )}
+            {formData.lotId && !loadingSpots && availableSpots.length === 0 && (
+              <p className="text-sm text-red-600 mt-1">
+                No available spots in this parking lot. Please try another lot
+                or different time.
+              </p>
+            )}
+            {formData.lotId && !loadingSpots && availableSpots.length > 0 && (
+              <p className="text-sm text-green-600 mt-1">
+                {availableSpots.length} spot
+                {availableSpots.length !== 1 ? "s" : ""} available
+              </p>
+            )}
           </div>
 
           <div>

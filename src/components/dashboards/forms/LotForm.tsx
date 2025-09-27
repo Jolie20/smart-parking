@@ -4,7 +4,6 @@ import {
   CreateLotRequest,
   UpdateLotRequest,
   ParkingFeature,
-  User,
 } from "../../../types";
 
 interface LotFormProps {
@@ -12,7 +11,7 @@ interface LotFormProps {
   onSubmit: (lotData: CreateLotRequest | UpdateLotRequest) => void;
   editingLot?: any;
   isEditing?: boolean;
-  managers: User[];
+  managers: any[];
 }
 
 const LotForm: React.FC<LotFormProps> = ({
@@ -28,9 +27,14 @@ const LotForm: React.FC<LotFormProps> = ({
     totalSpots: editingLot?.totalSpots || 0,
     availableSpots: editingLot?.availableSpots || 0,
     hourlyRate: editingLot?.hourlyRate || 0,
-    managerName: "",
-    managerEmail: "",
+    managerId: editingLot?.managerId || "",
   });
+  const [managerName, setManagerName] = useState<string>(
+    editingLot?.manager?.name || ""
+  );
+  const [managerEmail, setManagerEmail] = useState<string>(
+    editingLot?.manager?.email || ""
+  );
   const [errors, setErrors] = useState<string[]>([]);
 
   const features: { value: ParkingFeature; label: string }[] = [
@@ -69,8 +73,8 @@ const LotForm: React.FC<LotFormProps> = ({
     if (formData.hourlyRate <= 0) {
       validationErrors.push("Hourly rate must be greater than 0");
     }
-    if (!formData.managerName || !formData.managerEmail) {
-      validationErrors.push("Manager name and email are required");
+    if (!managerName || !managerEmail) {
+      validationErrors.push("Please select a manager");
     }
 
     if (validationErrors.length > 0) {
@@ -78,7 +82,11 @@ const LotForm: React.FC<LotFormProps> = ({
       return;
     }
 
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      managerName,
+      managerEmail,
+    });
   };
 
   const handleChange = (field: keyof CreateLotRequest, value: any) => {
@@ -90,7 +98,7 @@ const LotForm: React.FC<LotFormProps> = ({
 
   const handleFeatureToggle = (feature: ParkingFeature) => {
     const newFeatures = formData.features.includes(feature)
-      ? formData.features.filter((f) => f !== feature)
+      ? formData.features.filter((f: ParkingFeature) => f !== feature)
       : [...formData.features, feature];
     handleChange("features", newFeatures);
   };
@@ -166,27 +174,43 @@ const LotForm: React.FC<LotFormProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Manager Name *
+                  Manager *
                 </label>
-                <input
-                  type="text"
-                  value={formData.managerName}
-                  onChange={(e) => handleChange("managerName", e.target.value)}
+                <select
+                  value={managerName}
+                  onChange={(e) => {
+                    const selectedManager = managers.find(
+                      (m) => (m.name || m.username) === e.target.value
+                    );
+                    if (selectedManager) {
+                      setManagerName(
+                        selectedManager.name || selectedManager.username
+                      );
+                      setManagerEmail(selectedManager.email);
+                      handleChange("managerId", selectedManager.id || "");
+                    } else {
+                      setManagerName("");
+                      setManagerEmail("");
+                      handleChange("managerId", "");
+                    }
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="John Manager"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Manager Email *
-                </label>
-                <input
-                  type="email"
-                  value={formData.managerEmail}
-                  onChange={(e) => handleChange("managerEmail", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="manager@example.com"
-                />
+                >
+                  <option value="">Select a manager</option>
+                  {managers.map((manager) => (
+                    <option
+                      key={manager.id || manager.email}
+                      value={manager.name || manager.username}
+                    >
+                      {manager.name || manager.username} ({manager.email})
+                    </option>
+                  ))}
+                </select>
+                {managers.length === 0 && (
+                  <p className="text-sm text-red-600 mt-1">
+                    No managers available. Please create a manager first.
+                  </p>
+                )}
               </div>
             </div>
 

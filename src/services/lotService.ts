@@ -21,8 +21,6 @@ export const lotService = {
 	
 	remove: (id: string): Promise<ApiResponse<null>> => 
 		api.delete(`/lots/${id}`).then(r => r.data),
-	
-    // Not exposed by backend currently; keep placeholders commented for future
 };
 
 
