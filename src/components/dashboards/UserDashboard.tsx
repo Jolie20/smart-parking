@@ -283,6 +283,11 @@ const UserDashboard: React.FC = () => {
         ...created,
         // Ensure it appears under "My Vehicles" even if API omits userId
         userId: (created as any)?.userId ?? user?.id,
+        // Ensure all required fields are present with defaults
+        year: (created as any)?.year || undefined,
+        vehicleType: (created as any)?.vehicleType || "car",
+        isActive: (created as any)?.isActive ?? true,
+        rfidCard: (created as any)?.rfidCard || "",
       } as Vehicle;
 
       console.log("Created vehicle with user:", createdWithUser);

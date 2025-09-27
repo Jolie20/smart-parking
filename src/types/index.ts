@@ -239,6 +239,8 @@ export interface CreateVehicleRequest {
   make: string;
   model: string;
   color: string;
+  year?: number;
+  vehicleType?: VehicleType;
 }
 
 export interface UpdateVehicleRequest {

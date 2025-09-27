@@ -290,7 +290,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
             © 2025 SmartPark. All rights reserved.
           </p>
           <p className="text-gray-500 text-sm text-align-right m-t-2">
-            Developed by !
+            Developed by Jolie Amandine GIKUNDIRO!
           </p>
         </div>
       </footer>
