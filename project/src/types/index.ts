@@ -211,7 +211,8 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
-export interface sportRequest {
+export interface spotRequest extends BaseEntity{
+   spotId: string,
    spotNumber: string,
    isAvailable: boolean,
    isReserved: boolean,

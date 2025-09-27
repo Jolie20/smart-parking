@@ -106,15 +106,15 @@ const UserDashboard: React.FC = () => {
                   error
                 );
                 // Fallback to vehicleService.getByUserId
-                try {
-                  console.log(
-                    "Trying fallback with vehicleService.getByUserId"
-                  );
-                  return await vehicleService.getByUserId(user.id);
-                } catch (fallbackError) {
-                  console.error("Fallback also failed:", fallbackError);
-                  return [];
-                }
+                // try {
+                //   console.log(
+                //     "Trying fallback with vehicleService.getByUserId"
+                //   );
+                //   return await vehicleService.getByUserId(user.id);
+                // } catch (fallbackError) {
+                //   console.error("Fallback also failed:", fallbackError);
+                //   return [];
+                // }
               })
             : Promise.resolve([] as Vehicle[]),
           sessionService.list().catch(() => []),
