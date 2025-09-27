@@ -22,7 +22,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
   onBook,
   lots,
   vehicles,
-  //spots,
   userVehicles,
 }) => {
   const [formData, setFormData] = useState<any>({
