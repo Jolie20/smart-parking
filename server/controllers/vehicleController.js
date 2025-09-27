@@ -5,8 +5,20 @@ exports.createVehicle = async (req, res) => {
   const userId = req.user.id;
   if (!userId) return res.status(400).json({ error: 'userId is required' });
   try {
-    const { licensePlate, make, model, color } = req.body;
-    const vehicle = await prisma.vehicle.create({ data: { user: { connect : { id : userId}}, licensePlate, make, model, color, rfidCard: req.user.rfidno } });
+    const { licensePlate, make, model, color, year, vehicleType } = req.body;
+    const vehicle = await prisma.vehicle.create({ 
+      data: { 
+        user: { connect: { id: userId }}, 
+        licensePlate, 
+        make, 
+        model, 
+        color, 
+        year: year ? parseInt(year) : null,
+        vehicleType: vehicleType || 'car',
+        isActive: true,
+        rfidCard: req.user.rfidno 
+      } 
+    });
     res.status(201).json(vehicle);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -15,14 +15,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String     @id @default(uuid())
+  email     String     @unique
   name      String
-  role      Role @default(user)
+  role      Role       @default(user)
   phone     String?
   password  String
-  cards   CardData[] @relation("CardToUser")
-  createdAt DateTime @default(now())
+  cards     CardData[] @relation("CardToUser")
+  createdAt DateTime   @default(now())
 
   vehicles Vehicle[]
   bookings Booking[]
@@ -36,11 +36,24 @@ model Vehicle {
   make         String
   model        String
   color        String
-  rfidCard     String ?           @unique
+  year         Int?
+  vehicleType  VehicleType      @default(car)
+  isActive     Boolean          @default(true)
+  rfidCard     String?          @unique
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now()) @updatedAt
   Parkingspot  ParkingSpot?
   user         User             @relation(fields: [userId], references: [id])
   bookings     Booking[]
   sessions     ParkingSession[]
+}
+
+enum VehicleType {
+  car
+  motorcycle
+  truck
+  van
+  suv
 }
 
 model ParkingLot {
@@ -52,7 +65,7 @@ model ParkingLot {
   hourlyRate     Float
   managerId      String
 
-  manager  manager?             @relation("ManagerLots", fields: [managerId], references: [id])
+  manager  manager?         @relation("ManagerLots", fields: [managerId], references: [id])
   spots    ParkingSpot[]
   bookings Booking[]
   sessions ParkingSession[]
@@ -72,17 +85,16 @@ model ParkingSpot {
 }
 
 model Booking {
-  id          String        @id @default(uuid())
-  userId      String
-  lotId       String
-  spotId      String
-  vehicleId   String
-  startTime   DateTime
-  endTime     DateTime
-  status      BookingStatus
-  totalAmount Float?
+  id            String        @id @default(uuid())
+  userId        String
+  lotId         String
+  spotId        String
+  vehicleId     String
+  startTime     DateTime
+  endTime       DateTime
+  status        BookingStatus
+  totalAmount   Float?
   paymentstatus status
-  
 
   user    User        @relation(fields: [userId], references: [id])
   lot     ParkingLot  @relation(fields: [lotId], references: [id])
@@ -123,8 +135,7 @@ model CardData {
   rfidno       String @unique
   cardholder   String
   Parking_time String
-  User         User   @relation("CardToUser",fields: [cardholder], references: [id])
-
+  User         User   @relation("CardToUser", fields: [cardholder], references: [id])
 }
 
 enum Role {
@@ -156,15 +167,15 @@ model admin {
   username String
   email    String @unique
   password String
-  role     Role   @default (ADMIN)
+  role     Role   @default(ADMIN)
 }
 
 model manager {
-  id       String @id @default(uuid())
-  username String
-  email    String @unique
-  phone    String @unique
-  password String
-  role     Role   @default (manager)
+  id          String       @id @default(uuid())
+  username    String
+  email       String       @unique
+  phone       String       @unique
+  password    String
+  role        Role         @default(manager)
   managedLots ParkingLot[] @relation("ManagerLots")
 }

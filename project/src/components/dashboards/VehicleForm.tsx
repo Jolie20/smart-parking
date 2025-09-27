@@ -18,13 +18,15 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, onSubmit }) => {
     make: "",
     model: "",
     color: "",
+    year: undefined,
+    vehicleType: "car",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   const handleChange = (
     field: keyof CreateVehicleRequest,
-    value: string | VehicleType
+    value: string | VehicleType | number | undefined
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors.length > 0) {
@@ -110,6 +112,43 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, onSubmit }) => {
           placeholder="Blue"
           required
         />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Year
+        </label>
+        <input
+          type="number"
+          value={formData.year || ""}
+          onChange={(e) =>
+            handleChange(
+              "year",
+              e.target.value ? parseInt(e.target.value) : undefined
+            )
+          }
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="2020"
+          min="1900"
+          max="2025"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Vehicle Type
+        </label>
+        <select
+          value={formData.vehicleType || "car"}
+          onChange={(e) =>
+            handleChange("vehicleType", e.target.value as VehicleType)
+          }
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="car">Car</option>
+          <option value="suv">SUV</option>
+          <option value="truck">Truck</option>
+          <option value="van">Van</option>
+          <option value="motorcycle">Motorcycle</option>
+        </select>
       </div>
 
       <div className="flex justify-end space-x-3 pt-4">
