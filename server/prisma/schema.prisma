@@ -92,7 +92,6 @@ model Booking {
   lotId         String
   spotId        String
   vehicleId     String
-  DateTime      String
   startTime     DateTime
   endTime       DateTime
   status        BookingStatus
