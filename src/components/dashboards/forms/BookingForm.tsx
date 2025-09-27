@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { X, Calendar, Clock, Car, MapPin, CreditCard } from "lucide-react";
-import { CreateBookingRequest, ParkingLot, Vehicle } from "../../../types";
+import { spotsService } from "../../../services/spotsService";
+import {
+  CreateBookingRequest,
+  ParkingLot,
+  spotRequest,
+  Vehicle,
+} from "../../../types";
 
 interface BookingFormProps {
   onClose: () => void;
@@ -8,6 +14,7 @@ interface BookingFormProps {
   lots: ParkingLot[];
   vehicles: Vehicle[];
   userVehicles: Vehicle[];
+  spots: spotRequest[];
 }
 
 const BookingForm: React.FC<BookingFormProps> = ({
@@ -15,6 +22,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
   onBook,
   lots,
   vehicles,
+  //spots,
   userVehicles,
 }) => {
   const [formData, setFormData] = useState<any>({
@@ -27,12 +35,14 @@ const BookingForm: React.FC<BookingFormProps> = ({
     endTime: "",
     specialRequests: "",
   });
+  const [availableSpots, setAvailableSpots] = useState<any[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
   const availableLots = lots.filter((lot) => lot.availableSpots > 0);
+  //const availableSpots = spots.filter((spot) => spot.isAvailable);
 
   useEffect(() => {
     // Set default start time to current time + 1 hour
@@ -45,12 +55,29 @@ const BookingForm: React.FC<BookingFormProps> = ({
       .toTimeString()
       .slice(0, 5);
 
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       startTime,
       endTime,
     }));
   }, []);
+
+  // Fetch available spots when lotId changes
+  useEffect(() => {
+    async function fetchSpots() {
+      if (formData.lotId) {
+        try {
+          const spots = await spotsService.getSpotsByLot(formData.lotId);
+          setAvailableSpots(spots.filter((s: any) => s.isAvailable));
+        } catch (err) {
+          setAvailableSpots([]);
+        }
+      } else {
+        setAvailableSpots([]);
+      }
+    }
+    fetchSpots();
+  }, [formData.lotId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,8 +129,8 @@ const BookingForm: React.FC<BookingFormProps> = ({
     } as any);
   };
 
-  const handleChange = (field: keyof CreateBookingRequest, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
     if (errors.length > 0) {
       setErrors([]);
     }
@@ -123,7 +150,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
   };
 
   const selectedLot = lots.find((l) => l.id === formData.lotId);
-  const selectedVehicle = vehicles.find((v) => v.id === formData.vehicleId);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -188,7 +214,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <option value="">Select a parking lot</option>
                 {availableLots.map((lot) => (
                   <option key={lot.id} value={lot.id}>
-                    {lot.name} - {lot.availableSpots} spots available ($
+                    {lot.name} - {lot.availableSpots} spots available (FRW
                     {lot.hourlyRate}/hr)
                   </option>
                 ))}
@@ -198,17 +224,26 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Spot Number
+              Spot Number *
             </label>
-            <input
-              type="text"
-              value={formData.spotNumber}
-              onChange={(e) =>
-                setFormData((p: any) => ({ ...p, spotNumber: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="A1"
-            />
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <select
+                value={formData.spotNumber}
+                onChange={(e) => handleChange("spotNumber", e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                title="Select spot number"
+                required
+                disabled={!formData.lotId}
+              >
+                <option value="">Select a spot</option>
+                {availableSpots.map((spot: any) => (
+                  <option key={spot.spotId} value={spot.spotNumber}>
+                    {spot.spotNumber}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
