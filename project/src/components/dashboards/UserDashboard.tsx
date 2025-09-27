@@ -105,16 +105,16 @@ const UserDashboard: React.FC = () => {
                   "Error loading user vehicles via userService:",
                   error
                 );
-                // Fallback to vehicleService.getByUserId
-                // try {
-                //   console.log(
-                //     "Trying fallback with vehicleService.getByUserId"
-                //   );
-                //   return await vehicleService.getByUserId(user.id);
-                // } catch (fallbackError) {
-                //   console.error("Fallback also failed:", fallbackError);
-                //   return [];
-                // }
+                //Fallback to vehicleService.getByUserId
+                try {
+                  console.log(
+                    "Trying fallback with vehicleService.getByUserId"
+                  );
+                  return await vehicleService.getByUserId(user.id);
+                } catch (fallbackError) {
+                  console.error("Fallback also failed:", fallbackError);
+                  return [];
+                }
               })
             : Promise.resolve([] as Vehicle[]),
           sessionService.list().catch(() => []),
@@ -207,8 +207,8 @@ const UserDashboard: React.FC = () => {
         bookingData.vehiclePlate || userVehicles[0]?.licensePlate;
       const spotNumber = bookingData.spotNumber || "A1";
       // Estimate amount based on lot hourlyRate and duration
-      const start = new Date(`2024-01-01T${bookingData.startTime}:00Z`);
-      const end = new Date(`2024-01-01T${bookingData.endTime}:00Z`);
+      const start = new Date(bookingData.startTime);
+      const end = new Date(bookingData.endTime);
       const hours = Math.max(
         1,
         (end.getTime() - start.getTime()) / (1000 * 60 * 60)
@@ -222,8 +222,8 @@ const UserDashboard: React.FC = () => {
         lotName: String(lotName || ""),
         spotNumber: String(spotNumber),
         vehiclePlate: String(vehiclePlate || ""),
-        startTime: `2024-01-01T${bookingData.startTime}:00Z`,
-        endTime: `2024-01-01T${bookingData.endTime}:00Z`,
+        startTime: bookingData.startTime,
+        endTime: bookingData.endTime,
         totalAmount,
       } as any);
 
@@ -1172,6 +1172,7 @@ const UserDashboard: React.FC = () => {
           lots={lots}
           vehicles={vehicles}
           userVehicles={userVehicles}
+          spots={[]}
         />
       )}
 

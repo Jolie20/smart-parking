@@ -51,5 +51,28 @@ exports.deleteSpot = async (req, res) => {
   }
 };
 
+// Get available spots by lot and time
+exports.getAvailableSpotsByLotAndTime = async (req, res) => {
+  try {
+    const { lotId } = req.params;
+    const { startTime, endTime } = req.query;
+    
+    // Get all spots for the lot
+    const spots = await prisma.parkingSpot.findMany({ 
+      where: { lotId },
+      include: { lot: true, vehicle: true }
+    });
+    
+    // Filter available spots (basic check - in real implementation, you'd check against existing bookings)
+    const availableSpots = spots.filter(spot => 
+      spot.isAvailable && !spot.isReserved && !spot.vehicleId
+    );
+    
+    res.json(availableSpots);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 //get spots by lot id
 

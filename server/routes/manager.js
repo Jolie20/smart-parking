@@ -4,8 +4,10 @@ const { authenticate, requireRole, ManagerLogin } = require('../middleware/auth'
 const manager = require('../controllers/managerController');
 
 router.post('/login', ManagerLogin);
-router.get('/lots', manager.getManagedLots);
-router.get('/sessions', manager.getManagedSessions);
+router.get('/lots', authenticate, requireRole('manager'), manager.getManagedLots);
+router.get('/sessions', authenticate, requireRole('manager'), manager.getManagedSessions);
+router.get('/bookings', authenticate, requireRole('manager'), manager.getManagedBookings);
+router.get('/stats', authenticate, requireRole('manager'), manager.getBookingStats);
 
 module.exports = router;
 

@@ -65,6 +65,19 @@ exports.updateLot = async (req, res) => {
   }
 };
 
+exports.getSpotsByLot = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const spots = await prisma.parkingSpot.findMany({ 
+      where: { lotId: id },
+      include: { lot: true, vehicle: true }
+    });
+    res.json(spots);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.deleteLot = async (req, res) => {
   try {
     const { id } = req.params;

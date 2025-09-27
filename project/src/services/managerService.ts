@@ -2,7 +2,8 @@ import api from '../lib/axios';
 import { 
 	ParkingLot, 
 	ParkingSession, 
-	ManagerDashboardData
+	ManagerDashboardData,
+	Booking
 } from '../types';
 
 export const managerService = {
@@ -26,6 +27,13 @@ export const managerService = {
 	
 	updateLotAvailability: (lotId: string, availableSpots: number): Promise<ParkingLot> => 
 		api.patch(`/manager/lots/${lotId}/availability`, { availableSpots }).then(r => r.data),
+	
+	// Booking-related methods
+	getBookings: (): Promise<Booking[]> => 
+		api.get('/manager/bookings').then(r => r.data),
+	
+	getBookingStats: (): Promise<any> => 
+		api.get('/manager/stats').then(r => r.data),
 };
 
 

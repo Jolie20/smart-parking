@@ -7,6 +7,22 @@ exports.createBooking = async (req, res) => {
     const { lotName, spotNumber, vehiclePlate, startTime, endTime, totalAmount } = req.body;
 
   try {
+    // Validate required fields
+    if (!lotName || !spotNumber || !vehiclePlate || !startTime || !endTime) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Validate date/time format
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+    
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return res.status(400).json({ error: 'Invalid date/time format' });
+    }
+
+    if (endDate <= startDate) {
+      return res.status(400).json({ error: 'End time must be after start time' });
+    }
     
     // Find lotId by lotName
     const lot = await prisma.parkingLot.findFirst({ where: { name: lotName } });
@@ -31,8 +47,8 @@ exports.createBooking = async (req, res) => {
         lot: { connect: { id: lot.id } },
         spot: { connect: { id: spot.id } },
         vehicle: { connect: { id: vehicle.id } },
-        startTime,
-        endTime,
+        startTime: startDate.toISOString(),
+        endTime: endDate.toISOString(),
         status:'active',
         paymentstatus:'pending',
         totalAmount
@@ -41,6 +57,7 @@ exports.createBooking = async (req, res) => {
 
     res.status(201).json(booking);
   } catch (err) {
+    console.error('Booking creation error:', err);
     res.status(500).json({ error: err.message });
   }
 };
