@@ -24,6 +24,7 @@ export const userService = {
 	userVehicls: (): Promise<any> => 
 		api.get('/users/myvehicle').then(r => r.data),
 	
+	
     // The following endpoints are not supported by backend routes; remove or implement when available
 };
 

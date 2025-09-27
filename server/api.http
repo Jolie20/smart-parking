@@ -1,0 +1,14 @@
+### Example GET request
+GET http://localhost:3000/api/parking-spots
+Content-Type: application/json
+
+###
+
+### Example POST request
+POST http://localhost:3000/api/parking-spots
+Content-Type: application/json
+
+{
+    "spotNumber": 12,
+    "status": "available"
+}

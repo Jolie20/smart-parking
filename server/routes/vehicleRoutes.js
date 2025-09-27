@@ -9,5 +9,4 @@ router.get('/:id', vehicleController.getVehicleById);
 router.put('/:id', vehicleController.updateVehicle);
 router.delete('/:id', vehicleController.deleteVehicle);
 
-
 module.exports = router;

@@ -6,11 +6,14 @@ const userController = require('../controllers/userController');
 const {uservehicles} = require('../controllers/vehicleController');
 
 router.post('/', userController.createUser);
+router.get('/myvehicle', authenticate, userController.getvehicles);
+router.get('/bookings', authenticate, userController.userbookings);
 router.post('/v1/login', auth.UserLogin);
-router.get('/', userController.getUsers);
+router.get('/',authenticate,requireRole('ADMIN'), userController.getUsers);
 router.get('/:id', userController.getUserById);
 router.put('/:id', userController.updateUser);  
 router.delete('/:id', userController.deleteUser);
-router.get('/myvehicle',authenticate, uservehicles);
+
+
 
 module.exports = router;

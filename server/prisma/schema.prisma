@@ -46,6 +46,8 @@ model Vehicle {
   user         User             @relation(fields: [userId], references: [id])
   bookings     Booking[]
   sessions     ParkingSession[]
+
+  @@map("vehicles")//ADD
 }
 
 enum VehicleType {

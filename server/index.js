@@ -18,11 +18,12 @@ const adminManager = require('./routes/admin')
 const managerRoutes = require('./routes/manager')
 
 const app = express();
+app.use(express.json());
 app.use(cors({
   origin: "http://localhost:5173",  // frontend URL
   credentials: true                 // allow cookies/authorization headers
 }));
-app.use(express.json());
+
 
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminManager);

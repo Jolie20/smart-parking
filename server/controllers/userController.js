@@ -1,6 +1,8 @@
 const  {PrismaClient}= require('../generated/prisma/client');
 const prisma = new PrismaClient();
 const bcrypt = require('bcryptjs');
+const { getVehicles } = require('./vehicleController');
+
 // Create User
 exports.createUser = async (req, res) => {
   const { email, name, phone, password } = req.body;
@@ -22,7 +24,7 @@ exports.createUser = async (req, res) => {
 // Get All Users
 exports.getUsers = async (req, res) => {
   try {
-    const users = await prisma.user.findMany({ include: { vehicles: true, lots: true, bookings: true, sessions: true } });
+    const users = await prisma.user.findMany({ include: { vehicles: true, bookings: true, sessions: true } });
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -57,6 +59,30 @@ exports.deleteUser = async (req, res) => {
     const { id } = req.params;
     await prisma.user.delete({ where: { id } });
     res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+//ADD
+exports.getvehicles = async (req, res) => {
+  console.log('hello world');
+  const userId = req.user.id;
+  console.log("User ID:", userId);
+  try {
+    const vehicles = await prisma.vehicle.findMany({where: { userId  }});
+    return res.json(vehicles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//users bookings
+exports.userbookings = async (req, res) => {
+  console.log('Fetching bookings for user');
+  const userId = req.user.id;
+  try {
+    const bookings = await prisma.booking.findMany({ where: { userId }, include: { vehicle: true, lot: true } }); 
+    return res.json(bookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -65,9 +65,20 @@ exports.deleteVehicle = async (req, res) => {
 };
 
 exports.uservehicles = async (req, res) => {
-  //console.log("userbody",req.user);
+  console.log('Request body:', req.body); //ADD
+  const { licensePlate, make, model, color, year, vehicleType } = req.body; //ADD
+  console.log("userbody",req.user); //ADD
   const userId = req.user.id;
   console.log("User ID:", userId);
+  console.log('Data to create:', { //ADD
+  licensePlate,
+  make,
+  model,
+  color,
+  year,
+  vehicleType,
+  userId
+})
   try {
      // Debugging line
     if (!userId) return res.status(400).json({ error: 'userId is required' });
