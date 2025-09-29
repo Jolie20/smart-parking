@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, MapPin, DollarSign, Clock, Settings } from "lucide-react";
+import { X, MapPin } from "lucide-react";
 import {
   CreateLotRequest,
   UpdateLotRequest,
@@ -28,7 +28,15 @@ const LotForm: React.FC<LotFormProps> = ({
     availableSpots: editingLot?.availableSpots || 0,
     hourlyRate: editingLot?.hourlyRate || 0,
     managerId: editingLot?.managerId || "",
+    features: editingLot?.features || [],
+    description: editingLot?.description || "",
+    city: editingLot?.city || "",
+    state: editingLot?.state || "",
+    zipCode: editingLot?.zipCode || "",
+    dailyRate: editingLot?.dailyRate || 0,
+    operatingHours: editingLot?.operatingHours || {},
   });
+  const [success, setSuccess] = useState<string>("");
   const [managerName, setManagerName] = useState<string>(
     editingLot?.manager?.name || ""
   );
@@ -76,6 +84,11 @@ const LotForm: React.FC<LotFormProps> = ({
     if (!managerName || !managerEmail) {
       validationErrors.push("Please select a manager");
     }
+    if (managers.length === 0) {
+      validationErrors.push(
+        "No managers available. Please create a manager first."
+      );
+    }
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
@@ -87,10 +100,13 @@ const LotForm: React.FC<LotFormProps> = ({
       managerName,
       managerEmail,
     });
+    setSuccess(
+      isEditing ? "Lot updated successfully!" : "Lot created successfully!"
+    );
   };
 
   const handleChange = (field: keyof CreateLotRequest, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
     if (errors.length > 0) {
       setErrors([]);
     }
@@ -101,21 +117,6 @@ const LotForm: React.FC<LotFormProps> = ({
       ? formData.features.filter((f: ParkingFeature) => f !== feature)
       : [...formData.features, feature];
     handleChange("features", newFeatures);
-  };
-
-  const handleOperatingHoursChange = (
-    day: (typeof days)[number],
-    field: "isOpen" | "openTime" | "closeTime",
-    value: any
-  ) => {
-    const newOperatingHours = {
-      ...formData.operatingHours,
-      [day]: {
-        ...formData.operatingHours[day],
-        [field]: value,
-      },
-    };
-    handleChange("operatingHours", newOperatingHours);
   };
 
   return (
@@ -139,6 +140,13 @@ const LotForm: React.FC<LotFormProps> = ({
           </button>
         </div>
 
+        {success && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 m-6">
+            <div className="text-sm text-green-700 font-semibold">
+              {success}
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {errors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
