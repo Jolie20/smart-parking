@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { X, MapPin, Car, Settings } from "lucide-react";
-import { SpotType } from "../../../types";
+import { X, MapPin, Car } from "lucide-react";
 
 interface SpotFormProps {
   onClose: () => void;
@@ -23,17 +22,9 @@ const SpotForm: React.FC<SpotFormProps> = ({
     isReserved: false,
     vehicleId: "",
     lotname: "",
+    isMaintenance: editingSpot?.isMaintenance || false,
   });
   const [errors, setErrors] = useState<string[]>([]);
-
-  const spotTypes: { value: SpotType; label: string }[] = [
-    { value: "regular", label: "Regular" },
-    { value: "premium", label: "Premium" },
-    { value: "covered", label: "Covered" },
-    { value: "electric", label: "Electric" },
-    { value: "oversized", label: "Oversized" },
-    { value: "disabled", label: "Disabled Access" },
-  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
