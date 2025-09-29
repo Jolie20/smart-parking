@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { X, User, Briefcase } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { CreateUserRequest, ManagerPermission } from "../../../types";
+import { CreateUserRequest } from "../../../types";
 //import { CreateManagerRequest } from "../../../services/adminService";
 import {
   adminService,
@@ -16,7 +15,6 @@ interface ManagerFormProps {
 
 const ManagerForm: React.FC<ManagerFormProps> = ({
   onClose,
-  onSubmit,
   editingManager,
   isEditing = false,
 }) => {
@@ -28,10 +26,6 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
     phone: editingManager?.user?.phone || "",
   });
 
-  const [permissions, setPermissions] = useState<ManagerPermission[]>(
-    editingManager?.permissions || ["view_sessions", "manage_lots"]
-  );
-  const [isLoading, setIsloading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,24 +57,20 @@ const ManagerForm: React.FC<ManagerFormProps> = ({
       return;
     }
     try {
-      setIsloading(true);
-      const created = await adminService.createManager({
+      await adminService.createManager({
         email: formData.email,
         username: formData.username,
         phone: formData.phone,
         password: formData.password,
       });
-      
     } catch (error) {
       console.error("Error creating manager:", error);
       setErrors(["Failed to create manager. Please try again."]);
-    } finally {
-      setIsloading(false);
     }
   };
 
-  const handleChange = (field: keyof CreateUserRequest, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
     if (errors.length > 0) {
       setErrors([]);
     }
