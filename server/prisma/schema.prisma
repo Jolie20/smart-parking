@@ -181,3 +181,9 @@ model manager {
   role        Role         @default(manager)
   managedLots ParkingLot[] @relation("ManagerLots")
 }
+
+model licensePlate{
+  id String @id @default(uuid())
+  plate String @unique
+  createdAt DateTime @default(now())
+}
