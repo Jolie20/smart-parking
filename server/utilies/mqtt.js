@@ -1,51 +1,46 @@
-const mqtt = require('mqtt');
+const express = require("express");
+const bodyParser = require("body-parser");
+const mqtt = require("mqtt");
 
-// MQTT broker configuration
-const MQTT_BROKER_URL = '91d4e16936c54687bcbae60a22ebf30c.s1.eu.hivemq.cloud'; // Replace with your broker URL
-const MQTT_OPTIONS = {
-    clientId: 'smart-parking-server-' + Math.random().toString(16).substr(2, 8),
-    clean: true,
-    connectTimeout: 4000,
-    username: '', // Add if required
-    password: '', // Add if required
+const app = express();
+app.use(bodyParser.json());
+
+// HiveMQ Cloud settings
+const options = {
+  host: "91d4e16936c54687bcbae60a22ebf30c.s1.eu.hivemq.cloud",
+  port: 8883,
+  protocol: "mqtts",
+  username: "hivemq.webclient.1759169920317", 
+  password: "k>0cH9bv#6@Yg*3QXuFO"
 };
 
-// Topic to subscribe/publish
-const TOPIC = 'smart-parking/updates';
+const mqttClient = mqtt.connect(options);
+const PLATE_TOPIC = "#gps";
 
-// Create MQTT client
-const client = mqtt.connect(MQTT_BROKER_URL, MQTT_OPTIONS);
+let latestPlate = {};
 
-// Handle connection
-client.on('connect', () => {
-    console.log('Connected to MQTT broker');
-    client.subscribe(TOPIC, (err) => {
-        if (!err) {
-            console.log(`Subscribed to topic: ${TOPIC}`);
-        } else {
-            console.error('Subscription error:', err);
-        }
-    });
+mqttClient.on("connect", () => {
+  console.log("✅ Connected to HiveMQ Cloud");
+  mqttClient.subscribe(PLATE_TOPIC, (err) => {
+    if (!err) console.log(`📡 Subscribed to ${PLATE_TOPIC}`);
+  });
 });
 
-// Handle incoming messages
-client.on('message', (topic, message) => {
-    console.log(`Received message on ${topic}: ${message.toString()}`);
-    // Add your message handling logic here
+mqttClient.on("message", (topic, message) => {
+  if (topic === PLATE_TOPIC) {
+    try {
+      const data = JSON.parse(message.toString());
+      latestPlate = data;
+      console.log("🚗 Plate Update:", latestPlate);
+    } catch (err) {
+      console.error("❌ Invalid plate data", err);
+    }
+  }
 });
 
-// Publish a message (example)
-function publishMessage(payload) {
-    client.publish(TOPIC, JSON.stringify(payload), (err) => {
-        if (err) {
-            console.error('Publish error:', err);
-        } else {
-            console.log('Message published:', payload);
-        }
-    });
-}
+// REST endpoint
+app.get("/plate", (req, res) => {
+  res.json({ success: true, data: latestPlate });
+});
 
-module.exports = {
-    client,
-    publishMessage,
-};
+app.listen(5000, () => console.log("🚀 Server running at http://localhost:5000"));
