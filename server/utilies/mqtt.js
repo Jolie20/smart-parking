@@ -15,7 +15,7 @@ const options = {
 };
 
 const mqttClient = mqtt.connect(options);
-const PLATE_TOPIC = "#gps";
+const PLATE_TOPIC = "scann/plate";
 
 let latestPlate = {};
 
@@ -26,12 +26,13 @@ mqttClient.on("connect", () => {
   });
 });
 
-mqttClient.on("message", (topic, message) => {
+mqttClient.on("message", (topic, message,req,res) => {
   if (topic === PLATE_TOPIC) {
     try {
       const data = JSON.parse(message.toString());
       latestPlate = data;
-      console.log("🚗 Plate Update:", latestPlate);
+      res.json({ success: true, data: latestPlate });
+      //console.log("🚗 Plate Update:", latestPlate);
     } catch (err) {
       console.error("❌ Invalid plate data", err);
     }
