@@ -1,7 +1,7 @@
 const mqtt = require('mqtt');
 
 // MQTT broker configuration
-const MQTT_BROKER_URL = 'mqtt://broker.hivemq.com'; // Replace with your broker URL
+const MQTT_BROKER_URL = '91d4e16936c54687bcbae60a22ebf30c.s1.eu.hivemq.cloud'; // Replace with your broker URL
 const MQTT_OPTIONS = {
     clientId: 'smart-parking-server-' + Math.random().toString(16).substr(2, 8),
     clean: true,
