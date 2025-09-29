@@ -46,7 +46,7 @@ exports.createBooking = async (req, res) => {
         user: {connect:{id: userId}},
         lot: { connect: { id: lot.id } },
         spot: { connect: { id: spot.id } },
-        vehicle: { connect: { id: vehicle.id } },
+        vehicle: { connect: { id: vehicle.licensePlate } },
         startTime: startDate.toISOString(),
         endTime: endDate.toISOString(),
         status:'active',
