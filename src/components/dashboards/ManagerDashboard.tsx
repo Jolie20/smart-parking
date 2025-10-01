@@ -20,6 +20,7 @@ import {
 import SpotForm from "./forms/SpotForm";
 import LotForm from "./forms/LotForm";
 
+
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
@@ -37,7 +38,7 @@ const ManagerDashboard: React.FC = () => {
   const [spots, setSpots] = useState<ParkingSpot[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingStats, setBookingStats] = useState<any>(null);
-  const [, setIsLoading] = useState(false);
+  const [iIsLoading, setIsLoading] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
   const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
   const [selectedLotId, setSelectedLotId] = useState<string>("");
@@ -78,7 +79,11 @@ const ManagerDashboard: React.FC = () => {
           managerService.getBookings(),
           managerService.getBookingStats(),
         ]);
-        setManagedLots(lots || []);
+        // Only show lots assigned to this manager
+        const assignedLots = (lots || []).filter(
+          (lot) => lot.managerId === user?.id
+        );
+        setManagedLots(assignedLots);
         const active = (sessions || []).filter(
           (s: ParkingSession) => s.status === "active"
         );
@@ -102,7 +107,7 @@ const ManagerDashboard: React.FC = () => {
       }
     };
     load();
-  }, []);
+  }, [user?.id]);
 
   const managedLotIds = managedLots.map((lot) => lot.id);
 
@@ -623,108 +628,44 @@ const ManagerDashboard: React.FC = () => {
           </div>
         )}
 
-        {activeTab === "lots" && (
+        {activeTab === "spots" && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-gray-900">
-                Parking Lot Management
+                Spot Management
               </h2>
+              {managedLots.length > 0 && (
+                <select
+                  className="border border-gray-300 rounded px-2 py-1 mr-2"
+                  value={selectedLotId}
+                  onChange={(e) => setSelectedLotId(e.target.value)}
+                >
+                  <option value="">Select Lot</option>
+                  {managedLots.map((lot) => (
+                    <option key={lot.id} value={lot.id}>
+                      {lot.name}
+                    </option>
+                  ))}
+                </select>
+              )}
               <button
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                onClick={handleAddLot}
+                onClick={() => {
+                  if (selectedLotId) {
+                    setEditingSpot(null);
+                    setShowSpotForm(true);
+                  } else {
+                    alert("Please select a lot to add a spot.");
+                  }
+                }}
+                disabled={managedLots.length === 0}
               >
-                Add Lot
+                Add Spot
               </button>
             </div>
             <div className="grid gap-6">
               {managedLots.map((lot) => {
-                const occupancyRate = getOccupancyRate(lot.id);
-                const lotSessions = mockParkingSessions.filter(
-                  (s) => s.lotId === lot.id
-                );
-                const lotRevenue = lotSessions
-                  .filter((s) => s.amount)
-                  .reduce((sum, s) => sum + (s.amount || 0), 0);
-
-                return (
-                  <div
-                    key={lot.id}
-                    className="bg-white rounded-xl p-6 shadow-lg border border-gray-100"
-                  >
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900">
-                          {lot.name}
-                        </h3>
-                        <p className="text-gray-500">{lot.address}</p>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          occupancyRate > 80
-                            ? "bg-red-100 text-red-800"
-                            : occupancyRate > 60
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {occupancyRate.toFixed(0)}% Occupied
-                      </span>
-                    </div>
-
-                    <div className="grid md:grid-cols-4 gap-6">
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-gray-900">
-                          {lot.totalSpots}
-                        </p>
-                        <p className="text-sm text-gray-500">Total Spots</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-green-600">
-                          {lot.availableSpots}
-                        </p>
-                        <p className="text-sm text-gray-500">Available</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-blue-600">
-                          FRW {lot.hourlyRate.toFixed(2)}
-                        </p>
-                        <p className="text-sm text-gray-500">Hourly Rate</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-purple-600">
-                          FRW {lotRevenue.toFixed(2)}
-                        </p>
-                        <p className="text-sm text-gray-500">Total Revenue</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {showLotForm && (
-              <LotForm
-                onClose={() => setShowLotForm(false)}
-                onSubmit={handleLotSubmit}
-                managers={[
-                  { id: user?.id, name: user?.name, email: user?.email },
-                ]}
-                editingLot={editingLot}
-                isEditing={!!editingLot}
-              />
-            )}
-          </div>
-        )}
-
-        {activeTab === "spots" && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Spot Management
-            </h2>
-
-            <div className="grid gap-6">
-              {managedLots.map((lot) => {
                 const lotSpots = spots.filter((spot) => spot.lotId === lot.id);
-
                 return (
                   <div
                     key={lot.id}
@@ -740,14 +681,7 @@ const ManagerDashboard: React.FC = () => {
                           {lotSpots.length} spots configured
                         </p>
                       </div>
-                      <button
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                        onClick={() => handleAddSpot(lot.id)}
-                      >
-                        Add Spot
-                      </button>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {lotSpots.map((spot) => (
                         <div
@@ -785,7 +719,6 @@ const ManagerDashboard: React.FC = () => {
                               </button>
                             </div>
                           </div>
-
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-500">Status</span>
@@ -819,19 +752,12 @@ const ManagerDashboard: React.FC = () => {
                         </div>
                       ))}
                     </div>
-
                     {lotSpots.length === 0 && (
                       <div className="text-center py-8">
                         <Car className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                         <p className="text-gray-500">
                           No spots configured for this lot
                         </p>
-                        <button
-                          className="mt-3 text-green-600 hover:text-green-700 text-sm font-medium"
-                          onClick={() => handleAddSpot(lot.id)}
-                        >
-                          Add first spot
-                        </button>
                       </div>
                     )}
                   </div>
