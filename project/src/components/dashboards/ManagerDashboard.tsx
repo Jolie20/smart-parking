@@ -55,12 +55,15 @@ const ManagerDashboard: React.FC = () => {
   };
 
   const handleLotSubmit = (lotData) => {
-    setManagedLots((prev) => [...prev, {
-      ...lotData,
-      id: Date.now().toString(),
-      managerId: user?.id,
-      manager: { id: user?.id, name: user?.name, email: user?.email },
-    }]);
+    setManagedLots((prev) => [
+      ...prev,
+      {
+        ...lotData,
+        id: Date.now().toString(),
+        managerId: user?.id,
+        manager: { id: user?.id, name: user?.name, email: user?.email },
+      },
+    ]);
     setShowLotForm(false);
     setEditingLot(null);
   };
@@ -426,55 +429,55 @@ const ManagerDashboard: React.FC = () => {
                       )
                       .slice(0, 10)
                       .map((booking) => (
-                      <tr key={booking.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {booking.user?.name || "Unknown User"}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.user?.email || ""}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {booking.vehicle?.licensePlate || "N/A"}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.vehicle?.make} {booking.vehicle?.model}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {booking.lot?.name || "Unknown Lot"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {booking.spot?.spotNumber || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {new Date(booking.startTime).toLocaleDateString()}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {new Date(booking.startTime).toLocaleTimeString()} -{" "}
-                            {new Date(booking.endTime).toLocaleTimeString()}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              booking.status === "active"
-                                ? "bg-green-100 text-green-800"
-                                : booking.status === "completed"
-                                ? "bg-blue-100 text-blue-800"
-                                : booking.status === "cancelled"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {booking.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                        <tr key={booking.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {booking.user?.name || "Unknown User"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {booking.user?.email || ""}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {booking.vehicle?.licensePlate || "N/A"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {booking.vehicle?.make} {booking.vehicle?.model}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {booking.lot?.name || "Unknown Lot"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {booking.spot?.spotNumber || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {new Date(booking.startTime).toLocaleDateString()}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {new Date(booking.startTime).toLocaleTimeString()}{" "}
+                              - {new Date(booking.endTime).toLocaleTimeString()}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                booking.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : booking.status === "completed"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : booking.status === "cancelled"
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {booking.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
                 {bookings.length === 0 && (
@@ -702,7 +705,9 @@ const ManagerDashboard: React.FC = () => {
               <LotForm
                 onClose={() => setShowLotForm(false)}
                 onSubmit={handleLotSubmit}
-                managers={[{ id: user?.id, name: user?.name, email: user?.email }]}
+                managers={[
+                  { id: user?.id, name: user?.name, email: user?.email },
+                ]}
                 editingLot={editingLot}
                 isEditing={!!editingLot}
               />
