@@ -32,7 +32,7 @@ model User {
 model Vehicle {
   id           String           @id @default(uuid())
   userId       String
-  licensePlate String           @unique
+  licensePlate String           @unique 
   make         String
   model        String
   color        String
@@ -101,7 +101,7 @@ model Booking {
   user    User        @relation(fields: [userId], references: [id])
   lot     ParkingLot  @relation(fields: [lotId], references: [id])
   spot    ParkingSpot @relation(fields: [spotId], references: [id])
-  vehicle Vehicle     @relation(fields: [vehicleId], references: [id])
+  vehicle Vehicle     @relation(fields: [vehicleId], references: [licensePlate])
 }
 
 model ParkingSession {
@@ -180,4 +180,10 @@ model manager {
   password    String
   role        Role         @default(manager)
   managedLots ParkingLot[] @relation("ManagerLots")
+}
+
+model licensePlate{
+  id String @id @default(uuid())
+  plate String @unique
+  createdAt DateTime @default(now())
 }
