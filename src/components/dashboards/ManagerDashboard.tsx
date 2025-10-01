@@ -18,6 +18,7 @@ import {
   mockParkingSpots,
 } from "../../data/mockData";
 import SpotForm from "./forms/SpotForm";
+import LotForm from "./forms/LotForm";
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -40,6 +41,32 @@ const ManagerDashboard: React.FC = () => {
   const [showSpotForm, setShowSpotForm] = useState(false);
   const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
   const [selectedLotId, setSelectedLotId] = useState<string>("");
+  const [showLotForm, setShowLotForm] = useState(false);
+  // Show LotForm automatically if manager has no lots
+  React.useEffect(() => {
+    if (managedLots.length === 0) {
+      setShowLotForm(true);
+    }
+  }, [managedLots.length]);
+  const [editingLot, setEditingLot] = useState(null);
+  const handleAddLot = () => {
+    setEditingLot(null);
+    setShowLotForm(true);
+  };
+
+  const handleLotSubmit = (lotData) => {
+    setManagedLots((prev) => [
+      ...prev,
+      {
+        ...lotData,
+        id: Date.now().toString(),
+        managerId: user?.id,
+        manager: { id: user?.id, name: user?.name, email: user?.email },
+      },
+    ]);
+    setShowLotForm(false);
+    setEditingLot(null);
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -396,56 +423,61 @@ const ManagerDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {bookings.slice(0, 10).map((booking) => (
-                      <tr key={booking.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {booking.user?.name || "Unknown User"}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.user?.email || ""}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {booking.vehicle?.licensePlate || "N/A"}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {booking.vehicle?.make} {booking.vehicle?.model}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {booking.lot?.name || "Unknown Lot"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {booking.spot?.spotNumber || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {new Date(booking.startTime).toLocaleDateString()}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {new Date(booking.startTime).toLocaleTimeString()} -{" "}
-                            {new Date(booking.endTime).toLocaleTimeString()}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              booking.status === "active"
-                                ? "bg-green-100 text-green-800"
-                                : booking.status === "completed"
-                                ? "bg-blue-100 text-blue-800"
-                                : booking.status === "cancelled"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {booking.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {bookings
+                      .filter((booking) =>
+                        managedLots.some((lot) => lot.id === booking.lotId)
+                      )
+                      .slice(0, 10)
+                      .map((booking) => (
+                        <tr key={booking.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {booking.user?.name || "Unknown User"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {booking.user?.email || ""}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {booking.vehicle?.licensePlate || "N/A"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {booking.vehicle?.make} {booking.vehicle?.model}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {booking.lot?.name || "Unknown Lot"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {booking.spot?.spotNumber || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {new Date(booking.startTime).toLocaleDateString()}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {new Date(booking.startTime).toLocaleTimeString()}{" "}
+                              - {new Date(booking.endTime).toLocaleTimeString()}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                booking.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : booking.status === "completed"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : booking.status === "cancelled"
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {booking.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
                 {bookings.length === 0 && (
@@ -593,10 +625,17 @@ const ManagerDashboard: React.FC = () => {
 
         {activeTab === "lots" && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Parking Lot Management
-            </h2>
-
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Parking Lot Management
+              </h2>
+              <button
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                onClick={handleAddLot}
+              >
+                Add Lot
+              </button>
+            </div>
             <div className="grid gap-6">
               {managedLots.map((lot) => {
                 const occupancyRate = getOccupancyRate(lot.id);
@@ -662,6 +701,17 @@ const ManagerDashboard: React.FC = () => {
                 );
               })}
             </div>
+            {showLotForm && (
+              <LotForm
+                onClose={() => setShowLotForm(false)}
+                onSubmit={handleLotSubmit}
+                managers={[
+                  { id: user?.id, name: user?.name, email: user?.email },
+                ]}
+                editingLot={editingLot}
+                isEditing={!!editingLot}
+              />
+            )}
           </div>
         )}
 
