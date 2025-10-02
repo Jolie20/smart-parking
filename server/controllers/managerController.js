@@ -26,6 +26,7 @@ exports.getManagedSessions = async (req, res) => {
 // Get bookings for managed lots
 exports.getManagedBookings = async (req, res) => {
   try {
+    console.log('Fetching bookings for manager:', req.user.id);
     const lots = await prisma.parkingLot.findMany({ 
       where: { managerId: req.user.id }, 
       select: { id: true } 
