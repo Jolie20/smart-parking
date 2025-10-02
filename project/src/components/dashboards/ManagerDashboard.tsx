@@ -119,7 +119,7 @@ const ManagerDashboard: React.FC = () => {
         // Use spotsService to fetch all spots for each lot (public endpoint)
         let allSpots: ParkingSpot[] = [];
         for (const lot of assignedLots) {
-          const lotSpots = await spotsService.getAllSpots(spot.id);
+          const lotSpots = await spotsService.getAllSpots(lot.id);
           allSpots = allSpots.concat(lotSpots || []);
         }
         setSpots(allSpots);
