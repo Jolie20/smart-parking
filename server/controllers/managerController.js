@@ -51,15 +51,7 @@ exports.getManagedBookings = async (req, res) => {
   }
 };
 
-//get managed lots
-exports.getManagedLots = async (req, res) => {
-  try {
-    const lots = await prisma.parkingLot.findMany({ where: { managerId: req.user.id }, include: { spots: true } }); 
-    res.json(lots);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+
 
 // Get booking statistics for managed lots
 exports.getBookingStats = async (req, res) => {
