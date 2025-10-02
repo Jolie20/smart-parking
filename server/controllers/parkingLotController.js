@@ -58,7 +58,15 @@ exports.getLotById = async (req, res) => {
 exports.updateLot = async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await prisma.parkingLot.update({ where: { id }, data: req.body });
+    const { managerId, ...rest } = req.body;
+    const updateData = { ...rest };
+    if (managerId) {
+      updateData.manager = { connect: { id: managerId } };
+    }
+    const updated = await prisma.parkingLot.update({
+      where: { id },
+      data: updateData
+    });
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });
