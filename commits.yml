@@ -1,0 +1,27 @@
+name: Direct Commit and Push
+
+on:
+  workflow_dispatch:
+
+jobs:
+  direct-commit-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make changes (example: update README)
+        run: |
+          echo "Direct commit from GitHub Actions at $(date)" >> README.md
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Direct commit from GitHub Actions" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
