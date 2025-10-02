@@ -691,6 +691,9 @@ const ManagerDashboard: React.FC = () => {
         />
       </div>
     )}
+    <div className="grid gap-6">
+      {/* ...existing spot cards code... */}
+    </div>
             <div className="grid gap-6">
               {managedLots.map((lot) => {
                 const lotSpots = spots.filter((spot) => spot.lotId === lot.id);
