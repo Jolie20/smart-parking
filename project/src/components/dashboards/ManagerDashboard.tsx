@@ -179,11 +179,13 @@ const ManagerDashboard: React.FC = () => {
       setEditingSpot(null);
       // Refetch spots for the selected lot
       if (selectedLotId) {
-        const updatedSpots = await spotsService.getAllSpots(selectedLotId);
-        setSpots((prev) => [
-          ...prev.filter((s) => s.lotId !== selectedLotId),
-          ...(updatedSpots || []),
-        ]);
+        // Refetch all spots for all managed lots to avoid conflicts
+        let allSpots: ParkingSpot[] = [];
+        for (const lot of managedLots) {
+          const lotSpots = await spotsService.getAllSpots(lot.id);
+          allSpots = allSpots.concat(lotSpots || []);
+        }
+        setSpots(allSpots);
       }
     } catch (error) {
       console.error("Error saving spot:", error);
