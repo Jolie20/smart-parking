@@ -31,7 +31,7 @@ export const managerService = {
 	
 	// Booking-related methods
 	getBookings: (): Promise<Booking[]> => 
-		api.get('/manager/bookings').then(r => r.data),
+		api.get('/bookings').then(r => r.data),
 	
 	getBookingStats: (): Promise<any> => 
 		api.get('/manager/stats').then(r => r.data),
