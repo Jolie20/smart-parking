@@ -15,6 +15,7 @@ import { managerService } from "../../services/managerService";
 import { ParkingLot, ParkingSession, ParkingSpot, Booking } from "../../types";
 import SpotForm from "./forms/SpotForm";
 import LotForm from "./forms/LotForm";
+import { spotsService } from "../../services/spotsService"; // <-- Add this import
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -113,7 +114,7 @@ const ManagerDashboard: React.FC = () => {
         let allSpots: ParkingSpot[] = [];
         for (const lot of assignedLots) {
           const lotSpots = await managerService.getSpots(lot.id);
-          allSpots = allSpots.concat(lotSpots);
+          allSpots = allSpots.concat(lotSpots || []);
         }
         setSpots(allSpots);
       } catch (e) {
@@ -159,7 +160,15 @@ const ManagerDashboard: React.FC = () => {
   const handleSpotSubmit = async (spotData: any) => {
     try {
       setIsLoading(true);
-      // Here you would call the API to create/update spot
+      // If editing, update; else, create
+      if (editingSpot) {
+        await spotsService.updateSpot(editingSpot.id, spotData);
+      } else {
+        await spotsService.createSpot({
+          ...spotData,
+          lotId: selectedLotId,
+        });
+      }
       setShowSpotForm(false);
       setEditingSpot(null);
       // Refetch spots for the selected lot
@@ -172,6 +181,7 @@ const ManagerDashboard: React.FC = () => {
       }
     } catch (error) {
       console.error("Error saving spot:", error);
+      alert("Failed to save spot.");
     } finally {
       setIsLoading(false);
     }
