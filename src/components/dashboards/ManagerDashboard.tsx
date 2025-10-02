@@ -20,7 +20,6 @@ import {
 import SpotForm from "./forms/SpotForm";
 import LotForm from "./forms/LotForm";
 
-
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
@@ -630,38 +629,55 @@ const ManagerDashboard: React.FC = () => {
 
         {activeTab === "spots" && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Spot Management
               </h2>
-              {managedLots.length > 0 && (
-                <select
-                  className="border border-gray-300 rounded px-2 py-1 mr-2"
-                  value={selectedLotId}
-                  onChange={(e) => setSelectedLotId(e.target.value)}
+              <div className="flex items-center mb-2">
+                {managedLots.length > 0 && (
+                  <select
+                    className="border border-gray-300 rounded px-2 py-1 mr-2"
+                    value={selectedLotId}
+                    onChange={(e) => setSelectedLotId(e.target.value)}
+                  >
+                    <option value="">Select Lot</option>
+                    {managedLots.map((lot) => (
+                      <option key={lot.id} value={lot.id}>
+                        {lot.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <button
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  onClick={() => {
+                    if (selectedLotId) {
+                      setEditingSpot(null);
+                      setShowSpotForm(true);
+                    } else {
+                      alert("Please select a lot to add a spot.");
+                    }
+                  }}
+                  disabled={managedLots.length === 0}
                 >
-                  <option value="">Select Lot</option>
-                  {managedLots.map((lot) => (
-                    <option key={lot.id} value={lot.id}>
-                      {lot.name}
-                    </option>
-                  ))}
-                </select>
+                  Add Spot
+                </button>
+              </div>
+              {/* Inline SpotForm below the button when showSpotForm is true */}
+              {showSpotForm && selectedLotId && (
+                <div className="my-4">
+                  <SpotForm
+                    onClose={() => {
+                      setShowSpotForm(false);
+                      setEditingSpot(null);
+                    }}
+                    onSubmit={handleSpotSubmit}
+                    editingSpot={editingSpot}
+                    isEditing={!!editingSpot}
+                    lotId={selectedLotId}
+                  />
+                </div>
               )}
-              <button
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                onClick={() => {
-                  if (selectedLotId) {
-                    setEditingSpot(null);
-                    setShowSpotForm(true);
-                  } else {
-                    alert("Please select a lot to add a spot.");
-                  }
-                }}
-                disabled={managedLots.length === 0}
-              >
-                Add Spot
-              </button>
             </div>
             <div className="grid gap-6">
               {managedLots.map((lot) => {
