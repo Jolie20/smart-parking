@@ -39,6 +39,7 @@ const ManagerDashboard: React.FC = () => {
   const [bookingStats, setBookingStats] = useState<any>(null);
   const [iIsLoading, setIsLoading] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
+  const [spotSuccess, setSpotSuccess] = useState("");
   const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
   const [selectedLotId, setSelectedLotId] = useState<string>("");
   const [showLotForm, setShowLotForm] = useState(false);
@@ -96,7 +97,25 @@ const ManagerDashboard: React.FC = () => {
         );
         setBookings(bookingsData || []);
         setBookingStats(stats || null);
-        setSpots(mockParkingSpots); // Using mock data for now
+        // Fetch all spots from backend so users can see/book them
+        const { spotsService } = await import("../../services/spotsService");
+        const allSpots = await spotsService.getAllSpots();
+        // Map spotRequest[] to ParkingSpot[]
+        const mappedSpots = allSpots.map((spot: any) => ({
+          id: spot.id,
+          lotId: spot.lotId,
+          spotNumber: spot.spotNumber || spot.label || "",
+          spotType: spot.spotType || "regular",
+          isAvailable: spot.isAvailable !== undefined ? spot.isAvailable : true,
+          isReserved: spot.isReserved !== undefined ? spot.isReserved : false,
+          isMaintenance:
+            spot.isMaintenance !== undefined ? spot.isMaintenance : false,
+          vehicleId: spot.vehicleId,
+          rfidReaderId: spot.rfidReaderId,
+          createdAt: spot.createdAt || "",
+          updatedAt: spot.updatedAt || "",
+        }));
+        setSpots(mappedSpots);
       } catch (e) {
         setManagedLots([]);
         setActiveSessions([]);
@@ -671,11 +690,22 @@ const ManagerDashboard: React.FC = () => {
                       setShowSpotForm(false);
                       setEditingSpot(null);
                     }}
-                    onSubmit={handleSpotSubmit}
+                    onSubmit={(data) => {
+                      handleSpotSubmit(data);
+                      setShowSpotForm(false);
+                      setEditingSpot(null);
+                      setSpotSuccess("Spot added successfully!");
+                      setTimeout(() => setSpotSuccess(""), 2500);
+                    }}
                     editingSpot={editingSpot}
                     isEditing={!!editingSpot}
                     lotId={selectedLotId}
                   />
+                </div>
+              )}
+              {spotSuccess && (
+                <div className="my-2 p-3 bg-green-100 text-green-800 rounded shadow">
+                  {spotSuccess}
                 </div>
               )}
             </div>
