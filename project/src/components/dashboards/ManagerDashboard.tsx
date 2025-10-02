@@ -108,17 +108,27 @@ const ManagerDashboard: React.FC = () => {
         );
         setBookings(bookingsData || []);
         setBookingStats(stats || null);
-        setSpots(mockParkingSpots); // Using mock data for now
+
+        // Fetch all spots for the manager's lots dynamically
+        let allSpots: ParkingSpot[] = [];
+        for (const lot of assignedLots) {
+          const lotSpots = await managerService.getSpots(lot.id);
+          allSpots = allSpots.concat(lotSpots);
+        }
+        setSpots(allSpots);
       } catch (e) {
         setManagedLots([]);
         setActiveSessions([]);
         setTodaySessions([]);
+        setSpots([]);
+        setBookings([]);
       } finally {
         setIsLoading(false);
       }
     };
     load();
   }, [user?.id]);
+  // --- END DYNAMIC DATA FETCHING ---
 
   const managedLotIds = managedLots.map((lot) => lot.id);
 
@@ -150,10 +160,16 @@ const ManagerDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       // Here you would call the API to create/update spot
-      console.log("Spot data:", spotData);
-      setSpots((prev) => [...prev, { ...spotData, id: Date.now().toString() }]);
       setShowSpotForm(false);
       setEditingSpot(null);
+      // Refetch spots for the selected lot
+      if (selectedLotId) {
+        const updatedSpots = await managerService.getSpots(selectedLotId);
+        setSpots((prev) => [
+          ...prev.filter((s) => s.lotId !== selectedLotId),
+          ...updatedSpots,
+        ]);
+      }
     } catch (error) {
       console.error("Error saving spot:", error);
     } finally {
@@ -675,23 +691,20 @@ const ManagerDashboard: React.FC = () => {
               </button>
             </div>
             {/* Render SpotForm inline below the Add Spot button */}
-    {showSpotForm && (
-      <div className="mb-6">
-        <SpotForm
-          onClose={() => {
-            setShowSpotForm(false);
-            setEditingSpot(null);
-          }}
-          onSubmit={handleSpotSubmit}
-          editingSpot={editingSpot}
-          isEditing={!!editingSpot}
-          lotId={selectedLotId}
-        />
-      </div>
-    )}
-    <div className="grid gap-6">
-      {/* ...existing spot cards code... */}
-    </div>
+            {showSpotForm && (
+              <div className="mb-6">
+                <SpotForm
+                  onClose={() => {
+                    setShowSpotForm(false);
+                    setEditingSpot(null);
+                  }}
+                  onSubmit={handleSpotSubmit}
+                  editingSpot={editingSpot}
+                  isEditing={!!editingSpot}
+                  lotId={selectedLotId}
+                />
+              </div>
+            )}
             <div className="grid gap-6">
               {managedLots.map((lot) => {
                 const lotSpots = spots.filter((spot) => spot.lotId === lot.id);
@@ -735,7 +748,7 @@ const ManagerDashboard: React.FC = () => {
                                     : "bg-orange-100 text-orange-800"
                                 }`}
                               >
-                                {spot.spotType.toUpperCase()}
+                                {spot.spotType?.toUpperCase?.() || "SPOT"}
                               </span>
                             </div>
                             <div className="flex space-x-1">
@@ -837,14 +850,13 @@ const ManagerDashboard: React.FC = () => {
                 Recent Sessions
               </h3>
               <div className="space-y-4">
-                {mockParkingSessions
+                {/* You can fetch and display recent sessions here using your real data */}
+                {activeSessions
                   .filter((session) => managedLotIds.includes(session.lotId))
                   .slice(0, 5)
                   .map((session) => {
                     const lot = managedLots.find((l) => l.id === session.lotId);
-                    const customer = mockUsers.find(
-                      (u) => u.id === session.userId
-                    );
+                    const customer = session.user;
 
                     return (
                       <div
