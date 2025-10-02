@@ -9,6 +9,7 @@ import {
   Eye,
   Settings,
 } from "lucide-react";
+import { lotService } from "../../services/lotService.ts";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { managerService } from "../../services/managerService";
 import { ParkingLot, ParkingSession, ParkingSpot, Booking } from "../../types";
@@ -55,15 +56,27 @@ const ManagerDashboard: React.FC = () => {
     setShowLotForm(true);
   };
 
-  const handleLotSubmit = (lotData) => {
+  const handleLotSubmit = (lotData: Partial<ParkingLot>) => {
+    if (!lotData.name || !lotData.address || !lotData.totalSpots || !lotData.availableSpots || !lotData.hourlyRate) {
+      alert("Please provide all required fields for the parking lot.");
+      return;
+    }
     setManagedLots((prev) => [
       ...prev,
       {
         ...lotData,
         id: Date.now().toString(),
-        managerId: user?.id,
-        manager: { id: user?.id, name: user?.name, email: user?.email },
-      },
+        name: lotData.name,
+        address: lotData.address,
+        totalSpots: lotData.totalSpots,
+        availableSpots: lotData.availableSpots,
+        hourlyRate: lotData.hourlyRate,
+        managerId: user?.id ?? "",
+        manager: { id: user?.id ?? "", name: user?.name ?? "", email: user?.email ?? "" },
+        description: lotData.description ?? "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } as ParkingLot,
     ]);
     setShowLotForm(false);
     setEditingLot(null);
@@ -74,7 +87,7 @@ const ManagerDashboard: React.FC = () => {
       try {
         setIsLoading(true);
         const [lots, sessions, bookingsData, stats] = await Promise.all([
-          managerService.getLots(),
+          lotService.list(),
           managerService.getSessions(),
           managerService.getBookings(),
           managerService.getBookingStats(),
