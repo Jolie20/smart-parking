@@ -16,7 +16,7 @@ exports.createVehicle = async (req, res) => {
         year: year ? parseInt(year) : null,
         vehicleType: vehicleType || 'car',
         isActive: true,
-        rfidCard: req.user.rfidno 
+        rfidCard: req.user.rfidno ? req.user.id : null
       } 
     });
     res.status(201).json(vehicle);
