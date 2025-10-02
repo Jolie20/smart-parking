@@ -13,14 +13,8 @@ import { lotService } from "../../services/lotService.ts";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { managerService } from "../../services/managerService";
 import { ParkingLot, ParkingSession, ParkingSpot, Booking } from "../../types";
-import {
-  mockParkingSessions,
-  mockUsers,
-  mockParkingSpots,
-} from "../../data/mockData";
 import SpotForm from "./forms/SpotForm";
 import LotForm from "./forms/LotForm";
-
 
 const ManagerDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -39,18 +33,20 @@ const ManagerDashboard: React.FC = () => {
   const [spots, setSpots] = useState<ParkingSpot[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingStats, setBookingStats] = useState<any>(null);
-  const [iIsLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showSpotForm, setShowSpotForm] = useState(false);
   const [editingSpot, setEditingSpot] = useState<ParkingSpot | null>(null);
   const [selectedLotId, setSelectedLotId] = useState<string>("");
   const [showLotForm, setShowLotForm] = useState(false);
+
   // Show LotForm automatically if manager has no lots
-  React.useEffect(() => {
+  useEffect(() => {
     if (managedLots.length === 0) {
       setShowLotForm(true);
     }
   }, [managedLots.length]);
   const [editingLot, setEditingLot] = useState(null);
+
   const handleAddLot = () => {
     setEditingLot(null);
     setShowLotForm(true);
@@ -82,6 +78,7 @@ const ManagerDashboard: React.FC = () => {
     setEditingLot(null);
   };
 
+  // --- DYNAMIC DATA FETCHING ---
   useEffect(() => {
     const load = async () => {
       try {
@@ -97,6 +94,7 @@ const ManagerDashboard: React.FC = () => {
           (lot) => lot.managerId === user?.id
         );
         setManagedLots(assignedLots);
+
         const active = (sessions || []).filter(
           (s: ParkingSession) => s.status === "active"
         );
