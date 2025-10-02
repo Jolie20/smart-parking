@@ -173,10 +173,10 @@ const ManagerDashboard: React.FC = () => {
       setEditingSpot(null);
       // Refetch spots for the selected lot
       if (selectedLotId) {
-        const updatedSpots = await managerService.getSpots(selectedLotId);
+        const updatedSpots = await spotsService.getAllSpots(selectedLotId);
         setSpots((prev) => [
           ...prev.filter((s) => s.lotId !== selectedLotId),
-          ...updatedSpots,
+          ...(updatedSpots || []),
         ]);
       }
     } catch (error) {
