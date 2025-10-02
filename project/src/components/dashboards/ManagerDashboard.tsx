@@ -85,44 +85,49 @@ const ManagerDashboard: React.FC = () => {
       try {
         setIsLoading(true);
 
-        // Use lotService to fetch all lots (public endpoint)
+        // Fetch all lots and filter by managerId
         const lots = await lotService.list();
-
-        // Only show lots assigned to this manager
         const assignedLots = (lots || []).filter(
-          (lot) => lot.managerId === user?.id
+          (lot) => lot.managerId === user.id
         );
         setManagedLots(assignedLots);
 
-        // Use managerService for protected endpoints
-        const [sessions, bookingsData, stats] = await Promise.all([
-          managerService.getSessions(),
-          managerService.getBookings(),
-          managerService.getBookingStats(),
-        ]);
-
-        const active = (sessions || []).filter(
-          (s: ParkingSession) => s.status === "active"
-        );
-        setActiveSessions(active);
-
-        const today = new Date().toDateString();
-        setTodaySessions(
-          (sessions || []).filter(
-            (s: ParkingSession) =>
-              new Date(s.checkInTime).toDateString() === today
-          )
-        );
-        setBookings(bookingsData || []);
-        setBookingStats(stats || null);
-
-        // Use spotsService to fetch all spots for each lot (public endpoint)
+        // Fetch all spots for each assigned lot
         let allSpots: ParkingSpot[] = [];
         for (const lot of assignedLots) {
           const lotSpots = await spotsService.getAllSpots(lot.id);
           allSpots = allSpots.concat(lotSpots || []);
         }
         setSpots(allSpots);
+
+        // Fetch protected endpoints
+        const [sessions, bookingsData, stats] = await Promise.all([
+          managerService.getSessions(),
+          managerService.getBookings(),
+          managerService.getBookingStats(),
+        ]);
+
+        // Only sessions for managed lots
+        const filteredSessions = (sessions || []).filter((s: ParkingSession) =>
+          assignedLots.some((lot) => lot.id === s.lotId)
+        );
+        setActiveSessions(filteredSessions.filter((s) => s.status === "active"));
+
+        const today = new Date().toDateString();
+        setTodaySessions(
+          filteredSessions.filter(
+            (s: ParkingSession) =>
+              new Date(s.checkInTime).toDateString() === today
+          )
+        );
+
+        // Only bookings for managed lots
+        setBookings(
+          (bookingsData || []).filter((b: Booking) =>
+            assignedLots.some((lot) => lot.id === b.lotId)
+          )
+        );
+        setBookingStats(stats || null);
       } catch (e) {
         setManagedLots([]);
         setActiveSessions([]);
