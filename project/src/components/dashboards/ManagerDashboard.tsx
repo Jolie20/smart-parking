@@ -676,6 +676,21 @@ const ManagerDashboard: React.FC = () => {
                 Add Spot
               </button>
             </div>
+            {/* Render SpotForm inline below the Add Spot button */}
+    {showSpotForm && (
+      <div className="mb-6">
+        <SpotForm
+          onClose={() => {
+            setShowSpotForm(false);
+            setEditingSpot(null);
+          }}
+          onSubmit={handleSpotSubmit}
+          editingSpot={editingSpot}
+          isEditing={!!editingSpot}
+          lotId={selectedLotId}
+        />
+      </div>
+    )}
             <div className="grid gap-6">
               {managedLots.map((lot) => {
                 const lotSpots = spots.filter((spot) => spot.lotId === lot.id);
