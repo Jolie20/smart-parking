@@ -1,4 +1,5 @@
-const { prisma } = require('../generated/prisma');
+const { PrismaClient } = require('../generated/prisma');
+const prisma = new PrismaClient();
 
 exports.getManagedLots = async (req, res) => {
   try {
@@ -41,7 +42,7 @@ exports.getManagedBookings = async (req, res) => {
         lot: true, 
         spot: true 
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { startTime: 'desc' }
     });
     
     res.json(bookings);
