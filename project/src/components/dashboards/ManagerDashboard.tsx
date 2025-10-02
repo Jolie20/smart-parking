@@ -84,22 +84,28 @@ const ManagerDashboard: React.FC = () => {
     const load = async () => {
       try {
         setIsLoading(true);
-        const [lots, sessions, bookingsData, stats] = await Promise.all([
-          lotService.list(),
-          managerService.getSessions(),
-          managerService.getBookings(),
-          managerService.getBookingStats(),
-        ]);
+
+        // Use lotService to fetch all lots (public endpoint)
+        const lots = await lotService.list();
+
         // Only show lots assigned to this manager
         const assignedLots = (lots || []).filter(
           (lot) => lot.managerId === user?.id
         );
         setManagedLots(assignedLots);
 
+        // Use managerService for protected endpoints
+        const [sessions, bookingsData, stats] = await Promise.all([
+          managerService.getSessions(),
+          managerService.getBookings(),
+          managerService.getBookingStats(),
+        ]);
+
         const active = (sessions || []).filter(
           (s: ParkingSession) => s.status === "active"
         );
         setActiveSessions(active);
+
         const today = new Date().toDateString();
         setTodaySessions(
           (sessions || []).filter(
@@ -110,10 +116,10 @@ const ManagerDashboard: React.FC = () => {
         setBookings(bookingsData || []);
         setBookingStats(stats || null);
 
-        // Fetch all spots for the manager's lots dynamically
+        // Use spotsService to fetch all spots for each lot (public endpoint)
         let allSpots: ParkingSpot[] = [];
         for (const lot of assignedLots) {
-          const lotSpots = await managerService.getSpots(lot.id);
+          const lotSpots = await spotsService.getAllSpots(lot.id);
           allSpots = allSpots.concat(lotSpots || []);
         }
         setSpots(allSpots);
