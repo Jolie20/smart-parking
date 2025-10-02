@@ -85,7 +85,7 @@ const ManagerDashboard: React.FC = () => {
       try {
         setIsLoading(true);
 
-        // Fetch all lots and filter by managerId
+        // Fetch all lots and filter by managerId (fetches lots per manager)
         const lots = await lotService.list();
         const assignedLots = (lots || []).filter(
           (lot) => lot.managerId === user.id
@@ -100,7 +100,7 @@ const ManagerDashboard: React.FC = () => {
         }
         setSpots(allSpots);
 
-        // Fetch protected endpoints
+        // Fetch bookings and stats for managed lots
         const [sessions, bookingsData, stats] = await Promise.all([
           managerService.getSessions(),
           managerService.getBookings(),
@@ -171,20 +171,19 @@ const ManagerDashboard: React.FC = () => {
   const handleSpotSubmit = async (spotData: any) => {
     try {
       setIsLoading(true);
-      // If editing, update; else, create
+      // If editing, update; else, create (add spot to selected lot)
       if (editingSpot) {
         await spotsService.updateSpot(editingSpot.id, spotData);
       } else {
         await spotsService.createSpot({
           ...spotData,
-          lotId: selectedLotId,
+          lotId: selectedLotId, // add spot to the selected lot
         });
       }
       setShowSpotForm(false);
       setEditingSpot(null);
-      // Refetch spots for the selected lot
+      // Refetch spots for all managed lots
       if (selectedLotId) {
-        // Refetch all spots for all managed lots to avoid conflicts
         let allSpots: ParkingSpot[] = [];
         for (const lot of managedLots) {
           const lotSpots = await spotsService.getAllSpots(lot.id);
