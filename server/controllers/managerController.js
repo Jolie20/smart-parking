@@ -61,17 +61,17 @@ exports.getBookingStats = async (req, res) => {
       select: { id: true, name: true } 
     });
     const lotIds = lots.map(l => l.id);
-    
+
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-    
+
     const [totalBookings, todayBookings, activeBookings, completedBookings] = await Promise.all([
       prisma.booking.count({ where: { lotId: { in: lotIds } } }),
       prisma.booking.count({ 
         where: { 
           lotId: { in: lotIds },
-          createdAt: { gte: startOfDay, lt: endOfDay }
+          startTime: { gte: startOfDay, lt: endOfDay } // changed from createdAt to startTime
         } 
       }),
       prisma.booking.count({ 
