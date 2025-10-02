@@ -10,7 +10,7 @@ export const managerService = {
 	getLots: (): Promise<ParkingLot[]> => 
 		api.get('/manager/lots').then(r => r.data),
 	getSpots:(): Promise<ParkingLot[]> =>
-		api.get('/spots').then(r => r.data),
+		api.get('manager/spots').then(r => r.data),
 	getSessions: (): Promise<ParkingSession[]> => 
 		api.get('/manager/sessions').then(r => r.data),
 	
@@ -31,7 +31,7 @@ export const managerService = {
 	
 	// Booking-related methods
 	getBookings: (): Promise<Booking[]> => 
-		api.get('/bookings').then(r => r.data),
+		api.get('/manager/bookings').then(r => r.data),
 	
 	getBookingStats: (): Promise<any> => 
 		api.get('/manager/stats').then(r => r.data),
