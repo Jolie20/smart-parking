@@ -7,7 +7,7 @@ const {uservehicles} = require('../controllers/vehicleController');
 
 router.post('/', userController.createUser);
 router.get('/myvehicle', authenticate, userController.getvehicles);
-router.get('/bookings', authenticate, userController.userbookings);
+router.get('/bookings', authenticate, userController.getuserbookings);
 router.post('/v1/login', auth.UserLogin);
 router.get('/',authenticate,requireRole('ADMIN'), userController.getUsers);
 router.get('/:id', userController.getUserById);
