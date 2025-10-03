@@ -12,6 +12,12 @@ import {
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { managerService } from "../../services/managerService";
 import { ParkingLot, ParkingSession, ParkingSpot, Booking } from "../../types";
+
+// Define a type for lot form input (without id, createdAt, etc.)
+type ParkingLotInput = Omit<
+  ParkingLot,
+  "id" | "createdAt" | "updatedAt" | "manager" | "spots"
+> & { managerId: string };
 import {
   mockParkingSessions,
   mockUsers,
@@ -55,15 +61,24 @@ const ManagerDashboard: React.FC = () => {
     setShowLotForm(true);
   };
 
-  const handleLotSubmit = (lotData) => {
+  const handleLotSubmit = (lotData: ParkingLotInput) => {
+    // Ensure managerId is always a string
+    const managerId = user?.id || "";
     setManagedLots((prev) => [
       ...prev,
       {
         ...lotData,
         id: Date.now().toString(),
-        managerId: user?.id,
-        manager: { id: user?.id, name: user?.name, email: user?.email },
-      },
+        managerId,
+        manager: {
+          id: managerId,
+          name: user?.name || "",
+          email: user?.email || "",
+        },
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        updatedAt: new Date().toISOString(),
+      } as ParkingLot,
     ]);
     setShowLotForm(false);
     setEditingLot(null);
