@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiBaseUrl = 'http://localhost:4000/api';
+const apiBaseUrl = 'https://smart-parking-3b7s.onrender.com/api';
 
 export const api = axios.create({
 	baseURL: apiBaseUrl,
