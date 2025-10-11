@@ -76,12 +76,13 @@ exports.getvehicles = async (req, res) => {
   }
 };
 
-//users bookings
-exports.userbookings = async (req, res) => {
+
+//get users bookinngs
+exports.getuserbookings = async (req, res) => {
   console.log('Fetching bookings for user');
   const userId = req.user.id;
   try {
-    const bookings = await prisma.booking.findMany({ where: { userId }, include: { vehicle: true, lot: true } }); 
+    const bookings = await prisma.booking.findMany({ where: { userId }, include: { vehicle: true, lot: true,spot:true } });
     return res.json(bookings);
   } catch (err) {
     res.status(500).json({ error: err.message });

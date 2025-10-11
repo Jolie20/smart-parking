@@ -7,6 +7,7 @@ exports.createBooking = async (req, res) => {
     const { lotName, spotNumber, vehiclePlate, startTime, endTime, totalAmount } = req.body;
 
   try {
+  
     // Validate required fields
     if (!lotName || !spotNumber || !vehiclePlate || !startTime || !endTime) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -46,7 +47,7 @@ exports.createBooking = async (req, res) => {
         user: {connect:{id: userId}},
         lot: { connect: { id: lot.id } },
         spot: { connect: { id: spot.id } },
-        vehicle: { connect: { id: vehicle.licensePlate } },
+        vehicle: { connect: { id: vehicle.id } },
         startTime: startDate.toISOString(),
         endTime: endDate.toISOString(),
         status:'booked',
